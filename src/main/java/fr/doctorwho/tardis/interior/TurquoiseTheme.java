@@ -121,8 +121,8 @@ public class TurquoiseTheme extends InteriorTheme {
         }
         // Banquettes blanches, scanner au-dessus de la sortie nord
         for (int z = -6; z <= -3; z++) {
-            c.setShaped(-12, 1, z, stairs().with(StairsBlock.FACING, Direction.WEST));
-            c.setShaped(12, 1, z, stairs().with(StairsBlock.FACING, Direction.EAST));
+            seat(c, -12, 1, z, ModBlocks.WHITE_SEAT, Direction.EAST);
+            seat(c, 12, 1, z, ModBlocks.WHITE_SEAT, Direction.WEST);
         }
         for (int x = -1; x <= 1; x++) {
             for (int y = 4; y <= 5; y++) {

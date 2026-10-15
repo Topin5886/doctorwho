@@ -258,5 +258,18 @@
   "block.doctorwho.hex_wall_panel": "Hexagonal Panel",
   "block.doctorwho.hex_wall_panel_lit": "Lit Hexagonal Panel",
   "block.doctorwho.white_tech_panel": "White Tech Panel",
-  "block.doctorwho.cyan_underlight": "Cyan Underfloor Light"
+  "block.doctorwho.cyan_underlight": "Cyan Underfloor Light",
+  "message.doctorwho.console.no_return": "Fast return: no previous trip in memory.",
+  "message.doctorwho.console.fast_return": "Fast return engaged!",
+  "message.doctorwho.console.random": "Random coordinates… Allons-y!",
+  "message.doctorwho.console.scanner": "Scanner: %s · %s / %s / %s",
+  "block.doctorwho.leather_seat": "Leather Armchair",
+  "block.doctorwho.white_seat": "White Bench",
+  "block.doctorwho.wooden_seat": "Wooden Bench",
+  "block.doctorwho.wall_clock": "Wall Clock",
+  "block.doctorwho.copper_pipe": "Copper Pipe",
+  "block.doctorwho.black_cable": "Black Cables",
+  "block.doctorwho.telescope": "Telescope",
+  "block.doctorwho.globe": "Globe",
+  "entity.doctorwho.seat": "Seat"
 }

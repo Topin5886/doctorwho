@@ -177,6 +177,15 @@ def interior_decoration():
            "doctorwho:hex_wall_panel", 8)
     shaped("hex_wall_panel_lit", b, [" W ", "WGW", " W "], {"W": "doctorwho:hex_wall_panel", "G": "glowstone"},
            "doctorwho:hex_wall_panel_lit", 4)
+    # Mobilier
+    shaped("leather_seat", b, ["L  ", "LLL", "S S"], {"L": "leather", "S": "dark_oak_slab"}, "doctorwho:leather_seat", 2)
+    shaped("white_seat", b, ["W  ", "WWW", "S S"], {"W": "white_wool", "S": "smooth_quartz_slab"}, "doctorwho:white_seat", 2)
+    shaped("wooden_seat", b, ["P  ", "PPP", "S S"], {"P": "spruce_planks", "S": "spruce_slab"}, "doctorwho:wooden_seat", 2)
+    shaped("wall_clock", b, [" G ", "GCG", " G "], {"G": "gold_ingot", "C": "clock"}, "doctorwho:wall_clock")
+    shaped("copper_pipe", b, ["C", "C", "C"], {"C": "copper_ingot"}, "doctorwho:copper_pipe", 6)
+    shaped("black_cable", b, ["S", "D", "S"], {"S": "string", "D": "black_dye"}, "doctorwho:black_cable", 4)
+    shaped("telescope", b, [" GG", " G ", "S S"], {"G": "gold_ingot", "S": "stick"}, "doctorwho:telescope")
+    shaped("globe", b, [" G ", "GMG", " W "], {"G": "gold_nugget", "M": "map", "W": "dark_oak_slab"}, "doctorwho:globe")
     shaped("copper_glass_floor", b, [" C ", "CGC", " C "], {"C": "copper_ingot", "G": "glass"},
            "doctorwho:copper_glass_floor", 2)
 

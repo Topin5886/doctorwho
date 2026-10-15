@@ -154,8 +154,8 @@ public class CopperTheme extends InteriorTheme {
         }
         // Banquettes face à la console, sur le verre
         for (int z = 3; z <= 6; z++) {
-            c.setShaped(-9, 1, z, Blocks.SPRUCE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.WEST));
-            c.setShaped(9, 1, z, Blocks.SPRUCE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.EAST));
+            seat(c, -9, 1, z, ModBlocks.LEATHER_SEAT, Direction.EAST);
+            seat(c, 9, 1, z, ModBlocks.LEATHER_SEAT, Direction.WEST);
         }
         // Bibliothèques contre le mur, sous la galerie (entre les sorties et les escaliers)
         int max = (int) Math.ceil(RADIUS);
@@ -178,6 +178,14 @@ public class CopperTheme extends InteriorTheme {
             }
         }
         c.set(4, 1, 13, ModBlocks.HAT_STAND.getDefaultState());
+        // Tuyaux de cuivre qui rayonnent au plafond depuis la colonne
+        for (Direction d : new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}) {
+            Direction.Axis axis = d.getAxis();
+            for (int i = 3; i <= 15; i++) {
+                c.set(d.getOffsetX() * i, HEIGHT - 1, d.getOffsetZ() * i, ModBlocks.COPPER_PIPE.getDefaultState()
+                        .with(net.minecraft.block.PillarBlock.AXIS, axis));
+            }
+        }
         wallLamps(c, GALLERY_Y + 4);
     }
 }

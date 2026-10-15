@@ -12,6 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +42,10 @@ public class TardisData {
     private int phaseTicks;
     private RegistryKey<World> destinationWorld = World.OVERWORLD;
     private BlockPos destinationPos = BlockPos.ORIGIN;
+    /** Où était le TARDIS avant son dernier voyage (commande « retour rapide » de la console), ou null. */
+    @Nullable
+    private RegistryKey<World> previousWorld;
+    private BlockPos previousPos = BlockPos.ORIGIN;
 
     private final List<Waypoint> waypoints = new ArrayList<>();
 
@@ -160,6 +166,20 @@ public class TardisData {
         this.destinationPos = pos.toImmutable();
     }
 
+    @Nullable
+    public RegistryKey<World> getPreviousWorld() {
+        return previousWorld;
+    }
+
+    public BlockPos getPreviousPos() {
+        return previousPos;
+    }
+
+    public void setPrevious(RegistryKey<World> world, BlockPos pos) {
+        this.previousWorld = world;
+        this.previousPos = pos.toImmutable();
+    }
+
     // --- Waypoints ---------------------------------------------------------------------
 
     public List<Waypoint> getWaypoints() {
@@ -216,6 +236,10 @@ public class TardisData {
         nbt.putInt("PhaseTicks", phaseTicks);
         nbt.putString("DestinationWorld", destinationWorld.getValue().toString());
         nbt.putLong("DestinationPos", destinationPos.asLong());
+        if (previousWorld != null) {
+            nbt.putString("PreviousWorld", previousWorld.getValue().toString());
+            nbt.putLong("PreviousPos", previousPos.asLong());
+        }
         NbtList list = new NbtList();
         waypoints.forEach(w -> list.add(w.toNbt()));
         nbt.put("Waypoints", list);
@@ -245,6 +269,9 @@ public class TardisData {
         data.phaseTicks = nbt.getInt("PhaseTicks");
         if (nbt.contains("DestinationWorld")) {
             data.setDestination(worldKey(nbt.getString("DestinationWorld")), BlockPos.fromLong(nbt.getLong("DestinationPos")));
+        }
+        if (nbt.contains("PreviousWorld")) {
+            data.setPrevious(worldKey(nbt.getString("PreviousWorld")), BlockPos.fromLong(nbt.getLong("PreviousPos")));
         }
         NbtList list = nbt.getList("Waypoints", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < list.size(); i++) {

@@ -11,6 +11,7 @@ import fr.doctorwho.entity.SontarianEntity;
 import fr.doctorwho.entity.ZygonEntity;
 import fr.doctorwho.entity.OodEntity;
 import fr.doctorwho.entity.RedstoneGolemEntity;
+import fr.doctorwho.entity.SeatEntity;
 import fr.doctorwho.entity.WeepingAngelEntity;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -100,6 +101,11 @@ public final class ModEntities {
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, RedstoneGolemEntity::new)
                     .dimensions(EntityDimensions.fixed(2.4f, 3.6f)).fireImmune().trackRangeBlocks(80).build(),
             0x3A3438, 0xE82C1E);
+
+    /** Entité invisible des sièges (pas d'œuf). */
+    public static final EntityType<SeatEntity> SEAT = Registry.register(Registries.ENTITY_TYPE, DoctorWhoMod.id("seat"),
+            FabricEntityTypeBuilder.<SeatEntity>create(SpawnGroup.MISC, SeatEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.01f, 0.01f)).disableSummon().build());
 
     private ModEntities() {
     }

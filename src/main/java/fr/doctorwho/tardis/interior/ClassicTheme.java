@@ -136,12 +136,13 @@ public class ClassicTheme extends InteriorTheme {
                 c.set(x, y, -16, ModBlocks.SCANNER.getDefaultState().with(FacingDecorBlock.FACING, Direction.SOUTH));
             }
         }
-        // Porte-manteau près de la porte
+        // Porte-manteau près de la porte, horloge au-dessus
         c.set(-4, 1, 13, ModBlocks.HAT_STAND.getDefaultState());
+        c.set(0, 6, 16, ModBlocks.WALL_CLOCK.getDefaultState().with(FacingDecorBlock.FACING, Direction.NORTH));
         // Deux banquettes blanches face à la console, à l'est et à l'ouest
         for (int z = -6; z <= -3; z++) {
-            c.setShaped(-12, 1, z, stairs().with(StairsBlock.FACING, Direction.WEST));
-            c.setShaped(12, 1, z, stairs().with(StairsBlock.FACING, Direction.EAST));
+            seat(c, -12, 1, z, ModBlocks.WHITE_SEAT, Direction.EAST);
+            seat(c, 12, 1, z, ModBlocks.WHITE_SEAT, Direction.WEST);
         }
         // Sur la galerie : coin lecture (bibliothèques et pupitre) côté nord
         for (int x = -3; x <= 3; x++) {

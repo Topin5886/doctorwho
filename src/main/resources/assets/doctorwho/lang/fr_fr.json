@@ -258,5 +258,18 @@
   "block.doctorwho.hex_wall_panel": "Panneau hexagonal",
   "block.doctorwho.hex_wall_panel_lit": "Panneau hexagonal lumineux",
   "block.doctorwho.white_tech_panel": "Panneau blanc technologique",
-  "block.doctorwho.cyan_underlight": "Lumière de sous-plancher cyan"
+  "block.doctorwho.cyan_underlight": "Lumière de sous-plancher cyan",
+  "message.doctorwho.console.no_return": "Retour rapide : aucun voyage précédent en mémoire.",
+  "message.doctorwho.console.fast_return": "Retour rapide enclenché !",
+  "message.doctorwho.console.random": "Coordonnées aléatoires… Allons-y !",
+  "message.doctorwho.console.scanner": "Scanner : %s · %s / %s / %s",
+  "block.doctorwho.leather_seat": "Fauteuil en cuir",
+  "block.doctorwho.white_seat": "Banquette blanche",
+  "block.doctorwho.wooden_seat": "Banc de bois",
+  "block.doctorwho.wall_clock": "Horloge murale",
+  "block.doctorwho.copper_pipe": "Tuyau de cuivre",
+  "block.doctorwho.black_cable": "Câbles noirs",
+  "block.doctorwho.telescope": "Télescope",
+  "block.doctorwho.globe": "Globe terrestre",
+  "entity.doctorwho.seat": "Siège"
 }

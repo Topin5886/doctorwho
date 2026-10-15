@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "doctorwho:block/copper_pipe"
+    },
+    "axis=z": {
+      "model": "doctorwho:block/copper_pipe",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "doctorwho:block/copper_pipe",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

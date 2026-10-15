@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "doctorwho:block/black_cable"
+    },
+    "axis=z": {
+      "model": "doctorwho:block/black_cable",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "doctorwho:block/black_cable",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

@@ -6,6 +6,7 @@ import fr.doctorwho.block.DecorBlock;
 import fr.doctorwho.block.FacingDecorBlock;
 import fr.doctorwho.block.HandrailBlock;
 import fr.doctorwho.block.LightColumnBlock;
+import fr.doctorwho.block.SeatBlock;
 import fr.doctorwho.block.TardisBlock;
 import fr.doctorwho.block.TardisConsoleBlock;
 import fr.doctorwho.block.TardisInteriorDoorBlock;
@@ -186,6 +187,22 @@ public final class ModBlocks {
     /** Panneau blanc technologique. */
     public static final Block WHITE_TECH_PANEL = decor("white_tech_panel", new Block(stone(MapColor.WHITE)));
 
+    // Mobilier (tous thèmes)
+    public static final Block LEATHER_SEAT = decor("leather_seat", seat(MapColor.BROWN));
+    public static final Block WHITE_SEAT = decor("white_seat", seat(MapColor.WHITE));
+    public static final Block WOODEN_SEAT = decor("wooden_seat", seat(MapColor.OAK_TAN));
+    /** Horloge murale au cadran animé. */
+    public static final Block WALL_CLOCK = decor("wall_clock", new FacingDecorBlock(metal().nonOpaque().noCollision(),
+            Block.createCuboidShape(2, 2, 15, 14, 14, 16), true));
+    /** Tuyau de cuivre et câble noir, orientables comme une bûche. */
+    public static final Block COPPER_PIPE = decor("copper_pipe", new PillarBlock(metal().nonOpaque()));
+    public static final Block BLACK_CABLE = decor("black_cable", new PillarBlock(metal().nonOpaque().mapColor(MapColor.BLACK)));
+    /** Télescope de laiton et globe terrestre (salle de 1996). */
+    public static final Block TELESCOPE = decor("telescope", new FacingDecorBlock(metal().nonOpaque(),
+            Block.createCuboidShape(3, 0, 1, 13, 16, 15), false));
+    public static final Block GLOBE = decor("globe", new DecorBlock(metal().nonOpaque(),
+            Block.createCuboidShape(3, 0, 3, 13, 14, 13)));
+
     /** Grille de sol d'une famille ({@link #GRATE_FAMILIES}). */
     public static Block floorGrate(String family) {
         return GRATES.getOrDefault(family, METAL_GRATING);
@@ -200,6 +217,11 @@ public final class ModBlocks {
     public static Block roundel(String family, boolean lit) {
         Block block = ROUNDELS.get(lit ? family + "_lit" : family);
         return block != null ? block : (lit ? WHITE_ROUNDEL_WALL_LIT : WHITE_ROUNDEL_WALL);
+    }
+
+    private static Block seat(MapColor color) {
+        return new SeatBlock(FabricBlockSettings.create().mapColor(color).strength(1.0f).sounds(BlockSoundGroup.WOOD).nonOpaque(),
+                Block.createCuboidShape(0, 0, 0, 16, 9, 16));
     }
 
     /** Bloc plein orientable dont une face porte le disque ; non opaque pour que la lumière éclaire le creux. */

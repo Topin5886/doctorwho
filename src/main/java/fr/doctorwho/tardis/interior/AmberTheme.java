@@ -143,8 +143,8 @@ public class AmberTheme extends InteriorTheme {
         }
         // Deux sièges face à la console, de part et d'autre de l'allée de la porte
         for (int z = 5; z <= 7; z++) {
-            c.setShaped(8, 1, z, Blocks.SPRUCE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.EAST));
-            c.setShaped(-8, 1, z, Blocks.SPRUCE_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.WEST));
+            seat(c, 8, 1, z, ModBlocks.WOODEN_SEAT, Direction.WEST);
+            seat(c, -8, 1, z, ModBlocks.WOODEN_SEAT, Direction.EAST);
         }
     }
 

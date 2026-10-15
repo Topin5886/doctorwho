@@ -13,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Formatting;
@@ -66,6 +67,7 @@ public final class TardisFlight {
                 MathHelper.clamp(target.getX(), -WORLD_LIMIT, WORLD_LIMIT),
                 target.getY(),
                 MathHelper.clamp(target.getZ(), -WORLD_LIMIT, WORLD_LIMIT));
+        data.setPrevious(data.getExteriorWorld(), data.getExteriorPos());
         data.setDestination(world, clamped);
         data.setPhase(FlightPhase.DEMATERIALISING);
 
@@ -101,6 +103,9 @@ public final class TardisFlight {
             int ticks = data.tickPhase();
             if (ticks % 10 == 0) {
                 notifyCrew(server, data, progressMessage(data, ticks));
+            }
+            if (ticks % 3 == 0) {
+                flightParticles(server, data, ticks);
             }
             switch (data.getPhase()) {
                 case DEMATERIALISING -> {
@@ -339,6 +344,21 @@ public final class TardisFlight {
         BlockState state = interior.getBlockState(consolePos);
         if (state.getBlock() instanceof TardisConsoleBlock) {
             interior.setBlockState(consolePos, state.with(TardisConsoleBlock.FLYING, flying), Block.NOTIFY_ALL);
+        }
+    }
+
+    /** En vol : des étincelles tournent autour du rotor de la console principale. */
+    private static void flightParticles(MinecraftServer server, TardisData data, int ticks) {
+        ServerWorld interior = TardisManager.interiorWorld(server);
+        if (interior == null) {
+            return;
+        }
+        BlockPos console = InteriorBuilder.consolePos(TardisManager.interiorCenter(data));
+        for (int k = 0; k < 3; k++) {
+            double angle = ticks * 0.25 + k * Math.PI * 2 / 3;
+            double y = console.getY() + 2.5 + (ticks % 40) / 8.0;
+            interior.spawnParticles(ParticleTypes.END_ROD, console.getX() + 0.5 + Math.cos(angle) * 1.4, y,
+                    console.getZ() + 0.5 + Math.sin(angle) * 1.4, 1, 0, 0.02, 0, 0.0);
         }
     }
 

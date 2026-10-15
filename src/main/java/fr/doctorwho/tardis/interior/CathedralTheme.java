@@ -147,10 +147,13 @@ public class CathedralTheme extends InteriorTheme {
                 c.set(px, y, pz, COLUMN);
             }
         }
+        // Télescope et globe près de la console, horloge sur la galerie
+        c.set(5, 1, -9, ModBlocks.TELESCOPE.getDefaultState().with(FacingDecorBlock.FACING, Direction.NORTH));
+        c.set(-5, 1, -9, ModBlocks.GLOBE.getDefaultState());
+        c.set(0, GALLERY_Y + 5, -16, ModBlocks.WALL_CLOCK.getDefaultState().with(FacingDecorBlock.FACING, Direction.SOUTH));
         // Fauteuils de lecture sur la galerie
         for (int x : new int[]{-2, 2}) {
-            c.setShaped(x, GALLERY_Y + 1, -15, Blocks.DARK_OAK_STAIRS.getDefaultState()
-                    .with(net.minecraft.block.StairsBlock.FACING, Direction.NORTH));
+            seat(c, x, GALLERY_Y + 1, -15, ModBlocks.LEATHER_SEAT, Direction.SOUTH);
         }
     }
 

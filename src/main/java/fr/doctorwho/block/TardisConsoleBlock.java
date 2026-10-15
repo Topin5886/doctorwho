@@ -2,8 +2,8 @@ package fr.doctorwho.block;
 
 import fr.doctorwho.block.entity.TardisConsoleBlockEntity;
 import fr.doctorwho.item.SonicScrewdriverItem;
-import fr.doctorwho.network.ModNetworking;
 import fr.doctorwho.registry.ModBlocks;
+import fr.doctorwho.tardis.ConsoleControls;
 import fr.doctorwho.tardis.ConsoleStyle;
 import fr.doctorwho.tardis.TardisData;
 import fr.doctorwho.tardis.TardisManager;
@@ -35,7 +35,8 @@ import org.jetbrains.annotations.Nullable;
  * Console du TARDIS (bloc central d'un grand modèle GeckoLib d'environ 5 x 5 blocs, 4 de haut).
  * Son modèle dépend du décor ({@link ConsoleStyle}, propriété « style »).
  * <ul>
- *     <li>Clic droit : ouvre le panneau de vol</li>
+ *     <li>Clic droit sur un pupitre : sa commande directe (voir {@link ConsoleControls}) ;
+ *     au centre, sur le clavier, ou accroupi : le panneau de vol</li>
  *     <li>Clic droit avec un tournevis sonique : le pose dans son logement</li>
  *     <li>Accroupi + clic droit main vide : reprend le tournevis sonique</li>
  * </ul>
@@ -107,14 +108,17 @@ public class TardisConsoleBlock extends BlockWithEntity {
             world.playSound(null, pos, SoundEvents.BLOCK_IRON_TRAPDOOR_OPEN, SoundCategory.BLOCKS, 0.6f, 1.6f);
             return ActionResult.CONSUME;
         }
-        // Panneau de vol
         TardisData data = TardisRegistry.get(world.getServer()).getByIndex(TardisManager.indexAt(pos));
         if (data == null) {
             player.sendMessage(Text.translatable("message.doctorwho.console.unlinked"), true);
             return ActionResult.CONSUME;
         }
         if (player instanceof ServerPlayerEntity serverPlayer) {
-            ModNetworking.openFlightPanel(serverPlayer, data);
+            // Pupitre visé : sa commande directe ; centre, clavier, tournevis ou accroupi : panneau de vol
+            ConsoleControls.Panel panel = player.isSneaking() ? null : ConsoleControls.panelAt(pos, hit.getPos());
+            if (panel == null || !ConsoleControls.use(serverPlayer, data, panel)) {
+                ConsoleControls.openPanel(serverPlayer, data);
+            }
         }
         return ActionResult.CONSUME;
     }

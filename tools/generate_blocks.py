@@ -691,6 +691,51 @@ def tech_panel():
     return img
 
 
+CLOCK_FRAMES = 12
+
+
+def clock_face():
+    """Cadran animé (12 images) : la grande aiguille fait le tour, la petite avance d'un cran par tour."""
+    img = Image(16, 16 * CLOCK_FRAMES)
+    c = 7.5
+    for f in range(CLOCK_FRAMES):
+        oy = f * 16
+        for y in range(16):
+            for x in range(16):
+                d = math.hypot(x - c, y - c)
+                if d <= 7.6:
+                    img.set(x, oy + y, (236, 228, 204) if d < 6.6 else (150, 112, 60))
+        for h in range(12):  # graduations
+            a = h * math.pi / 6
+            img.set(int(round(c + math.sin(a) * 5.6)), oy + int(round(c - math.cos(a) * 5.6)), (60, 50, 40))
+        for length, angle, color in ((5.0, f * math.pi / 6, (30, 30, 30)), (3.2, (f / 12) * math.pi / 6 + math.pi * 2 / 3, (120, 30, 20))):
+            for k in range(int(length * 3) + 1):
+                r = k / 3
+                img.set(int(round(c + math.sin(angle) * r)), oy + int(round(c - math.cos(angle) * r)), color)
+        img.set(7, oy + 7, (200, 160, 60))
+    return img
+
+
+def globe_texture():
+    img = Image(16, 16)
+    rnd = random.Random(107)
+    for y in range(16):
+        for x in range(16):
+            land = math.sin(x * 0.9 + 1.3) + math.sin(y * 0.7 + x * 0.3) > 0.6
+            img.set(x, y, shade((92, 140, 70) if land else (54, 96, 168), 1 + rnd.uniform(-0.06, 0.06)))
+    return img
+
+
+def cushion(color):
+    img = Image(16, 16)
+    noise_fill(img, color, 0.06, 101)
+    img.frame(0, 0, 16, 16, shade(color, 0.72), 1)
+    for x in (4, 11):
+        for y in (4, 11):
+            img.set(x, y, shade(color, 0.6))
+    return img
+
+
 def interior_blocks():
     for family, spec in ROUNDEL_FAMILIES.items():
         panel, hollow, glow = spec[:3]
@@ -795,6 +840,55 @@ def interior_blocks():
         simple_block(name, {"parent": "minecraft:block/block", "textures": t, "elements": [back] + plates}, facing=True)
     tex("white_tech_panel", tech_panel())
     simple_block("white_tech_panel", model_cube_all("white_tech_panel"))
+
+    # --- Mobilier facultatif ------------------------------------------------------------------
+    # Sièges : même modèle, coussin de couleur différente (on s'y assoit : voir SeatBlock)
+    for name, color, frame in (("leather_seat", (120, 62, 34), "minecraft:block/dark_oak_planks"),
+                               ("white_seat", (236, 236, 230), "minecraft:block/quartz_block_bottom"),
+                               ("wooden_seat", (150, 104, 60), "minecraft:block/spruce_planks")):
+        tex(name, cushion(color))
+        simple_block(name, model_elements(
+            {"cushion": "doctorwho:block/" + name, "frame": frame, "particle": "doctorwho:block/" + name},
+            [box([1, 0, 1], [3, 6, 3], "#frame"), box([13, 0, 1], [15, 6, 3], "#frame"),
+             box([1, 0, 13], [3, 6, 15], "#frame"), box([13, 0, 13], [15, 6, 15], "#frame"),
+             box([0, 6, 0], [16, 9, 16], "#cushion"), box([0, 9, 13], [16, 20, 16], "#cushion"),
+             box([0, 9, 1], [2, 13, 13], "#frame"), box([14, 9, 1], [16, 13, 13], "#frame")]), facing=True)
+
+    # Horloge murale (cadran animé)
+    tex("wall_clock", clock_face())
+    save_json(os.path.join(ASSETS, "textures", "block", "wall_clock.png.mcmeta"), {"animation": {"frametime": 100}})
+    simple_block("wall_clock", model_elements(
+        {"face": "doctorwho:block/wall_clock", "frame": "doctorwho:block/brass", "particle": "doctorwho:block/brass"},
+        [box([2, 2, 15], [14, 14, 16], "#frame"),
+         {"from": [2.5, 2.5, 14.9], "to": [13.5, 13.5, 15], "faces": {"north": {"texture": "#face"}}}]), facing=True)
+
+    # Tuyau de cuivre et câble noir (orientables comme une bûche)
+    tex("black_cable", solid_tex((30, 30, 34), 0.08, 103))
+    for name, texture in (("copper_pipe", "doctorwho:block/copper_beam"), ("black_cable", "doctorwho:block/black_cable")):
+        elements = [box([5, 0, 5], [11, 16, 11], "#pipe")]
+        if name == "copper_pipe":
+            elements += [box([4.5, 0, 4.5], [11.5, 2, 11.5], "#pipe"), box([4.5, 14, 4.5], [11.5, 16, 11.5], "#pipe")]
+        else:
+            elements = [box([6, 0, 6], [10, 16, 10], "#pipe"), box([3, 0, 4], [6, 16, 7], "#pipe"), box([10, 0, 9], [13, 16, 12], "#pipe")]
+        simple_block(name, {"parent": "minecraft:block/block", "textures": {"pipe": texture, "particle": texture},
+                            "elements": elements}, axis=True)
+
+    # Télescope de laiton sur trépied et globe terrestre (salle de 1996)
+    simple_block("telescope", model_elements(
+        {"brass": "doctorwho:block/brass", "wood": "minecraft:block/dark_oak_planks", "particle": "doctorwho:block/brass"},
+        [box([7, 0, 3], [8, 10, 4], "#wood", {"origin": [8, 10, 8], "axis": "x", "angle": 22.5}),
+         box([8, 0, 12], [9, 10, 13], "#wood", {"origin": [8, 10, 8], "axis": "x", "angle": -22.5}),
+         box([3, 0, 7.5], [4, 10, 8.5], "#wood", {"origin": [8, 10, 8], "axis": "z", "angle": -22.5}),
+         box([7, 10, 7], [9, 12, 9], "#brass"),
+         box([6.5, 12, 1], [9.5, 15, 15], "#brass", {"origin": [8, 13, 8], "axis": "x", "angle": -22.5}),
+         box([6, 11.5, 0], [10, 15.5, 2], "#brass", {"origin": [8, 13, 8], "axis": "x", "angle": -22.5})]), facing=True)
+    tex("globe", globe_texture())
+    simple_block("globe", model_elements(
+        {"globe": "doctorwho:block/globe", "brass": "doctorwho:block/brass", "wood": "minecraft:block/dark_oak_planks",
+         "particle": "doctorwho:block/brass"},
+        [box([4, 0, 4], [12, 2, 12], "#wood"), box([7.5, 2, 7.5], [8.5, 5, 8.5], "#brass"),
+         box([4, 5, 4], [12, 13, 12], "#globe"), box([7.5, 4, 3], [8.5, 14, 4], "#brass"),
+         box([7.5, 13, 4], [8.5, 14, 12], "#brass")]))
 
     tex("classic_pilaster", pilaster((236, 236, 230)))
     tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))

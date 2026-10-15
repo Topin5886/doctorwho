@@ -262,6 +262,11 @@ public abstract class InteriorTheme {
         wallLamps(c, GALLERY_Y + 4);
     }
 
+    /** Pose un siège (on peut s'y asseoir) ; {@code looking} : direction regardée par celui qui s'assoit. */
+    protected void seat(RoomCanvas c, int x, int y, int z, net.minecraft.block.Block seat, Direction looking) {
+        c.set(x, y, z, seat.getDefaultState().with(FacingDecorBlock.FACING, looking));
+    }
+
     /** Huit appliques contre le mur, à la hauteur donnée (hors escaliers). */
     protected void wallLamps(RoomCanvas c, int y) {
         for (int k = 0; k < 8; k++) {

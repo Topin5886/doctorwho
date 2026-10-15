@@ -137,8 +137,8 @@ public class DarkTheme extends InteriorTheme {
         }
         // Deux fauteuils face à la console
         for (int z = 4; z <= 5; z++) {
-            c.setShaped(11, 1, z, Blocks.DARK_OAK_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.EAST));
-            c.setShaped(-11, 1, z, Blocks.DARK_OAK_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.WEST));
+            seat(c, 11, 1, z, ModBlocks.LEATHER_SEAT, Direction.WEST);
+            seat(c, -11, 1, z, ModBlocks.LEATHER_SEAT, Direction.EAST);
         }
         // Tableau noir couvert de calculs (côté nord de la galerie) et scanner au-dessus de la sortie nord
         for (int x = -3; x <= 3; x++) {
@@ -151,6 +151,16 @@ public class DarkTheme extends InteriorTheme {
                 c.set(x, y, -16, ModBlocks.SCANNER.getDefaultState().with(FacingDecorBlock.FACING, Direction.SOUTH));
             }
         }
+        // Faisceaux de câbles noirs qui pendent du plafond autour de l'anneau, horloge sur la galerie
+        for (int k = 0; k < 6; k++) {
+            double a = Math.toRadians(k * 60);
+            int x = (int) Math.round(Math.cos(a) * 6);
+            int z = (int) Math.round(Math.sin(a) * 6);
+            for (int y = HEIGHT - 1; y >= HEIGHT - 4 - (k % 3); y--) {
+                c.set(x, y, z, ModBlocks.BLACK_CABLE.getDefaultState());
+            }
+        }
+        c.set(0, GALLERY_Y + 5, -16, ModBlocks.WALL_CLOCK.getDefaultState().with(FacingDecorBlock.FACING, Direction.SOUTH));
         wallLamps(c, 4);
     }
 }

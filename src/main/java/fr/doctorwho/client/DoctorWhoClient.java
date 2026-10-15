@@ -16,6 +16,7 @@ import fr.doctorwho.registry.ModBlockEntities;
 import fr.doctorwho.registry.ModBlocks;
 import fr.doctorwho.registry.ModEntities;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.render.entity.EmptyEntityRenderer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.RenderLayer;
 import net.fabricmc.api.ClientModInitializer;
@@ -51,6 +52,7 @@ public class DoctorWhoClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.SILENCE, context -> new CreatureRenderer<>(context, "silence", 0.4f, false));
         EntityRendererRegistry.register(ModEntities.ZYGON, context -> new DisguisedCreatureRenderer<>(context, "zygon", 0.5f));
         EntityRendererRegistry.register(ModEntities.SLITHEEN, context -> new DisguisedCreatureRenderer<>(context, "slitheen", 0.7f));
+        EntityRendererRegistry.register(ModEntities.SEAT, EmptyEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.REDSTONE_GOLEM, context -> new CreatureRenderer<>(context, "redstone_golem", 1.4f, true));
         EntityRendererRegistry.register(ModEntities.ADIPOSE, context -> new CreatureRenderer<>(context, "adipose", 0.3f, false));
 
