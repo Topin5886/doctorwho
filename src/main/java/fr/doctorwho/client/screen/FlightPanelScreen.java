@@ -451,7 +451,8 @@ public class FlightPanelScreen extends Screen {
         StyledButton.drawBorder(context, x0, y0, x1, y1, focused ? 0xFF000000 | TEAL : 0x602FC4E8);
     }
 
-    private void drawSeal(DrawContext context, int cx, int cy, int size, float alpha) {
+    /** Sceau gallifreyen qui tourne lentement (aussi utilisé par l'écran de choix du décor). */
+    static void drawSeal(DrawContext context, int cx, int cy, int size, float alpha) {
         float angle = (System.currentTimeMillis() % 120_000L) / 120_000f * 360f;
         context.getMatrices().push();
         context.getMatrices().translate(cx, cy, 0);

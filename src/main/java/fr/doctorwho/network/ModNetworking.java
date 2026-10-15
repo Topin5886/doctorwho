@@ -7,6 +7,7 @@ import fr.doctorwho.block.entity.TardisConsoleBlockEntity;
 import fr.doctorwho.item.SonicScrewdriverItem;
 import fr.doctorwho.registry.ModDimensions;
 import fr.doctorwho.tardis.Architecture;
+import fr.doctorwho.tardis.DesktopChoice;
 import fr.doctorwho.tardis.TardisData;
 import fr.doctorwho.tardis.TardisFlight;
 import fr.doctorwho.tardis.TardisManager;
@@ -14,6 +15,7 @@ import fr.doctorwho.tardis.TardisRegistry;
 import fr.doctorwho.tardis.Variants;
 import fr.doctorwho.tardis.Waypoint;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -41,6 +43,10 @@ public final class ModNetworking {
 
     public static final Identifier OPEN_FLIGHT_PANEL = DoctorWhoMod.id("open_flight_panel");
     public static final Identifier FLIGHT_COMMAND = DoctorWhoMod.id("flight_command");
+    /** Serveur → client : ouvrir l'écran de choix du décor (première entrée). */
+    public static final Identifier OPEN_DESKTOP_CHOICE = DoctorWhoMod.id("open_desktop_choice");
+    /** Client → serveur : décor choisi, ou "" si le joueur a annulé. */
+    public static final Identifier CHOOSE_DESKTOP = DoctorWhoMod.id("choose_desktop");
 
     public static final int ACTION_TAKE_OFF = 0;
     public static final int ACTION_SAVE_WAYPOINT = 1;
@@ -66,6 +72,15 @@ public final class ModNetworking {
             Command command = readCommand(buf);
             server.execute(() -> handleCommand(player, command));
         });
+        ServerPlayNetworking.registerGlobalReceiver(CHOOSE_DESKTOP, (server, player, handler, buf, responseSender) -> {
+            String desktop = buf.readString(32);
+            server.execute(() -> DesktopChoice.answer(player, desktop));
+        });
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> DesktopChoice.forget(handler.player.getUuid()));
+    }
+
+    public static void openDesktopChoice(ServerPlayerEntity player) {
+        ServerPlayNetworking.send(player, OPEN_DESKTOP_CHOICE, PacketByteBufs.empty());
     }
 
     private static Command readCommand(PacketByteBuf buf) {

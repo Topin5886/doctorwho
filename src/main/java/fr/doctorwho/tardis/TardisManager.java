@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -77,6 +78,32 @@ public final class TardisManager {
         if (data == null || interior == null || !data.isLanded()) {
             return;
         }
+        if (!data.isInteriorGenerated()) {
+            // Première visite : le joueur choisit d'abord le décor de la salle de console
+            if (entity instanceof ServerPlayerEntity player) {
+                DesktopChoice.ask(player, world, lowerPos);
+            }
+            return;
+        }
+        teleportInside(interior, data, entity);
+    }
+
+    /** Entrée après le choix du décor : la salle est construite avec ce décor si elle n'existe pas encore. */
+    public static void enterWithDesktop(ServerPlayerEntity player, ServerWorld world, BlockPos lowerPos, BlockState state,
+                                        String desktop) {
+        TardisData data = getOrCreate(world, lowerPos, state);
+        ServerWorld interior = interiorWorld(world.getServer());
+        if (data == null || interior == null || !data.isLanded()) {
+            return;
+        }
+        if (!data.isInteriorGenerated()) {
+            data.setDesktop(desktop);
+        }
+        teleportInside(interior, data, player);
+        player.sendMessage(Text.translatable("message.doctorwho.welcome", Variants.desktopName(data.getDesktop())), true);
+    }
+
+    private static void teleportInside(ServerWorld interior, TardisData data, Entity entity) {
         BlockPos door = ensureInterior(interior, data);
         // La porte intérieure regarde la salle (nord) : on arrive deux blocs devant, face à la console
         teleport(entity, interior, Vec3d.ofBottomCenter(door.north(2)), Direction.NORTH.asRotation());

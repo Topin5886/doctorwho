@@ -167,5 +167,14 @@
   "message.doctorwho.k9.stay": "K9 stays here.",
   "message.doctorwho.k9.follow": "K9 follows you.",
   "subtitles.doctorwho.entity.sontarian.ha": "Sontaran: \"Sontar-ha!\"",
-  "subtitles.doctorwho.entity.k9.affirm": "K9: \"Affirmative, master.\""
+  "subtitles.doctorwho.entity.k9.affirm": "K9: \"Affirmative, master.\"",
+  "screen.doctorwho.desktop_choice.title": "Welcome aboard!",
+  "screen.doctorwho.desktop_choice.line1": "Choose your console room.",
+  "screen.doctorwho.desktop_choice.line2": "You can change it later from the console.",
+  "screen.doctorwho.desktop_choice.cancel": "Esc: step back outside",
+  "variant.doctorwho.desktop.coral.era": "2005 · Tenth Doctor",
+  "variant.doctorwho.desktop.copper.era": "2010 · Eleventh Doctor",
+  "variant.doctorwho.desktop.white.era": "1960s-70s · Classic",
+  "variant.doctorwho.desktop.dark.era": "2014 · Twelfth Doctor",
+  "message.doctorwho.welcome": "Welcome aboard! Console room: %s"
 }

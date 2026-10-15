@@ -5,6 +5,7 @@ import fr.doctorwho.client.renderer.CreatureRenderer;
 import fr.doctorwho.client.renderer.TardisConsoleRenderer;
 import fr.doctorwho.client.renderer.TardisExteriorModel;
 import fr.doctorwho.client.renderer.TardisRenderer;
+import fr.doctorwho.client.screen.DesktopChoiceScreen;
 import fr.doctorwho.client.screen.FlightPanelScreen;
 import fr.doctorwho.network.FlightPanelData;
 import fr.doctorwho.network.ModNetworking;
@@ -62,6 +63,9 @@ public class DoctorWhoClient implements ClientModInitializer {
                 }
             });
         });
+        // Première entrée dans un TARDIS neuf : choix du décor de la salle de console
+        ClientPlayNetworking.registerGlobalReceiver(ModNetworking.OPEN_DESKTOP_CHOICE,
+                (client, handler, buf, responseSender) -> client.execute(() -> client.setScreen(new DesktopChoiceScreen())));
 
         DoctorWhoMod.LOGGER.info("Initialisation du client Doctor Who.");
     }

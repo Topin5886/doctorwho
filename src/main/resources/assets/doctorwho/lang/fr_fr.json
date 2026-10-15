@@ -167,5 +167,14 @@
   "message.doctorwho.k9.stay": "K9 reste ici.",
   "message.doctorwho.k9.follow": "K9 vous suit.",
   "subtitles.doctorwho.entity.sontarian.ha": "Sontarien : « Sontar, ha ! »",
-  "subtitles.doctorwho.entity.k9.affirm": "K9 : « Affirmatif, maître. »"
+  "subtitles.doctorwho.entity.k9.affirm": "K9 : « Affirmatif, maître. »",
+  "screen.doctorwho.desktop_choice.title": "Bienvenue à bord !",
+  "screen.doctorwho.desktop_choice.line1": "Choisissez le décor de votre salle de console.",
+  "screen.doctorwho.desktop_choice.line2": "Vous pourrez en changer plus tard depuis la console.",
+  "screen.doctorwho.desktop_choice.cancel": "Échap : ressortir du TARDIS",
+  "variant.doctorwho.desktop.coral.era": "2005 · Dixième Docteur",
+  "variant.doctorwho.desktop.copper.era": "2010 · Onzième Docteur",
+  "variant.doctorwho.desktop.white.era": "Années 60-70 · Classique",
+  "variant.doctorwho.desktop.dark.era": "2014 · Douzième Docteur",
+  "message.doctorwho.welcome": "Bienvenue à bord ! Salle de console : %s"
 }
