@@ -1,8 +1,8 @@
 """
 Synthétise les sons du TARDIS et du tournevis sonique (aucun enregistrement : tout est calculé).
 
-- tardis/takeoff.ogg : décollage, le fameux « vworp-vworp » qui s'éteint (7 s)
-- tardis/landing.ogg : atterrissage, le « vworp-vworp » qui monte puis se stabilise (7 s)
+- tardis/takeoff.ogg, tardis/landing.ogg : remplacés par les sons fournis par David
+  (les fonctions takeoff() et landing() restent disponibles)
 - tardis/landed.ogg  : choc sourd quand la cabine est posée
 - tardis/enter.ogg   : passage de la cabine à la salle de console (souffle + petit « vworp »)
 - tardis/hum.ogg     : bourdonnement de la salle de console (boucle parfaite de 4 s)
@@ -190,8 +190,10 @@ def sonic():
 
 
 if __name__ == "__main__":
-    takeoff()
-    landing()
+    # takeoff.ogg et landing.ogg sont les sons fournis par David (baissés de ~10 dB, en mono) :
+    # on ne les écrase pas. Pour revenir aux sons synthétisés, décommenter les deux lignes.
+    # takeoff()
+    # landing()
     landed()
     enter()
     hum()
