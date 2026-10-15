@@ -129,11 +129,11 @@ def decoration():
 
 
 # Grandes salles de console : roundels en relief (8 blocs de base autour d'une boule d'argile)
-ROUNDEL_BASES = {"classic": "smooth_quartz", "copper": "cut_copper"}
+ROUNDEL_BASES = {"classic": "smooth_quartz", "copper": "cut_copper", "amber": "doctorwho:amber_coral"}
 # Lumières de sous-plancher : lanterne aquatique + colorant
 UNDERLIGHT_DYES = {"green": "lime_dye"}
 # Grilles de sol : lingot du thème en diagonale avec des barreaux de fer
-GRATE_INGOTS = {"copper": "copper_ingot"}
+GRATE_INGOTS = {"copper": "copper_ingot", "amber": "gold_ingot"}
 
 
 def interior_decoration():
@@ -157,6 +157,11 @@ def interior_decoration():
     # Cuivre
     shaped("copper_wall_panel", b, ["CN", "NC"], {"C": "cut_copper", "N": "iron_nugget"}, "doctorwho:copper_wall_panel", 2)
     shaped("copper_strut", b, ["C  ", " C ", "  C"], {"C": "cut_copper"}, "doctorwho:copper_strut", 3)
+    # Ambre organique
+    shaped("amber_coral", b, ["HO", "OH"], {"H": "honeycomb", "O": "orange_terracotta"}, "doctorwho:amber_coral", 4)
+    shaped("amber_pillar", b, ["C", "C", "C"], {"C": "doctorwho:amber_coral"}, "doctorwho:amber_pillar", 3)
+    shaped("amber_strut", b, ["C  ", " C ", "  C"], {"C": "doctorwho:amber_coral"}, "doctorwho:amber_strut", 3)
+    shapeless("blue_hex_light", b, ["doctorwho:hex_light", "blue_dye"], "doctorwho:blue_hex_light")
     shaped("copper_glass_floor", b, [" C ", "CGC", " C "], {"C": "copper_ingot", "G": "glass"},
            "doctorwho:copper_glass_floor", 2)
 

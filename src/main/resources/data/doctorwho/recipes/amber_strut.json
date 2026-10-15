@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "C  ",
+    " C ",
+    "  C"
+  ],
+  "key": {
+    "C": {
+      "item": "doctorwho:amber_coral"
+    }
+  },
+  "result": {
+    "item": "doctorwho:amber_strut",
+    "count": 3
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "doctorwho:block/amber_strut",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "doctorwho:block/amber_strut",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "doctorwho:block/amber_strut",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "doctorwho:block/amber_strut",
+      "y": 270
+    }
+  }
+}

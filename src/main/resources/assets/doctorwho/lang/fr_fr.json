@@ -232,5 +232,12 @@
   "block.doctorwho.green_underlight": "Lumière de sous-plancher verte",
   "block.doctorwho.copper_wall_panel": "Plaque de cuivre rivetée",
   "block.doctorwho.copper_strut": "Entretoise de cuivre",
-  "block.doctorwho.copper_glass_floor": "Dalle de verre cerclée de cuivre"
+  "block.doctorwho.copper_glass_floor": "Dalle de verre cerclée de cuivre",
+  "block.doctorwho.amber_roundel": "Roundel ambré",
+  "block.doctorwho.amber_roundel_lit": "Roundel ambré lumineux",
+  "block.doctorwho.amber_floor_grate": "Grille de sol ambrée",
+  "block.doctorwho.amber_coral": "Corail ambré",
+  "block.doctorwho.amber_pillar": "Pilier ambré",
+  "block.doctorwho.amber_strut": "Branche ambrée",
+  "block.doctorwho.blue_hex_light": "Alvéole bleue lumineuse"
 }

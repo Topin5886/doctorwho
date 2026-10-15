@@ -102,10 +102,10 @@ public final class ModBlocks {
      * Familles de roundels en relief (disque creusé, éteint ou allumé), une par thème.
      * Pour un nouveau thème : ajouter son nom ici et dans ROUNDEL_FAMILIES de tools/generate_blocks.py.
      */
-    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper");
+    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper", "amber");
     private static final Map<String, Block> ROUNDELS = new HashMap<>();
     /** Grilles de sol ajourées, une par thème ({@code <famille>_floor_grate}). */
-    public static final List<String> GRATE_FAMILIES = List.of("copper");
+    public static final List<String> GRATE_FAMILIES = List.of("copper", "amber");
     private static final Map<String, Block> GRATES = new HashMap<>();
     /** Lumières de sous-plancher colorées ({@code <couleur>_underlight}, niveau 15). */
     public static final List<String> UNDERLIGHT_COLORS = List.of("green");
@@ -145,6 +145,18 @@ public final class ModBlocks {
     /** Dalle de verre cerclée de cuivre : on voit les lumières sous le plancher. */
     public static final Block COPPER_GLASS_FLOOR = decor("copper_glass_floor", new GlassBlock(FabricBlockSettings.copyOf(Blocks.GLASS)
             .strength(2.0f, 6.0f).mapColor(MapColor.ORANGE)));
+
+    // Ambre organique (2005, War Doctor)
+    /** Matière organique ambrée (grandes arches, plafond). */
+    public static final Block AMBER_CORAL = decor("amber_coral", new Block(stone(MapColor.ORANGE)));
+    /** Pilier ambré (même modèle que le pilier de corail). */
+    public static final Block AMBER_PILLAR = decor("amber_pillar", new DecorBlock(stone(MapColor.ORANGE).nonOpaque(),
+            Block.createCuboidShape(4, 0, 4, 12, 16, 12)));
+    /** Branche ambrée en biais (même modèle que la branche de corail). */
+    public static final Block AMBER_STRUT = decor("amber_strut", new FacingDecorBlock(stone(MapColor.ORANGE).nonOpaque().noCollision(),
+            Block.createCuboidShape(4, 0, 2, 12, 16, 16), false));
+    /** Alvéole hexagonale bleue lumineuse. */
+    public static final Block BLUE_HEX_LIGHT = decor("blue_hex_light", new Block(metal().luminance(state -> 14)));
 
     /** Grille de sol d'une famille ({@link #GRATE_FAMILIES}). */
     public static Block floorGrate(String family) {

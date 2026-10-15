@@ -232,5 +232,12 @@
   "block.doctorwho.green_underlight": "Green Underfloor Light",
   "block.doctorwho.copper_wall_panel": "Riveted Copper Panel",
   "block.doctorwho.copper_strut": "Copper Strut",
-  "block.doctorwho.copper_glass_floor": "Copper-Framed Glass Floor"
+  "block.doctorwho.copper_glass_floor": "Copper-Framed Glass Floor",
+  "block.doctorwho.amber_roundel": "Amber Roundel",
+  "block.doctorwho.amber_roundel_lit": "Lit Amber Roundel",
+  "block.doctorwho.amber_floor_grate": "Amber Floor Grate",
+  "block.doctorwho.amber_coral": "Amber Coral",
+  "block.doctorwho.amber_pillar": "Amber Pillar",
+  "block.doctorwho.amber_strut": "Amber Strut",
+  "block.doctorwho.blue_hex_light": "Blue Hex Light"
 }

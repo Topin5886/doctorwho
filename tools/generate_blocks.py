@@ -394,10 +394,12 @@ def build_blocks():
 ROUNDEL_FAMILIES = {
     "classic": ((232, 232, 226), (206, 206, 200), ((255, 226, 170), (255, 252, 236))),
     "copper": ((178, 106, 56), (140, 80, 40), ((255, 150, 60), (255, 236, 186))),
+    "amber": ((204, 140, 62), (166, 104, 42), ((255, 186, 84), (255, 246, 214))),
 }
 # Grilles de sol ajourées (on voit les lumières en dessous) : couleur des barreaux.
 GRATE_FAMILIES = {
     "copper": (190, 116, 60),
+    "amber": (150, 98, 42),
 }
 # Lumières de sous-plancher colorées : couleur du bord et du cœur (niveau de lumière 15).
 UNDERLIGHTS = {
@@ -558,6 +560,26 @@ def framed_glass(frame, tint):
     return img
 
 
+def amber_coral():
+    """Matière organique ambrée : veines sombres et reflets clairs, comme une résine."""
+    img = Image(16, 16)
+    rnd = random.Random(71)
+    for y in range(16):
+        for x in range(16):
+            v = math.sin(y * 0.55 + math.sin(x * 0.8) * 1.6) + 0.35 * math.sin(x * 1.7 + y * 0.3)
+            base = (222, 160, 66) if v > -0.2 else (176, 108, 40)
+            if v > 1.05:
+                base = (246, 206, 120)
+            img.set(x, y, shade(base, 1 + rnd.uniform(-0.07, 0.07)))
+    for _ in range(3):  # fissures
+        cx, cy = rnd.randrange(16), rnd.randrange(16)
+        for _s in range(rnd.randint(3, 6)):
+            img.set(cx % 16, cy % 16, (110, 62, 24))
+            cx += rnd.choice((-1, 0, 1))
+            cy += 1
+    return img
+
+
 def interior_blocks():
     for family, (panel, hollow, glow) in ROUNDEL_FAMILIES.items():
         tex(family + "_roundel_front", roundel_front(panel))
@@ -584,6 +606,16 @@ def interior_blocks():
         "coral": "doctorwho:block/copper_beam", "particle": "doctorwho:block/copper_beam"}}, facing=True)
     tex("copper_glass_floor", framed_glass((184, 112, 58), (190, 255, 220)))
     simple_block("copper_glass_floor", model_cube_all("copper_glass_floor"))
+
+    # --- Ambre organique : matière ambrée, pilier et branche (mêmes modèles que le corail), alvéole bleue
+    tex("amber_coral", amber_coral())
+    simple_block("amber_coral", model_cube_all("amber_coral"))
+    simple_block("amber_pillar", {"parent": "doctorwho:block/coral_pillar", "textures": {
+        "coral": "doctorwho:block/amber_coral", "particle": "doctorwho:block/amber_coral"}})
+    simple_block("amber_strut", {"parent": "doctorwho:block/coral_strut", "textures": {
+        "coral": "doctorwho:block/amber_coral", "particle": "doctorwho:block/amber_coral"}}, facing=True)
+    tex("blue_hex_light", underlight((40, 110, 210), (210, 240, 255)))
+    simple_block("blue_hex_light", model_cube_all("blue_hex_light"))
 
     tex("classic_pilaster", pilaster((236, 236, 230)))
     tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))

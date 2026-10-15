@@ -1,0 +1,7 @@
+{
+  "parent": "doctorwho:block/coral_pillar",
+  "textures": {
+    "coral": "doctorwho:block/amber_coral",
+    "particle": "doctorwho:block/amber_coral"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "HO",
+    "OH"
+  ],
+  "key": {
+    "H": {
+      "item": "minecraft:honeycomb"
+    },
+    "O": {
+      "item": "minecraft:orange_terracotta"
+    }
+  },
+  "result": {
+    "item": "doctorwho:amber_coral",
+    "count": 4
+  }
+}
