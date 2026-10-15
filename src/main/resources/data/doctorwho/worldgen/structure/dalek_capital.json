@@ -1,0 +1,8 @@
+{
+  "type": "doctorwho:planet_structure",
+  "kind": "dalek_capital",
+  "biomes": "#doctorwho:is_skaro",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_box",
+  "spawn_overrides": {}
+}

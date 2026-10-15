@@ -52,10 +52,6 @@ public class PlanetStructurePiece extends StructurePiece {
     public void generate(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator,
                          Random random, BlockBox chunkBox, ChunkPos chunkPos, BlockPos pivot) {
         StructureCanvas canvas = new StructureCanvas(world, chunkBox, center, seed);
-        switch (kind) {
-            case DALEK_CITY -> DalekCityBuilder.build(canvas);
-            case CITADEL -> CitadelBuilder.build(canvas);
-            case MOON_BASE -> MoonBaseBuilder.build(canvas);
-        }
+        kind.build(canvas);
     }
 }

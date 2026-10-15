@@ -1,7 +1,7 @@
 {
   "type": "doctorwho:planet_structure",
   "kind": "citadel",
-  "biomes": "#doctorwho:has_structure/citadel",
+  "biomes": "#doctorwho:is_gallifrey",
   "step": "surface_structures",
   "terrain_adaptation": "beard_box",
   "spawn_overrides": {}

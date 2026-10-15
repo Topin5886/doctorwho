@@ -1,0 +1,22 @@
+{
+  "structures": [
+    {
+      "structure": "doctorwho:moon_outpost",
+      "weight": 4
+    },
+    {
+      "structure": "doctorwho:moon_base",
+      "weight": 2
+    },
+    {
+      "structure": "doctorwho:moon_station",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 48,
+    "separation": 16,
+    "salt": 19670211
+  }
+}

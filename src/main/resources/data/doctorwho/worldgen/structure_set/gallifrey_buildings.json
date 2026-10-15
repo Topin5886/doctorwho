@@ -1,0 +1,22 @@
+{
+  "structures": [
+    {
+      "structure": "doctorwho:timelord_house",
+      "weight": 4
+    },
+    {
+      "structure": "doctorwho:arcadia",
+      "weight": 2
+    },
+    {
+      "structure": "doctorwho:citadel",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 48,
+    "separation": 16,
+    "salt": 20050326
+  }
+}

@@ -16,23 +16,33 @@ import static fr.doctorwho.worldgen.StructureCanvas.onSphere;
 import static fr.doctorwho.worldgen.StructureCanvas.sector;
 
 /**
- * La Citadelle des Seigneurs du Temps, sur Gallifrey (environ 80 blocs de large) :
+ * Cités des Seigneurs du Temps sous dôme de verre, sur Gallifrey, en trois tailles :
  * <ul>
- *     <li>un socle blanc et un immense dôme de verre à nervures, avec quatre portes ;</li>
- *     <li>au centre, le Capitole : salle du Panoptique (sol au sceau gallifreyen, bibliothèques)
- *     et sa crypte secrète, gardée par un Ange Pleureur (trésor) ;</li>
- *     <li>huit flèches blanches et dorées, des avenues, des jardins aux arbres argentés ;</li>
- *     <li>quelques Ood au service de la Citadelle.</li>
+ *     <li>maison de Seigneur du Temps (~36 blocs) : petit dôme, tour-bibliothèque, crypte gardée ;</li>
+ *     <li>Arcadia (~52 blocs) : dôme moyen, Capitole, 6 flèches, jardins ;</li>
+ *     <li>la Citadelle (~84 blocs) : immense dôme, Capitole et sa crypte, 8 flèches, Ood et K9.</li>
  * </ul>
+ * La crypte (sous la salle) est toujours gardée par un Ange Pleureur. Butin : {@code doctorwho:chests/citadel}.
  */
 final class CitadelBuilder {
 
-    private static final int PLATFORM = 41;
-    private static final int DOME = 38;
-    private static final int TOWER = 7;
-    private static final int TOWER_TOP = 24;
-    private static final int HALL_CEILING = 13;
-    private static final int SPIRE_DISTANCE = 24;
+    /**
+     * @param dome       rayon du dôme de verre
+     * @param tower      rayon du Capitole (tour centrale)
+     * @param spires     nombre de flèches autour
+     * @param ood        nombre d'Ood
+     * @param k9         un K9 se promène dans la cité
+     */
+    private record Params(int dome, int tower, int spires, int ood, boolean k9) {
+    }
+
+    private static Params params(StructureSize size) {
+        return switch (size) {
+            case SMALL -> new Params(16, 3, 4, 1, false);
+            case MEDIUM -> new Params(24, 5, 8, 2, false);
+            case LARGE -> new Params(38, 7, 8, 4, true);
+        };
+    }
 
     private static final BlockState AIR = Blocks.AIR.getDefaultState();
     private static final BlockState BASE = Blocks.CALCITE.getDefaultState();
@@ -53,50 +63,85 @@ final class CitadelBuilder {
     private static final BlockState LEAVES = ModBlocks.GALLIFREY_LEAVES.getDefaultState()
             .with(LeavesBlock.PERSISTENT, true);
 
-    private CitadelBuilder() {
+    private final StructureCanvas c;
+    private final Params p;
+    private final int platform;
+    private final int towerTop;
+    private final int hallCeiling;
+    private final int spireDistance;
+    private final int crypt;
+
+    private CitadelBuilder(StructureCanvas canvas, StructureSize size) {
+        this.c = canvas;
+        this.p = params(size);
+        this.platform = p.dome() + 3;
+        // Le toit du Capitole (cône + flèche + pointe) doit rester sous le verre
+        this.towerTop = p.dome() - (p.tower() + 1) - 7;
+        this.hallCeiling = Math.min(13, Math.max(6, towerTop - 4));
+        this.spireDistance = (int) Math.round(p.dome() * 0.63);
+        this.crypt = Math.min(5, p.tower());
     }
 
-    static void build(StructureCanvas c) {
-        platform(c);
-        dome(c);
-        capitol(c);
-        crypt(c); // après le sol de la salle : l'échelle traverse ce sol
-        spires(c);
-        gardens(c);
-        lamps(c);
+    static int radius(StructureSize size) {
+        return params(size).dome() + 3;
+    }
 
-        // Les Ood servent la Citadelle
-        c.mob(3.5, 1, 2.5, ModEntities.OOD);
-        c.mob(-2.5, 1, -3.5, ModEntities.OOD);
-        c.mob(20.5, 1, -5.5, ModEntities.OOD);
-        c.mob(-12.5, 1, 9.5, ModEntities.OOD);
+    static int height(StructureSize size) {
+        return params(size).dome() + 6;
+    }
+
+    static void build(StructureCanvas canvas, StructureSize size) {
+        new CitadelBuilder(canvas, size).build();
+    }
+
+    private void build() {
+        platform();
+        dome();
+        capitol();
+        crypt(); // après le sol de la salle : l'échelle traverse ce sol
+        spires();
+        gardens();
+        lamps();
+
+        // Les Ood servent la cité ; dans la Citadelle, un K9 se promène aussi
+        double[][] spots = {{spireDistance - 3.5, -4.5}, {-spireDistance / 2.0, spireDistance / 2.5}, {2.5, 1.5}, {-1.5, -2.5}};
+        for (int i = 0; i < p.ood(); i++) {
+            c.mob(spots[i][0], 1, spots[i][1], ModEntities.OOD);
+        }
+        if (p.k9()) {
+            c.mob(5.5, 1, -spireDistance + 2.5, ModEntities.K9);
+        }
     }
 
     // --- Socle ---------------------------------------------------------------------------------
 
-    private static void platform(StructureCanvas c) {
-        c.columns(-PLATFORM, -PLATFORM, PLATFORM, PLATFORM, (x, z) -> {
-            if (!inDisc(x, z, PLATFORM)) {
+    private void platform() {
+        int dome = p.dome();
+        c.columns(-platform, -platform, platform, platform, (x, z) -> {
+            if (!inDisc(x, z, platform)) {
                 return;
             }
             c.foundation(x, z, -1, BASE, 48);
             c.set(x, 0, z, floor(x, z));
-            c.clear(x, z, 1, inDisc(x, z, DOME) ? DOME + 1 : 12);
+            c.clear(x, z, 1, inDisc(x, z, dome) ? dome + 1 : 12);
         });
     }
 
-    private static BlockState floor(int x, int z) {
+    private BlockState floor(int x, int z) {
         double d = Math.sqrt(x * x + z * z);
-        if (d > PLATFORM - 1.5) {
+        double dome = p.dome();
+        if (d > platform - 1.5) {
             return GOLDEN; // bordure du socle
         }
         if (Math.abs(x) <= 1 || Math.abs(z) <= 1) {
             return PATH; // avenues vers les quatre portes
         }
-        if ((d >= 15 && d < 16.5) || (d >= 30 && d < 31.5)) {
+        double ring1 = dome * 0.4;
+        double ring2 = dome * 0.8;
+        if ((d >= ring1 && d < ring1 + 1.5) || (d >= ring2 && d < ring2 + 1.5)) {
             return GOLDEN; // boulevards circulaires
         }
-        if (d > 17 && d < 28 && sector(x, z, 16) % 2 == 1) {
+        if (d > ring1 + 1.5 && d < ring2 - 1 && sector(x, z, 16) % 2 == 1) {
             return GRASS; // jardins
         }
         return WHITE;
@@ -104,9 +149,13 @@ final class CitadelBuilder {
 
     // --- Dôme de verre --------------------------------------------------------------------------
 
-    private static void dome(StructureCanvas c) {
-        c.region(-DOME - 1, 1, -DOME - 1, DOME + 1, DOME + 1, DOME + 1, (x, y, z) -> {
-            if (!onSphere(x, y, z, DOME)) {
+    private void dome() {
+        int dome = p.dome();
+        int cap = Math.max(2, dome / 12);
+        int band1 = dome / 3;
+        int band2 = dome * 2 / 3;
+        c.region(-dome - 1, 1, -dome - 1, dome + 1, dome + 1, dome + 1, (x, y, z) -> {
+            if (!onSphere(x, y, z, dome)) {
                 return null;
             }
             // Portes : ouvertures de 5 blocs sur les avenues, encadrées de doré
@@ -117,10 +166,10 @@ final class CitadelBuilder {
             if ((lateral == 3 && y <= 6) || (lateral <= 3 && y == 6)) {
                 return GOLDEN;
             }
-            if (x * x + z * z <= 9) {
+            if (x * x + z * z <= cap * cap) {
                 return LIGHT; // lanterne au sommet
             }
-            if (y == 13 || y == 26 || rib(x, z)) {
+            if (y == band1 || y == band2 || rib(x, z)) {
                 return BRICK;
             }
             return GLASS;
@@ -142,10 +191,11 @@ final class CitadelBuilder {
 
     // --- Capitole (salle du Panoptique) --------------------------------------------------------------
 
-    private static void capitol(StructureCanvas c) {
+    private void capitol() {
+        int tower = p.tower();
         // Murs : portes sur les avenues, bandeaux dorés, fenêtres orange
-        c.region(-TOWER - 1, 1, -TOWER - 1, TOWER + 1, TOWER_TOP, TOWER + 1, (x, y, z) -> {
-            if (!onRing(x, z, TOWER)) {
+        c.region(-tower - 1, 1, -tower - 1, tower + 1, towerTop, tower + 1, (x, y, z) -> {
+            if (!onRing(x, z, tower)) {
                 return null;
             }
             if ((Math.abs(x) <= 1 || Math.abs(z) <= 1) && y <= 4) {
@@ -165,8 +215,8 @@ final class CitadelBuilder {
         });
 
         // Sol : le sceau gallifreyen (anneaux orange et blancs, rayons dorés)
-        c.region(-TOWER, 0, -TOWER, TOWER, 0, TOWER, (x, y, z) -> {
-            if (!inDisc(x, z, TOWER) || onRing(x, z, TOWER)) {
+        c.region(-tower, 0, -tower, tower, 0, tower, (x, y, z) -> {
+            if (!inDisc(x, z, tower) || onRing(x, z, tower)) {
                 return null;
             }
             int ring = (int) Math.sqrt(x * x + z * z);
@@ -180,62 +230,75 @@ final class CitadelBuilder {
         });
 
         // Bibliothèques le long du mur (sauf devant les portes)
-        c.region(-TOWER, 1, -TOWER, TOWER, 3, TOWER, (x, y, z) -> {
-            if (Math.abs(x) <= 2 || Math.abs(z) <= 2) {
-                return null;
-            }
-            return onRing(x, z, TOWER - 1) && !onRing(x, z, TOWER) ? BOOKS : null;
-        });
+        if (tower >= 4) {
+            c.region(-tower, 1, -tower, tower, 3, tower, (x, y, z) -> {
+                if (Math.abs(x) <= 2 || Math.abs(z) <= 2) {
+                    return null;
+                }
+                return onRing(x, z, tower - 1) && !onRing(x, z, tower) ? BOOKS : null;
+            });
+        }
 
         // Plafond de la salle avec ses lumières
-        c.region(-TOWER, HALL_CEILING, -TOWER, TOWER, HALL_CEILING, TOWER, (x, y, z) -> {
-            if (!inDisc(x, z, TOWER) || onRing(x, z, TOWER)) {
+        c.region(-tower, hallCeiling, -tower, tower, hallCeiling, tower, (x, y, z) -> {
+            if (!inDisc(x, z, tower) || onRing(x, z, tower)) {
                 return null;
             }
             double d = Math.sqrt(x * x + z * z);
-            return Math.abs(d - 4) < 0.6 && sector(x, z, 8) % 2 == 0 ? LIGHT : WHITE;
+            return Math.abs(d - tower / 2.0) < 0.6 && sector(x, z, 8) % 2 == 0 ? LIGHT : WHITE;
         });
 
         // Corniche, toit conique, flèche et pointe dorée
-        c.region(-TOWER - 1, TOWER_TOP, -TOWER - 1, TOWER + 1, TOWER_TOP + 7, TOWER + 1, (x, y, z) -> {
-            int layer = y - TOWER_TOP;
+        c.region(-tower - 1, towerTop, -tower - 1, tower + 1, towerTop + tower + 1, tower + 1, (x, y, z) -> {
+            int layer = y - towerTop;
             if (layer == 0) {
-                return onRing(x, z, TOWER + 1) ? GOLDEN : null;
+                return onRing(x, z, tower + 1) ? GOLDEN : null;
             }
-            return inDisc(x, z, TOWER + 1 - layer) ? BRICK : null;
+            return inDisc(x, z, tower + 1 - layer) ? BRICK : null;
         });
-        c.fill(0, TOWER_TOP + 8, 0, 0, TOWER_TOP + 10, 0, PILLAR);
-        c.set(0, TOWER_TOP + 11, 0, GOLD);
+        int spireBase = towerTop + tower + 2;
+        c.fill(0, spireBase, 0, 0, spireBase + 2, 0, PILLAR);
+        c.set(0, spireBase + 3, 0, GOLD);
     }
 
     /** Crypte sous la salle : on y descend par une échelle ; un Ange Pleureur garde le trésor. */
-    private static void crypt(StructureCanvas c) {
-        c.region(-6, -8, -6, 6, -1, 6, (x, y, z) -> {
-            if (!inDisc(x, z, 5)) {
+    private void crypt() {
+        int r = crypt;
+        c.region(-r - 1, -8, -r - 1, r + 1, -1, r + 1, (x, y, z) -> {
+            if (!inDisc(x, z, r)) {
                 return null;
             }
-            return y == -8 || onRing(x, z, 5) ? CRYPT : AIR;
+            return y == -8 || onRing(x, z, r) ? CRYPT : AIR;
         });
         // Échelle accrochée au mur nord, du fond de la crypte jusqu'au sol de la salle
         BlockState ladder = Blocks.LADDER.getDefaultState().with(LadderBlock.FACING, Direction.SOUTH);
-        c.fill(3, -7, -3, 3, 0, -3, ladder);
+        c.fill(0, -7, -(r - 1), 0, 0, -(r - 1), ladder);
 
-        c.spawner(0, -7, 3, ModEntities.WEEPING_ANGEL, 1, 2, 400, 800);
-        c.container(-3, -7, -1, chest(Direction.EAST), "citadel");
-        c.container(0, -7, -3, chest(Direction.SOUTH), "citadel");
-        c.set(3, -7, 1, Blocks.SOUL_LANTERN.getDefaultState());
-        c.set(-3, -7, 2, Blocks.SOUL_LANTERN.getDefaultState());
+        int k = r - 2;
+        c.spawner(0, -7, k, ModEntities.WEEPING_ANGEL, 1, 2, 400, 800);
+        c.container(-k, -7, 0, chest(Direction.EAST), "citadel");
+        c.set(k, -7, 0, Blocks.SOUL_LANTERN.getDefaultState());
+        if (r >= 4) {
+            c.container(k, -7, -1, chest(Direction.WEST), "citadel");
+            c.set(-k, -7, k, Blocks.SOUL_LANTERN.getDefaultState());
+        }
     }
 
     // --- Flèches ------------------------------------------------------------------------------------
 
-    private static void spires(StructureCanvas c) {
-        for (int k = 0; k < 8; k++) {
-            double angle = Math.PI / 8 + k * Math.PI / 4;
-            int sx = (int) Math.round(Math.cos(angle) * SPIRE_DISTANCE);
-            int sz = (int) Math.round(Math.sin(angle) * SPIRE_DISTANCE);
-            int r = 2 + k % 2;
-            int top = 12 + c.pick(70 + k, 6);
+    private void spires() {
+        int count = p.spires();
+        for (int k = 0; k < count; k++) {
+            double angle = Math.PI / count + k * 2 * Math.PI / count;
+            int sx = (int) Math.round(Math.cos(angle) * spireDistance);
+            int sz = (int) Math.round(Math.sin(angle) * spireDistance);
+            int r = p.dome() >= 30 ? 2 + k % 2 : (p.dome() >= 20 ? 2 : 1);
+            int roof = (r + 1) * 2;
+            // Hauteur maximale pour que la pointe reste sous le verre
+            double inner = p.dome() - 1.5;
+            int room = (int) Math.floor(Math.sqrt(Math.max(0, inner * inner - (spireDistance + r) * (spireDistance + r))));
+            int maxTop = room - roof - 2;
+            int top = Math.max(4, Math.min(maxTop, maxTop - 5 + c.pick(70 + k, 6)));
             double towardX = -Math.cos(angle);
             double towardZ = -Math.sin(angle);
 
@@ -252,14 +315,13 @@ final class CitadelBuilder {
                 return y % 6 == 0 ? GOLDEN : WHITE;
             });
             // Toit pointu (deux couches par bloc de rayon) et pointe dorée
-            int roof = (r + 1) * 2;
             c.region(sx - r - 1, top + 1, sz - r - 1, sx + r + 1, top + roof, sz + r + 1, (x, y, z) -> {
                 double radius = r + 1 - (y - top - 1) / 2.0;
                 return radius > 0 && inDisc(x - sx, z - sz, radius) ? BRICK : null;
             });
             c.set(sx, top + roof + 1, sz, GOLD);
 
-            if (k == 1 || k == 5) {
+            if (k == 1 || k == count / 2 + 1) {
                 c.container(sx, 1, sz, chest(Direction.getFacing(towardX, 0, towardZ)), "citadel");
             } else {
                 c.set(sx, 0, sz, LIGHT);
@@ -269,16 +331,22 @@ final class CitadelBuilder {
 
     // --- Jardins et lampadaires -----------------------------------------------------------------
 
-    private static void gardens(StructureCanvas c) {
+    private void gardens() {
+        double dome = p.dome();
         for (int k = 0; k < 4; k++) {
-            double angle = Math.PI / 4 + k * Math.PI / 2;
-            tree(c, (int) Math.round(Math.cos(angle) * 19), (int) Math.round(Math.sin(angle) * 19));
-            tree(c, (int) Math.round(Math.cos(angle) * 27), (int) Math.round(Math.sin(angle) * 27));
+            // Décalés des flèches quand celles-ci sont sur les diagonales (4 flèches)
+            double angle = Math.PI / 4 + k * Math.PI / 2 + (p.spires() == 4 ? Math.PI / 8 : 0);
+            for (double ring : new double[]{dome * 0.5, dome * 0.71}) {
+                if (dome < 20 && ring > dome * 0.6) {
+                    continue; // trop près du verre dans un petit dôme
+                }
+                tree((int) Math.round(Math.cos(angle) * ring), (int) Math.round(Math.sin(angle) * ring));
+            }
         }
     }
 
     /** Petit arbre argenté de Gallifrey sur sa pelouse rouge. */
-    private static void tree(StructureCanvas c, int tx, int tz) {
+    private void tree(int tx, int tz) {
         c.region(tx - 3, 0, tz - 3, tx + 3, 0, tz + 3, (x, y, z) -> inDisc(x - tx, z - tz, 2.5) ? GRASS : null);
         c.fill(tx, 1, tz, tx, 4, tz, LOG);
         c.region(tx - 3, 4, tz - 3, tx + 3, 8, tz + 3, (x, y, z) -> {
@@ -292,18 +360,20 @@ final class CitadelBuilder {
     }
 
     /** Lampadaires de part et d'autre des avenues. */
-    private static void lamps(StructureCanvas c) {
-        for (int distance : new int[]{10, 20, 34}) {
+    private void lamps() {
+        int dome = p.dome();
+        int[] distances = dome >= 30 ? new int[]{10, 20, 34} : new int[]{p.tower() + 3, dome - 4};
+        for (int distance : distances) {
             for (int sign : new int[]{-1, 1}) {
-                lamp(c, 2, sign * distance);
-                lamp(c, -2, sign * distance);
-                lamp(c, sign * distance, 2);
-                lamp(c, sign * distance, -2);
+                lamp(2, sign * distance);
+                lamp(-2, sign * distance);
+                lamp(sign * distance, 2);
+                lamp(sign * distance, -2);
             }
         }
     }
 
-    private static void lamp(StructureCanvas c, int x, int z) {
+    private void lamp(int x, int z) {
         c.fill(x, 1, z, x, 3, z, PILLAR);
         c.set(x, 4, z, LIGHT);
     }

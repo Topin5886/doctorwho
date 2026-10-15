@@ -1,7 +1,7 @@
 {
   "type": "doctorwho:planet_structure",
   "kind": "moon_base",
-  "biomes": "#doctorwho:has_structure/moon_base",
+  "biomes": "#doctorwho:is_moon",
   "step": "surface_structures",
   "terrain_adaptation": "beard_box",
   "spawn_overrides": {}

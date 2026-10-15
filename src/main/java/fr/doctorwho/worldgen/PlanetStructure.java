@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * Grande structure d'une planète, construite en code (pas de fichier .nbt) :
- * la ville dalek de Skaro, la Citadelle de Gallifrey ou la base lunaire.
+ * bâtiments daleks de Skaro, cités des Seigneurs du Temps sur Gallifrey, bases lunaires (trois tailles chacun).
  * <p>
  * Le type est choisi dans le JSON ({@code data/doctorwho/worldgen/structure/*.json}, champ « kind »),
  * la fréquence dans {@code worldgen/structure_set}. On la retrouve avec
@@ -27,30 +27,64 @@ public class PlanetStructure extends Structure {
             Kind.CODEC.fieldOf("kind").forGetter(structure -> structure.kind)
     ).apply(instance, PlanetStructure::new));
 
-    /** Les structures disponibles, avec leur rayon et leur hauteur (en blocs). */
+    /** Les familles de bâtiments (un constructeur chacune). */
+    public enum Family { DALEK, CITADEL, MOON_BASE }
+
+    /** Les structures disponibles : famille, taille, rayon et hauteur (en blocs). */
     public enum Kind implements StringIdentifiable {
-        DALEK_CITY("dalek_city", 35, 40),
-        CITADEL("citadel", 41, 44),
-        MOON_BASE("moon_base", 24, 14);
+        DALEK_OUTPOST("dalek_outpost", Family.DALEK, StructureSize.SMALL),
+        DALEK_CITY("dalek_city", Family.DALEK, StructureSize.MEDIUM),
+        DALEK_CAPITAL("dalek_capital", Family.DALEK, StructureSize.LARGE),
+        TIMELORD_HOUSE("timelord_house", Family.CITADEL, StructureSize.SMALL),
+        ARCADIA("arcadia", Family.CITADEL, StructureSize.MEDIUM),
+        CITADEL("citadel", Family.CITADEL, StructureSize.LARGE),
+        MOON_OUTPOST("moon_outpost", Family.MOON_BASE, StructureSize.SMALL),
+        MOON_BASE("moon_base", Family.MOON_BASE, StructureSize.MEDIUM),
+        MOON_STATION("moon_station", Family.MOON_BASE, StructureSize.LARGE);
 
         public static final Codec<Kind> CODEC = StringIdentifiable.createCodec(Kind::values);
 
         private final String id;
-        private final int radius;
-        private final int height;
+        private final Family family;
+        private final StructureSize size;
 
-        Kind(String id, int radius, int height) {
+        Kind(String id, Family family, StructureSize size) {
             this.id = id;
-            this.radius = radius;
-            this.height = height;
+            this.family = family;
+            this.size = size;
+        }
+
+        public Family family() {
+            return family;
+        }
+
+        public StructureSize size() {
+            return size;
         }
 
         public int radius() {
-            return radius;
+            return switch (family) {
+                case DALEK -> DalekCityBuilder.radius(size);
+                case CITADEL -> CitadelBuilder.radius(size);
+                case MOON_BASE -> MoonBaseBuilder.radius(size);
+            };
         }
 
         public int height() {
-            return height;
+            return switch (family) {
+                case DALEK -> DalekCityBuilder.height(size);
+                case CITADEL -> CitadelBuilder.height(size);
+                case MOON_BASE -> MoonBaseBuilder.height(size);
+            };
+        }
+
+        /** Construit cette structure sur la toile (appelé pour chaque chunk touché). */
+        public void build(StructureCanvas canvas) {
+            switch (family) {
+                case DALEK -> DalekCityBuilder.build(canvas, size);
+                case CITADEL -> CitadelBuilder.build(canvas, size);
+                case MOON_BASE -> MoonBaseBuilder.build(canvas, size);
+            }
         }
 
         @Override
