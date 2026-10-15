@@ -1,7 +1,9 @@
 package fr.doctorwho.block;
 
 import fr.doctorwho.block.entity.TardisConsoleBlockEntity;
+import fr.doctorwho.item.SonicMode;
 import fr.doctorwho.item.SonicScrewdriverItem;
+import fr.doctorwho.registry.ModSounds;
 import fr.doctorwho.registry.ModBlocks;
 import fr.doctorwho.tardis.ConsoleControls;
 import fr.doctorwho.tardis.ConsoleStyle;
@@ -95,6 +97,12 @@ public class TardisConsoleBlock extends BlockWithEntity {
             return ActionResult.PASS;
         }
         ItemStack held = player.getStackInHand(hand);
+        // Tournevis en mode Lecture : il lit le pupitre visé, sans rien déclencher
+        if (held.getItem() instanceof SonicScrewdriverItem && SonicScrewdriverItem.getMode(held) == SonicMode.LECTURE) {
+            player.sendMessage(ConsoleControls.describe(ConsoleControls.panelAt(pos, hit.getPos())), true);
+            world.playSound(null, pos, ModSounds.SONIC_SCREWDRIVER_USE, SoundCategory.PLAYERS, 0.5f, 1.6f);
+            return ActionResult.CONSUME;
+        }
         // Logement du tournevis sonique
         if (held.getItem() instanceof SonicScrewdriverItem && console.getSonic().isEmpty()) {
             console.setSonic(held.split(1));

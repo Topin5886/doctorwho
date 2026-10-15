@@ -88,8 +88,8 @@ public final class ModBlocks {
             Block.createCuboidShape(5, 0, 5, 11, 16, 11)));
     public static final Block WALL_LAMP = decor("wall_lamp", new FacingDecorBlock(metal().nonOpaque().noCollision().luminance(state -> 14),
             Block.createCuboidShape(5, 3, 8.5, 11, 13, 16), true));
-    public static final Block RAILING = decor("railing", new FacingDecorBlock(metal().nonOpaque(),
-            Block.createCuboidShape(0, 0, 6.5, 16, 16, 9.5), false));
+    /** Rambarde de laiton : se raccorde automatiquement à ses voisines (lignes droites et angles). */
+    public static final Block RAILING = decor("railing", new HandrailBlock(metal().nonOpaque()));
 
     // Murs à roundels des autres décors d'intérieur (blanc classique, sombre, cuivre)
     public static final Block WHITE_ROUNDEL_WALL = decor("white_roundel_wall", new Block(stone(MapColor.WHITE)));

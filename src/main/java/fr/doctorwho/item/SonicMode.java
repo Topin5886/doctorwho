@@ -7,7 +7,9 @@ import net.minecraft.util.Formatting;
 public enum SonicMode {
     OUVERTURE("ouverture", Formatting.AQUA),
     ACTIVATION("activation", Formatting.GOLD),
-    ANALYSE("analyse", Formatting.GREEN);
+    ANALYSE("analyse", Formatting.GREEN),
+    /** Lecture : indique ce que fait chaque pupitre de la console du TARDIS, sans ouvrir le panneau. */
+    LECTURE("lecture", Formatting.LIGHT_PURPLE);
 
     private final String key;
     private final Formatting color;

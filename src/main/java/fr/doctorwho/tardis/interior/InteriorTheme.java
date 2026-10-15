@@ -203,38 +203,43 @@ public abstract class InteriorTheme {
         return palette().platform().getDefaultState();
     }
 
-    /** Deux escaliers tournants le long du mur, de part et d'autre de la porte. */
+    /**
+     * Deux escaliers droits le long du mur sud, de part et d'autre de la porte (voir {@link ConsoleRoom#onStairs}).
+     * Marches toutes orientées dans le sens de la montée (jamais raccordées en angle), posées sur un massif plein.
+     */
     protected void staircases(RoomCanvas c) {
-        int max = (int) Math.ceil(RADIUS);
-        for (int x = -max; x <= max; x++) {
-            for (int z = -max; z <= max; z++) {
-                if (!ConsoleRoom.onStairs(x, z)) {
-                    continue;
+        BlockState support = palette().base().getDefaultState();
+        for (int side : new int[]{1, -1}) {
+            Direction up = side > 0 ? Direction.EAST : Direction.WEST;
+            for (int ax = STAIR_START; ax <= STAIR_LANDING; ax++) {
+                int x = ax * side;
+                int h = ConsoleRoom.stairHeight(x, STAIR_FIRST_Z);
+                for (int z = STAIR_RAIL_Z; ConsoleRoom.inside(x, z); z++) {
+                    if (h >= GALLERY_Y) {
+                        if (z > STAIR_RAIL_Z) {
+                            c.set(x, GALLERY_Y, z, galleryFloor(x, z)); // palier
+                        }
+                        continue;
+                    }
+                    if (z == STAIR_RAIL_Z) {
+                        // Limon côté salle, surmonté du garde-corps
+                        c.fill(x, 1, z, x, h, z, support);
+                        placeRailing(c, x, h + 1, z);
+                    } else if (z <= STAIR_LAST_Z) {
+                        if (h > 1) {
+                            c.fill(x, 1, z, x, h - 1, z, support);
+                        }
+                        c.set(x, h, z, stairs().with(StairsBlock.FACING, up));
+                    } else {
+                        c.fill(x, 1, z, x, h, z, support); // massif contre le mur
+                    }
                 }
-                int h = ConsoleRoom.stairHeight(x, z);
-                double r = RoomCanvas.radius(x, z);
-                if (h >= GALLERY_Y) {
-                    continue; // palier = plancher de la galerie
-                }
-                BlockState support = palette().base().getDefaultState();
-                if (r >= STAIR_INNER && r <= STAIR_OUTER) {
-                    // Marche, posée sur un massif plein
-                    for (int y = 1; y < h; y++) {
-                        c.set(x, y, z, support);
-                    }
-                    Direction up = RoomCanvas.tangent(x, z, ConsoleRoom.stairsIncreasing(x, z));
-                    c.setShaped(x, h, z, stairs().with(StairsBlock.FACING, up));
-                } else if (r < STAIR_INNER) {
-                    // Limon côté salle, surmonté du garde-corps
-                    for (int y = 1; y <= h; y++) {
-                        c.set(x, y, z, support);
-                    }
-                    placeRailing(c, x, h + 1, z);
-                } else {
-                    // Côté mur : massif plein jusqu'à la marche
-                    for (int y = 1; y <= h; y++) {
-                        c.set(x, y, z, support);
-                    }
+            }
+            // Garde-corps sur la galerie, au bord de la trémie (côté porte)
+            for (int z = STAIR_RAIL_Z; z <= STAIR_LAST_Z + 1; z++) {
+                int x = (STAIR_START - 1) * side;
+                if (RoomCanvas.radius(x, z) >= GALLERY_INNER && ConsoleRoom.inside(x, z)) {
+                    placeRailing(c, x, GALLERY_Y + 1, z);
                 }
             }
         }
@@ -277,7 +282,17 @@ public abstract class InteriorTheme {
                 continue;
             }
             Direction toward = RoomCanvas.towardCenter(lx, lz);
-            c.set(lx, y, lz, ModBlocks.WALL_LAMP.getDefaultState().with(FacingDecorBlock.FACING, toward));
+            // L'applique doit toucher le mur : on recule vers lui tant qu'il y a du vide derrière
+            int bx = lx;
+            int bz = lz;
+            for (int step = 0; step < 4 && c.get(bx - toward.getOffsetX(), y, bz - toward.getOffsetZ()).isAir(); step++) {
+                bx -= toward.getOffsetX();
+                bz -= toward.getOffsetZ();
+            }
+            if (!c.get(bx, y, bz).isAir() || c.get(bx - toward.getOffsetX(), y, bz - toward.getOffsetZ()).isAir()) {
+                continue; // pas de mur derrière, ou place occupée : pas d'applique flottante
+            }
+            c.set(bx, y, bz, ModBlocks.WALL_LAMP.getDefaultState().with(FacingDecorBlock.FACING, toward));
         }
     }
 

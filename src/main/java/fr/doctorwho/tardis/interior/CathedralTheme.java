@@ -139,8 +139,8 @@ public class CathedralTheme extends InteriorTheme {
             c.set((int) Math.round(Math.cos(a) * 8), 1, (int) Math.round(Math.sin(a) * 8),
                     ModBlocks.CANDELABRA.getDefaultState());
         }
-        // Quatre colonnes de lumière bleue, de part et d'autre de la porte et de la sortie nord
-        for (double angle : new double[]{72, 108, 252, 288}) {
+        // Quatre colonnes de lumière bleue (côté nord, et de part et d'autre des escaliers)
+        for (double angle : new double[]{35, 145, 252, 288}) {
             int px = (int) Math.round(Math.cos(Math.toRadians(angle)) * 14.5);
             int pz = (int) Math.round(Math.sin(Math.toRadians(angle)) * 14.5);
             for (int y = 1; y < HEIGHT; y++) {

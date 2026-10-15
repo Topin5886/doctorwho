@@ -2,6 +2,7 @@ package fr.doctorwho.client;
 
 import fr.doctorwho.DoctorWhoMod;
 import fr.doctorwho.client.renderer.CreatureRenderer;
+import fr.doctorwho.client.screen.SonicReadingHud;
 import fr.doctorwho.client.renderer.DisguisedCreatureRenderer;
 import fr.doctorwho.client.renderer.TardisConsoleRenderer;
 import fr.doctorwho.client.renderer.TardisExteriorModel;
@@ -53,6 +54,7 @@ public class DoctorWhoClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.ZYGON, context -> new DisguisedCreatureRenderer<>(context, "zygon", 0.5f));
         EntityRendererRegistry.register(ModEntities.SLITHEEN, context -> new DisguisedCreatureRenderer<>(context, "slitheen", 0.7f));
         EntityRendererRegistry.register(ModEntities.SEAT, EmptyEntityRenderer::new);
+        SonicReadingHud.register();
         EntityRendererRegistry.register(ModEntities.REDSTONE_GOLEM, context -> new CreatureRenderer<>(context, "redstone_golem", 1.4f, true));
         EntityRendererRegistry.register(ModEntities.ADIPOSE, context -> new CreatureRenderer<>(context, "adipose", 0.3f, false));
 

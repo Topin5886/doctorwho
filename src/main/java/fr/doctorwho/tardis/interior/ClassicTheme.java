@@ -137,7 +137,7 @@ public class ClassicTheme extends InteriorTheme {
             }
         }
         // Porte-manteau près de la porte, horloge au-dessus
-        c.set(-4, 1, 13, ModBlocks.HAT_STAND.getDefaultState());
+        c.set(-3, 1, 11, ModBlocks.HAT_STAND.getDefaultState());
         c.set(0, 6, 16, ModBlocks.WALL_CLOCK.getDefaultState().with(FacingDecorBlock.FACING, Direction.NORTH));
         // Deux banquettes blanches face à la console, à l'est et à l'ouest
         for (int z = -6; z <= -3; z++) {

@@ -1,20 +1,45 @@
 {
-  "variants": {
-    "facing=north": {
-      "model": "doctorwho:block/railing",
-      "y": 0
+  "multipart": [
+    {
+      "apply": {
+        "model": "doctorwho:block/railing"
+      }
     },
-    "facing=east": {
-      "model": "doctorwho:block/railing",
-      "y": 90
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "doctorwho:block/railing_side",
+        "y": 0
+      }
     },
-    "facing=south": {
-      "model": "doctorwho:block/railing",
-      "y": 180
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "doctorwho:block/railing_side",
+        "y": 90
+      }
     },
-    "facing=west": {
-      "model": "doctorwho:block/railing",
-      "y": 270
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "doctorwho:block/railing_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "doctorwho:block/railing_side",
+        "y": 270
+      }
     }
-  }
+  ]
 }

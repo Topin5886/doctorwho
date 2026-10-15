@@ -20,6 +20,18 @@ public class ConsolePartBlock extends Block {
         super(settings);
     }
 
+    /** La console à laquelle appartient ce bloc invisible (ou null). */
+    @org.jetbrains.annotations.Nullable
+    public static BlockPos findConsole(net.minecraft.world.BlockView world, BlockPos pos) {
+        int r = TardisConsoleBlock.REACH;
+        for (BlockPos candidate : BlockPos.iterate(pos.add(-r, -3, -r), pos.add(r, 0, r))) {
+            if (world.getBlockState(candidate).getBlock() instanceof TardisConsoleBlock) {
+                return candidate.toImmutable();
+            }
+        }
+        return null;
+    }
+
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         int r = TardisConsoleBlock.REACH;

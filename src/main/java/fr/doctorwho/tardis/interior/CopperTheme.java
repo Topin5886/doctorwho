@@ -54,12 +54,6 @@ public class CopperTheme extends InteriorTheme {
         return ModBlocks.RAILING.getDefaultState();
     }
 
-    /** Rambarde de laiton : sa barre suit l'anneau (est-ouest au nord et au sud, nord-sud ailleurs). */
-    @Override
-    protected void placeRailing(RoomCanvas c, int x, int y, int z) {
-        Direction facing = Math.abs(z) >= Math.abs(x) ? Direction.NORTH : Direction.EAST;
-        c.set(x, y, z, railing().with(FacingDecorBlock.FACING, facing));
-    }
 
     // --- Murs ---------------------------------------------------------------------------------
 
@@ -177,7 +171,7 @@ public class CopperTheme extends InteriorTheme {
                 c.set(x, y, -16, ModBlocks.SCANNER.getDefaultState().with(FacingDecorBlock.FACING, Direction.SOUTH));
             }
         }
-        c.set(4, 1, 13, ModBlocks.HAT_STAND.getDefaultState());
+        c.set(3, 1, 11, ModBlocks.HAT_STAND.getDefaultState());
         // Tuyaux de cuivre qui rayonnent au plafond depuis la colonne
         for (Direction d : new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}) {
             Direction.Axis axis = d.getAxis();

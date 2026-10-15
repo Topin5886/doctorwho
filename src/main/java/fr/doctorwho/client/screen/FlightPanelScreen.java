@@ -238,7 +238,8 @@ public class FlightPanelScreen extends Screen {
         StyledButton rebuild = addDrawableChild(new StyledButton(left + 8, body + 163, PANEL_W - 16, 14,
                 Text.translatable("screen.doctorwho.flight_panel.rebuild", Variants.desktopName(pendingDesktop)), ORANGE,
                 button -> send(ModNetworking.ACTION_SET_DESKTOP, b -> b.writeString(pendingDesktop))));
-        rebuild.active = !pendingDesktop.equals(data.desktop()) && data.phase() == FlightPhase.LANDED;
+        // On peut aussi reconstruire avec le même décor (remettre la salle à neuf)
+        rebuild.active = data.phase() == FlightPhase.LANDED;
 
         if (!data.sonicVariant().isEmpty()) {
             List<String> sonics = Variants.SONICS;

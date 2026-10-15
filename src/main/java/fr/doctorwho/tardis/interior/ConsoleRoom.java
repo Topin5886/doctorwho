@@ -9,12 +9,12 @@ import net.minecraft.util.math.BlockPos;
  *   y 17  ─────────────── plafond ───────────────
  *         │ mur                                 │
  *   y 7   │═══ galerie ═══╗           ╔═══ galerie ═══│   (anneau de 12,5 à 16,5 blocs du centre)
- *         │  escaliers  ╱    console   ╲            │
+ *         │  escaliers droits      console            │
  *   y 1   │        ▁▁▁▁▁ estrade (r 6,5) ▁▁▁▁▁       │
  *   y 0   ═══════════════ sol ═══════════════════════
  * </pre>
  * La porte intérieure est au sud (z positif), les trois sorties vers les couloirs au nord, à l'est
- * et à l'ouest. Les deux escaliers montent vers la galerie de part et d'autre de la porte.
+ * et à l'ouest. Deux escaliers droits montent vers la galerie de part et d'autre de la porte.
  */
 public final class ConsoleRoom {
 
@@ -33,10 +33,16 @@ public final class ConsoleRoom {
     public static final int GALLERY_Y = 7;
     public static final double GALLERY_INNER = 12.5;
 
-    /** Escaliers vers la galerie : bande de rayon, et arcs (degrés, du bas vers le haut). */
-    public static final double STAIR_INNER = 13.5;
-    public static final double STAIR_OUTER = 15.7;
-    public static final double[][] STAIRS = {{112, 162}, {68, 18}};
+    /**
+     * Escaliers vers la galerie : deux volées <b>droites</b> de part et d'autre de la porte, le long du mur sud.
+     * Celle de l'est monte vers l'est (x de 2 à 7, palier en 8), celle de l'ouest vers l'ouest.
+     * Rangée {@link #STAIR_RAIL_Z} : limon et garde-corps côté salle ; rangées suivantes : les marches.
+     */
+    public static final int STAIR_START = 2;
+    public static final int STAIR_LANDING = 8;
+    public static final int STAIR_RAIL_Z = 12;
+    public static final int STAIR_FIRST_Z = 13;
+    public static final int STAIR_LAST_Z = 15;
 
     /** Distance au centre du premier bloc de mur percé par une sortie (nord, est, ouest) et par la porte (sud). */
     public static final int EXIT_DISTANCE = 17;
@@ -65,43 +71,14 @@ public final class ConsoleRoom {
         return r > RADIUS && r <= RADIUS + 1.3;
     }
 
-    /** Vrai si (x, z) est dans un des deux escaliers (sur toute leur bande, garde-corps compris). */
+    /** Vrai si (x, z) fait partie d'un des deux escaliers (limon, marches et massif côté mur compris). */
     public static boolean onStairs(int x, int z) {
-        double r = RoomCanvas.radius(x, z);
-        if (r < GALLERY_INNER || r > RADIUS) {
-            return false;
-        }
-        double a = RoomCanvas.angle(x, z);
-        for (double[] flight : STAIRS) {
-            if (RoomCanvas.between(a, flight[0], flight[1])) {
-                return true;
-            }
-        }
-        return false;
+        int ax = Math.abs(x);
+        return ax >= STAIR_START && ax <= STAIR_LANDING && z >= STAIR_RAIL_Z && inside(x, z);
     }
 
-    /**
-     * Hauteur de la marche d'escalier en (x, z) : de 1 (en bas) à {@link #GALLERY_Y} (palier), ou 0 hors escalier.
-     */
+    /** Hauteur de la marche en (x, z) : de 1 (en bas) à {@link #GALLERY_Y} (palier), ou 0 hors escalier. */
     public static int stairHeight(int x, int z) {
-        double a = RoomCanvas.angle(x, z);
-        for (double[] flight : STAIRS) {
-            if (RoomCanvas.between(a, flight[0], flight[1])) {
-                double t = (a - flight[0]) / (flight[1] - flight[0]);
-                return Math.max(1, Math.min(GALLERY_Y, 1 + (int) (t * GALLERY_Y)));
-            }
-        }
-        return 0;
-    }
-
-    /** Sens de montée de l'escalier en (x, z) : vrai si les angles augmentent en montant. */
-    public static boolean stairsIncreasing(int x, int z) {
-        double a = RoomCanvas.angle(x, z);
-        for (double[] flight : STAIRS) {
-            if (RoomCanvas.between(a, flight[0], flight[1])) {
-                return flight[1] > flight[0];
-            }
-        }
-        return true;
+        return onStairs(x, z) ? Math.abs(x) - STAIR_START + 1 : 0;
     }
 }

@@ -6,7 +6,10 @@ import fr.doctorwho.registry.ModSounds;
 import fr.doctorwho.tardis.Variants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.ButtonBlock;
+import net.minecraft.block.EndPortalFrameBlock;
+import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.block.DoorBlock;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.TntBlock;
@@ -30,7 +33,10 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
+import net.minecraft.world.dimension.NetherPortal;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -44,6 +50,7 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -54,8 +61,9 @@ import java.util.function.Supplier;
  * <ul>
  *     <li>Accroupi + clic droit : changer de mode</li>
  *     <li>Ouverture : portes, trappes et portillons, y compris en fer (mais pas le bois !)</li>
- *     <li>Activation : leviers, boutons, TNT</li>
+ *     <li>Activation : leviers, boutons, TNT, et allume les portails du Nether et de l'End</li>
  *     <li>Analyse : informations sur un bloc ou une créature</li>
+ *     <li>Lecture : lit les pupitres de la console du TARDIS (nom et commande), visé ou cliqué</li>
  * </ul>
  */
 public class SonicScrewdriverItem extends Item implements GeoItem {
@@ -123,7 +131,8 @@ public class SonicScrewdriverItem extends Item implements GeoItem {
 
         Text result = switch (getMode(stack)) {
             case OUVERTURE -> open(world, pos, state, player);
-            case ACTIVATION -> activate(world, pos, state, player);
+            case ACTIVATION -> activate(world, pos, state, player, context.getSide());
+            case LECTURE -> Text.translatable("message.doctorwho.sonic.read_nothing");
             case ANALYSE -> Text.translatable("message.doctorwho.sonic.scan_block",
                     state.getBlock().getName().formatted(Formatting.WHITE),
                     String.format("%.1f", state.getHardness(world, pos)));
@@ -176,8 +185,14 @@ public class SonicScrewdriverItem extends Item implements GeoItem {
 
     /** Mode Activation. */
     @Nullable
-    private static Text activate(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    private static Text activate(World world, BlockPos pos, BlockState state, PlayerEntity player, Direction side) {
         Block block = state.getBlock();
+        if (state.isOf(Blocks.OBSIDIAN)) {
+            return lightNetherPortal(world, pos.offset(side));
+        }
+        if (state.isOf(Blocks.END_PORTAL_FRAME)) {
+            return lightEndPortal(world, pos);
+        }
         if (block instanceof LeverBlock lever) {
             lever.togglePower(state, world, pos);
             return null;
@@ -194,6 +209,49 @@ public class SonicScrewdriverItem extends Item implements GeoItem {
             return null;
         }
         return Text.translatable("message.doctorwho.sonic.nothing");
+    }
+
+    /** Allume un portail du Nether dans le cadre d'obsidienne (comme un briquet, sans feu). */
+    @Nullable
+    private static Text lightNetherPortal(World world, BlockPos inside) {
+        if (!world.getBlockState(inside).isAir()) {
+            return Text.translatable("message.doctorwho.sonic.no_portal");
+        }
+        for (Direction.Axis axis : new Direction.Axis[]{Direction.Axis.X, Direction.Axis.Z}) {
+            Optional<NetherPortal> portal = NetherPortal.getNewPortal(world, inside, axis);
+            if (portal.isPresent()) {
+                portal.get().createPortal();
+                world.playSound(null, inside, SoundEvents.BLOCK_PORTAL_TRIGGER, SoundCategory.BLOCKS, 0.5f, 1.4f);
+                return Text.translatable("message.doctorwho.sonic.portal_nether");
+            }
+        }
+        return Text.translatable("message.doctorwho.sonic.no_portal");
+    }
+
+    /**
+     * Portail de l'End : le sonique « active » tous les cadres voisins (comme s'ils avaient un œil),
+     * puis ouvre le portail si l'anneau de 12 cadres est complet.
+     */
+    @Nullable
+    private static Text lightEndPortal(World world, BlockPos clicked) {
+        for (BlockPos frame : BlockPos.iterate(clicked.add(-4, 0, -4), clicked.add(4, 0, 4))) {
+            BlockState state = world.getBlockState(frame);
+            if (state.isOf(Blocks.END_PORTAL_FRAME) && !state.get(EndPortalFrameBlock.EYE)) {
+                world.setBlockState(frame, state.with(EndPortalFrameBlock.EYE, true), Block.NOTIFY_LISTENERS);
+            }
+        }
+        BlockPattern.Result result = EndPortalFrameBlock.getCompletedFramePattern().searchAround(world, clicked);
+        if (result == null) {
+            return Text.translatable("message.doctorwho.sonic.no_portal");
+        }
+        BlockPos corner = result.getFrontTopLeft().add(-3, 0, -3);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                world.setBlockState(corner.add(i, 0, j), Blocks.END_PORTAL.getDefaultState(), Block.NOTIFY_LISTENERS);
+            }
+        }
+        world.syncGlobalEvent(WorldEvents.END_PORTAL_OPENED, corner.add(1, 0, 1), 0);
+        return Text.translatable("message.doctorwho.sonic.portal_end");
     }
 
     /** Son + animation de l'émetteur (côté serveur, synchronisée vers les clients). */

@@ -323,14 +323,18 @@ def build_blocks():
          box([5.5, 4, 8.5], [10.5, 5, 13.5], "#metal")]),
         facing=True)
 
-    # Rambarde en laiton (barre est-ouest quand elle regarde au nord)
-    simple_block("railing", model_elements(
-        {"metal": "doctorwho:block/brass", "particle": "doctorwho:block/brass"},
-        [box([0, 0, 7], [2, 16, 9], "#metal"),
-         box([14, 0, 7], [16, 16, 9], "#metal"),
-         box([0, 14, 6.5], [16, 16, 9.5], "#metal"),
-         box([0, 7, 7.5], [16, 8.5, 8.5], "#metal")]),
-        facing=True)
+    # Rambarde en laiton : se raccorde à ses voisines comme une vitre (poteau + un bras par côté relié)
+    metal = {"metal": "doctorwho:block/brass", "particle": "doctorwho:block/brass"}
+    railing_side = model_elements(metal, [box([7, 14, 0], [9, 16, 8], "#metal"), box([7.5, 7, 0], [8.5, 8.5, 8], "#metal")])
+    railing_state = {"multipart": [{"apply": {"model": "doctorwho:block/railing"}}] + [
+        {"when": {side: "true"}, "apply": {"model": "doctorwho:block/railing_side", "y": y}}
+        for side, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))]}
+    simple_block("railing", model_elements(metal, [box([6.5, 0, 6.5], [9.5, 16, 9.5], "#metal"),
+                                                   box([6, 14, 6], [10, 16, 10], "#metal")]),
+                 blockstate=railing_state, extra_models={"railing_side": railing_side},
+                 item_model=model_elements(metal, [box([0, 0, 7], [2, 16, 9], "#metal"), box([14, 0, 7], [16, 16, 9], "#metal"),
+                                                   box([0, 14, 6.5], [16, 16, 9.5], "#metal"),
+                                                   box([0, 7, 7.5], [16, 8.5, 8.5], "#metal")]))
 
     # Murs à roundels des autres décors d'intérieur
     themes = {

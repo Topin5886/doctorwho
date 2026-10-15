@@ -53,11 +53,6 @@ public class AmberTheme extends InteriorTheme {
         return ModBlocks.RAILING.getDefaultState();
     }
 
-    @Override
-    protected void placeRailing(RoomCanvas c, int x, int y, int z) {
-        Direction facing = Math.abs(z) >= Math.abs(x) ? Direction.NORTH : Direction.EAST;
-        c.set(x, y, z, railing().with(FacingDecorBlock.FACING, facing));
-    }
 
     @Override
     protected int ambientLevel() {

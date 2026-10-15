@@ -13,6 +13,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Commandes directes de la console : un clic droit sur un pupitre déclenche sa commande.
@@ -55,6 +56,17 @@ public final class ConsoleControls {
         double angle = Math.toDegrees(Math.atan2(dx, -dz));
         int index = Math.floorMod((int) Math.round(angle / 60.0), 6);
         return Panel.values()[index];
+    }
+
+    /**
+     * Ce que lit le tournevis en mode Lecture : nom du pupitre et sa commande
+     * (ou la colonne du rotor si {@code panel} est null).
+     */
+    public static Text describe(@Nullable Panel panel) {
+        String key = panel == null ? "rotor" : panel.name().toLowerCase(java.util.Locale.ROOT);
+        return Text.translatable("console.doctorwho.panel." + key).formatted(Formatting.LIGHT_PURPLE)
+                .append(Text.literal(" — ").formatted(Formatting.DARK_GRAY))
+                .append(Text.translatable("console.doctorwho.panel." + key + ".action").formatted(Formatting.WHITE));
     }
 
     /** Exécute la commande du pupitre. Renvoie faux s'il faut plutôt ouvrir le panneau de vol. */
