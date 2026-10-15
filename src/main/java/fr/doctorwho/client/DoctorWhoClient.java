@@ -50,6 +50,7 @@ public class DoctorWhoClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.SILENCE, context -> new CreatureRenderer<>(context, "silence", 0.4f, false));
         EntityRendererRegistry.register(ModEntities.ZYGON, context -> new CreatureRenderer<>(context, "zygon", 0.5f, false));
         EntityRendererRegistry.register(ModEntities.SLITHEEN, context -> new CreatureRenderer<>(context, "slitheen", 0.7f, false));
+        EntityRendererRegistry.register(ModEntities.REDSTONE_GOLEM, context -> new CreatureRenderer<>(context, "redstone_golem", 1.4f, true));
         EntityRendererRegistry.register(ModEntities.ADIPOSE, context -> new CreatureRenderer<>(context, "adipose", 0.3f, false));
 
         // La grille métallique a des trous transparents

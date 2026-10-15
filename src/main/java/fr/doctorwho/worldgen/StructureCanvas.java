@@ -18,6 +18,7 @@ import net.minecraft.util.dynamic.Range;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.MobSpawnerEntry;
 import net.minecraft.world.StructureWorldAccess;
 import org.jetbrains.annotations.Nullable;
@@ -84,6 +85,11 @@ public final class StructureCanvas {
 
     public BlockState get(int x, int y, int z) {
         return world.getBlockState(pos.set(cx + x, by + y, cz + z));
+    }
+
+    /** Hauteur relative du premier bloc d'air au-dessus du terrain naturel, en (x, z). */
+    public int surfaceY(int x, int z) {
+        return world.getTopY(Heightmap.Type.WORLD_SURFACE_WG, cx + x, cz + z) - by;
     }
 
     // --- Zones ------------------------------------------------------------------------------

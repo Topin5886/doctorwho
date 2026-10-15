@@ -214,5 +214,7 @@
   "variant.doctorwho.sonic.seventh": "Seventh",
   "variant.doctorwho.sonic.eighth": "Eighth",
   "variant.doctorwho.sonic.fourteenth": "Fourteenth",
-  "subtitles.doctorwho.tardis.enter": "Stepping through the TARDIS"
+  "subtitles.doctorwho.tardis.enter": "Stepping through the TARDIS",
+  "entity.doctorwho.redstone_golem": "Redstone Golem",
+  "item.doctorwho.redstone_golem_spawn_egg": "Redstone Golem Spawn Egg"
 }

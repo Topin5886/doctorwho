@@ -931,6 +931,88 @@ def slitheen():
 
 
 # ---------------------------------------------------------------------------
+# Golem de redstone (mini-boss, inspiré de Minecraft Dungeons) : pierre noire
+# parcourue de veines de redstone lumineuses, poitrine au cœur rouge, bras énormes
+# ---------------------------------------------------------------------------
+GOLEM_ROCK = (58, 52, 58)
+GOLEM_RED = (232, 44, 30)
+
+
+def golem_rock(tex, glw, x, y, w, h, s, face, seed):
+    """Pierre sombre fissurée : les fissures sont des veines de redstone qui brillent."""
+    rnd = random.Random(seed)
+    noisy(tex, x, y, x + w, y + h, GOLEM_ROCK, 0.1, seed)
+    for _ in range(max(1, w * h // 90)):
+        cx, cy = rnd.randint(x, x + w - 1), rnd.randint(y, y + h - 1)
+        for _step in range(rnd.randint(3, 9)):
+            if x <= cx < x + w and y <= cy < y + h:
+                tex.set(cx, cy, GOLEM_RED)
+                glw.set(cx, cy, GOLEM_RED)
+            cx += rnd.choice((-1, 0, 1))
+            cy += rnd.choice((0, 1, 1))
+
+
+def golem_face(tex, glw, x, y, w, h, s, face, seed):
+    golem_rock(tex, glw, x, y, w, h, s, face, seed)
+    if face == "north":
+        for ex in (x + w // 4 - 2, x + 3 * w // 4 - 3):
+            tex.rect(ex, y + h // 3, ex + 6, y + h // 3 + 4, (255, 90, 60))
+            glw.rect(ex, y + h // 3, ex + 6, y + h // 3 + 4, (255, 90, 60))
+        tex.rect(x + w // 4, y + h * 3 // 4, x + 3 * w // 4, y + h * 3 // 4 + 2, (20, 16, 18))
+
+
+def golem_core(tex, glw, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, GOLEM_RED)
+    glw.rect(x, y, x + w, y + h, GOLEM_RED)
+    tex.rect(x + w // 4, y + h // 4, x + 3 * w // 4, y + 3 * h // 4, (255, 170, 120))
+    glw.rect(x + w // 4, y + h // 4, x + 3 * w // 4, y + 3 * h // 4, (255, 170, 120))
+
+
+def redstone_golem():
+    legs = []
+    for side in (-1, 1):
+        lx = side * 7
+        legs.append(bone("right_leg" if side < 0 else "left_leg", (lx, 18, 0), [
+            box((lx - 5, 0, -6), (10, 4, 11), "rock"),
+            box((lx - 4, 4, -4), (8, 14, 8), "rock")]))
+    body = [box((-11, 18, -7), (22, 9, 14), "rock"),                 # bassin
+            box((-15, 27, -10), (30, 19, 19), "rock"),               # torse voûté
+            box((-17, 42, -8), (34, 6, 14), "rock"),                 # épaules
+            box((-4.5, 32, -10.6), (9, 9, 0.6), "core")]             # cœur de redstone
+    for i, (cx, cy, cz, h) in enumerate(((-9, 46, 2, 7), (-3, 47, 4, 10), (4, 47, 3, 8), (10, 46, 1, 6), (0, 44, 8, 6))):
+        body.append(box((cx - 1.5, cy, cz - 1.5), (3, h, 3), "crystal"))   # cristaux sur le dos
+    head = [box((-5, 41, -16), (10, 8, 8), "rock", north="face")]
+    arms = []
+    for side in (-1, 1):
+        ax = side * 21
+        arms.append(bone("right_arm" if side < 0 else "left_arm", (ax, 44, -1), [
+            box((ax - 5, 30, -6), (10, 16, 10), "rock"),             # bras
+            box((ax - 4, 26, -5), (8, 4, 8), "crystal"),             # coude lumineux
+            box((ax - 6.5, 4, -7.5), (13, 22, 13), "rock")], "body"))  # avant-bras et poing
+    bones = [bone("body", (0, 18, 0), body)] + legs + [bone("head", (0, 42, -8), head, "body")] + arms
+    painters = {"rock": golem_rock, "face": golem_face, "core": golem_core,
+                "crystal": mat(GOLEM_RED, 0.12, glow=True)}
+    write("entity", "redstone_golem", *build_fx("redstone_golem", bones, 2, 512, painters, rock="stone", face="stone"))
+    animations("redstone_golem", {
+        "idle": (3, True, {"body": {"position": {"0.0": [0, 0, 0], "1.5": [0, -0.6, 0], "3.0": [0, 0, 0]}},
+                           "right_arm": {"rotation": swing(3, 3)}, "left_arm": {"rotation": swing(-3, 3)}}),
+        "walk": (1.6, True, {"right_leg": {"rotation": swing(22, 1.6)}, "left_leg": {"rotation": swing(-22, 1.6)},
+                             "right_arm": {"rotation": swing(-16, 1.6)}, "left_arm": {"rotation": swing(16, 1.6)},
+                             "body": {"rotation": swing(4, 1.6, axis=2)}}),
+        # Frappe : les deux poings montent puis s'abattent
+        "slam": (1.0, False, {
+            "right_arm": {"rotation": {"0.0": [0, 0, 0], "0.4": [-150, 0, 0], "0.6": [15, 0, 0], "1.0": [0, 0, 0]}},
+            "left_arm": {"rotation": {"0.0": [0, 0, 0], "0.4": [-150, 0, 0], "0.6": [15, 0, 0], "1.0": [0, 0, 0]}},
+            "body": {"rotation": {"0.0": [0, 0, 0], "0.4": [-10, 0, 0], "0.6": [12, 0, 0], "1.0": [0, 0, 0]}}}),
+        # Onde de choc : il se redresse, bras écartés, puis frappe le sol
+        "shockwave": (1.5, False, {
+            "right_arm": {"rotation": {"0.0": [0, 0, 0], "0.8": [-170, 0, 25], "1.0": [20, 0, 0], "1.5": [0, 0, 0]}},
+            "left_arm": {"rotation": {"0.0": [0, 0, 0], "0.8": [-170, 0, -25], "1.0": [20, 0, 0], "1.5": [0, 0, 0]}},
+            "body": {"rotation": {"0.0": [0, 0, 0], "0.8": [-18, 0, 0], "1.0": [15, 0, 0], "1.5": [0, 0, 0]}}}),
+    })
+
+
+# ---------------------------------------------------------------------------
 def prune_empty_glowmasks():
     """GeckoLib plante sur une texture lumineuse sans aucun pixel : on supprime celles qui sont vides."""
     base = os.path.join(ROOT, "textures", "entity")
@@ -956,4 +1038,5 @@ if __name__ == "__main__":
     silence()
     zygon()
     slitheen()
+    redstone_golem()
     prune_empty_glowmasks()

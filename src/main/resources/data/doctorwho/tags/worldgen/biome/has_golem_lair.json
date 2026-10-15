@@ -1,0 +1,8 @@
+{
+  "values": [
+    "#minecraft:is_overworld",
+    "#doctorwho:is_skaro",
+    "#doctorwho:is_gallifrey",
+    "#doctorwho:is_moon"
+  ]
+}

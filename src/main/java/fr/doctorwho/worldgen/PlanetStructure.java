@@ -28,7 +28,7 @@ public class PlanetStructure extends Structure {
     ).apply(instance, PlanetStructure::new));
 
     /** Les familles de bâtiments (un constructeur chacune). */
-    public enum Family { DALEK, CITADEL, MOON_BASE, VILLAGE }
+    public enum Family { DALEK, CITADEL, MOON_BASE, VILLAGE, GOLEM_LAIR }
 
     /** Les structures disponibles : famille, taille, rayon et hauteur (en blocs). */
     public enum Kind implements StringIdentifiable {
@@ -43,7 +43,8 @@ public class PlanetStructure extends Structure {
         MOON_STATION("moon_station", Family.MOON_BASE, StructureSize.LARGE),
         SKARO_VILLAGE("skaro_village", Family.VILLAGE, StructureSize.MEDIUM),
         GALLIFREY_VILLAGE("gallifrey_village", Family.VILLAGE, StructureSize.MEDIUM),
-        MOON_VILLAGE("moon_village", Family.VILLAGE, StructureSize.MEDIUM);
+        MOON_VILLAGE("moon_village", Family.VILLAGE, StructureSize.MEDIUM),
+        GOLEM_LAIR("golem_lair", Family.GOLEM_LAIR, StructureSize.MEDIUM);
 
         public static final Codec<Kind> CODEC = StringIdentifiable.createCodec(Kind::values);
 
@@ -71,6 +72,7 @@ public class PlanetStructure extends Structure {
                 case CITADEL -> CitadelBuilder.radius(size);
                 case MOON_BASE -> MoonBaseBuilder.radius(size);
                 case VILLAGE -> VillageBuilder.RADIUS;
+                case GOLEM_LAIR -> GolemLairBuilder.RADIUS;
             };
         }
 
@@ -80,6 +82,7 @@ public class PlanetStructure extends Structure {
                 case CITADEL -> CitadelBuilder.height(size);
                 case MOON_BASE -> MoonBaseBuilder.height(size);
                 case VILLAGE -> VillageBuilder.HEIGHT;
+                case GOLEM_LAIR -> GolemLairBuilder.HEIGHT;
             };
         }
 
@@ -90,6 +93,7 @@ public class PlanetStructure extends Structure {
                 case CITADEL -> CitadelBuilder.build(canvas, size);
                 case MOON_BASE -> MoonBaseBuilder.build(canvas, size);
                 case VILLAGE -> VillageBuilder.build(canvas, this);
+                case GOLEM_LAIR -> GolemLairBuilder.build(canvas);
             }
         }
 
@@ -116,6 +120,15 @@ public class PlanetStructure extends Structure {
         int x = chunk.getCenterX();
         int z = chunk.getCenterZ();
         int y = groundLevel(context, x, z, kind.radius() / 2);
+        if (kind.family() == Family.GOLEM_LAIR) {
+            // Sous terre : entre 10 blocs au-dessus du fond du monde et 30 blocs sous la surface
+            int low = context.world().getBottomY() + 10;
+            int high = y - 30;
+            if (high < low) {
+                return Optional.empty();
+            }
+            y = low + context.random().nextInt(high - low + 1);
+        }
 
         // Trop bas ou trop haut pour tenir dans le monde : pas de structure ici
         if (y < context.world().getBottomY() + 12 || y + kind.height() >= context.world().getTopY() - 2) {

@@ -1,0 +1,8 @@
+{
+  "type": "doctorwho:planet_structure",
+  "kind": "golem_lair",
+  "biomes": "#doctorwho:has_golem_lair",
+  "step": "underground_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

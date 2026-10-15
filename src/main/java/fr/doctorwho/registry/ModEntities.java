@@ -10,6 +10,7 @@ import fr.doctorwho.entity.SlitheenEntity;
 import fr.doctorwho.entity.SontarianEntity;
 import fr.doctorwho.entity.ZygonEntity;
 import fr.doctorwho.entity.OodEntity;
+import fr.doctorwho.entity.RedstoneGolemEntity;
 import fr.doctorwho.entity.WeepingAngelEntity;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -94,6 +95,11 @@ public final class ModEntities {
             FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, SlitheenEntity::new)
                     .dimensions(EntityDimensions.fixed(1.0f, 2.5f)).build(),
             0x5C8046, 0xE6BE32);
+    /** Mini-boss des cavernes : n'apparait que dans son repaire (structure golem_lair). */
+    public static final EntityType<RedstoneGolemEntity> REDSTONE_GOLEM = register("redstone_golem",
+            FabricEntityTypeBuilder.create(SpawnGroup.MONSTER, RedstoneGolemEntity::new)
+                    .dimensions(EntityDimensions.fixed(2.4f, 3.6f)).fireImmune().trackRangeBlocks(80).build(),
+            0x3A3438, 0xE82C1E);
 
     private ModEntities() {
     }
@@ -120,6 +126,7 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(SILENCE, SilenceEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(ZYGON, ZygonEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SLITHEEN, SlitheenEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(REDSTONE_GOLEM, RedstoneGolemEntity.createAttributes());
 
         // Sur leur planète, les monstres apparaissent même en plein jour ; ailleurs, seulement dans le noir
         SpawnRestriction.register(DALEK, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,

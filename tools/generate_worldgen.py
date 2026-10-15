@@ -230,7 +230,16 @@ def caves():
                       "frequency": 0.004, "frequency_reduction_method": "legacy_type_3"}})
 
 
+def golem_lair():
+    """Repaire souterrain du golem de redstone : sur les trois planètes et dans la Surface."""
+    save("tags/worldgen/biome/has_golem_lair.json", {"values": [
+        "#minecraft:is_overworld"] + [f"#doctorwho:is_{planet}" for planet in ROCKS]})
+    structure("golem_lair", "#doctorwho:has_golem_lair", step="underground_structures", adaptation="none")
+    structure_set("golem_lairs", [("golem_lair", 1)], 40, 14, 27182818)
+
+
 if __name__ == "__main__":
+    golem_lair()
     buildings()
     villages()
     ores()
