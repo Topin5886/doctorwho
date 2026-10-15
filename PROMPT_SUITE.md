@@ -59,7 +59,7 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - `mixin/client/IntegratedServerLoaderMixin` (+ `doctorwho.mixins.json`) : plus d'écran « réglages expérimentaux ».
 - `client/sound/ConsoleHumSound` : bourdonnement en boucle dans l'intérieur ; `client/screen/DesktopChoiceScreen`.
 - `client/` : renderers GeckoLib (`TardisRenderer`, `TardisExteriorModel`, `TardisConsoleRenderer`, `SonicScrewdriverRenderer`), écrans `FlightPanelScreen` + `StyledButton`.
-- `worldgen/` : structures des planètes. `ModStructures` (type `doctorwho:planet_structure` + pièce `planet_piece`), `PlanetStructure` (choix de la hauteur, champ JSON `kind`), `PlanetStructurePiece` (sauvegarde centre + graine), `StructureCanvas` (outils de construction limités au chunk en cours : disques, anneaux, sphères étanches, fondations, cages, coffres, créatures), et un constructeur par bâtiment : `DalekCityBuilder`, `CitadelBuilder`, `MoonBaseBuilder`.
+- `worldgen/` : structures des planètes. `ModStructures` (type `doctorwho:planet_structure` + pièce `planet_piece`), `PlanetStructure` (choix de la hauteur, champ JSON `kind`), `PlanetStructurePiece` (sauvegarde centre + graine), `StructureCanvas` (outils de construction limités au chunk en cours : disques, anneaux, sphères étanches, fondations, cages, coffres, créatures), et un constructeur par famille : `DalekCityBuilder`, `CitadelBuilder`, `MoonBaseBuilder` (3 tailles chacun, `StructureSize`), `VillageBuilder` (villages des 3 planètes), `GolemLairBuilder` (repaire souterrain du golem). `tools/generate_worldgen.py` génère tous les JSON de génération (structures, fréquences, minerais, grottes, puits de mine).
 - `tools/generate_assets.py` (modèles/textures GeckoLib : TARDIS ×9, porte, console, 13 soniques, icônes TARDIS et clé) et `tools/generate_blocks.py` (blocs JSON, sceau gallifreyen). `tools/generate_recipes.py` (toutes les recettes), `tools/generate_tardis_sounds.py` (sons du TARDIS et du tournevis, synthétisés). **Les relancer après modification** : `python -I tools/generate_assets.py`.
 
 ### Fonctionnalités
@@ -78,12 +78,14 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - **Recettes** (41) : tournevis par modèle (verre de couleur + redstone + fer/cuivre/or), TARDIS par extérieur (béton bleu + œil de l'Ender + lampe du toit : glowstone = 2014, lanterne = 1963, lanterne aquatique = 2005, champilampe = 2010, lampe à redstone = 2018, lanterne des âmes = War, barre de l'End = 1980, bougie = 1996, perlesciente = 2023), clé, 15 blocs décoratifs.
 - **Sons** : décollage et atterrissage = **sons fournis par David** (extraits de la série : usage privé entre amis, ne pas publier ; décollage = 12 premières s, atterrissage = 8 dernières s, −10 dB, mono). Synthétisés : passage dans la salle (`enter`), choc, bourdonnement de la salle (boucle), tournevis. `pack_sons_perso/` = pack de ressources vide pour remplacer les autres sons. **Jamais écoutés par Claude** (pas de carte son dans le cloud) : à valider à l'oreille.
 - **Plus d'écran « réglages expérimentaux »** (création et chargement de monde).
-- **Structures des planètes** (étape B, voir `apercu_structures.png`) — on les trouve avec `/locate structure doctorwho:<id>` puis on tape les coordonnées dans le panneau de vol :
-  - `dalek_city` (Skaro, ~70 blocs) : grand dôme de bronze troué + estrade avec cage à Daleks, 6 tours à dôme (certaines effondrées), passerelles, pylônes ; 3 cages à Daleks, 4 coffres.
-  - `citadel` (Gallifrey, ~80 blocs) : dôme de verre à nervures sur socle de calcite, 4 portes ; Capitole (salle au sceau gallifreyen, bibliothèques) avec **crypte** sous la salle (échelle, cage à Ange Pleureur, 2 coffres) ; 8 flèches à pointe dorée (2 coffres), jardins aux arbres argentés, lampadaires ; 4 Ood posés à la génération.
-  - `moon_base` (Lune, ~50 blocs) : dôme de contrôle + 4 modules reliés par des tubes (labo, dortoir, salle de conversion avec cage à Cybermen, entrepôt avec cage + tonneaux), vitres brisées, antenne, panneaux solaires, aire d'atterrissage ; entrées par les modules est/ouest.
-  - Butin : `data/doctorwho/loot_tables/chests/{dalek_city,citadel,moon_base}.json` (tournevis sonique rare ; un TARDIS très rare dans la Citadelle).
-  - Fréquence : `worldgen/structure_set/*.json` (espacement 24 / 30 / 22 chunks). Planète : tags `tags/worldgen/biome/has_structure/*.json`.
+- **Structures des planètes** (étape B + grosse mise à jour) — `/locate structure doctorwho:<id>` puis les coordonnées dans le panneau de vol. **3 tailles par planète** (petite fréquente, grande rare), un seul `structure_set` par planète (`<planète>_buildings`, espacement 48 chunks, poids 4/2/1) :
+  - Skaro : `dalek_outpost` (dôme r18, 3 tours), `dalek_city` (r34, 6 tours), `dalek_capital` (r52, 9 tours, **prison** avec 2 Ood captifs).
+  - Gallifrey : `timelord_house`, `arcadia`, `citadel` (dôme de verre, Capitole, crypte à Ange Pleureur ; K9 dans la grande).
+  - Lune : `moon_outpost` (2 modules), `moon_base` (4 modules), `moon_station` (+ hangar sontarien avec soucoupe et observatoire).
+  - **Villages** (`skaro_village`, `gallifrey_village`, `moon_village`, espacement 34) : 5-7 maisons aux matériaux de la planète, champs (sous serre sur la Lune), place avec cloche, 1 golem de fer, villageois ; **un village sur deux cache un espion** (Zygon ou Slitheen déguisé).
+  - **Repaire du golem de redstone** (`golem_lair`, sous terre sur les 3 planètes **et dans la Surface**, espacement 40) : caverne en dôme de pierre noire veinée de redstone, piliers à lampes, 2 coffres, puits à échelle jusqu'à la surface (margelle + torches de redstone).
+  - Butin : `data/doctorwho/loot_tables/chests/*.json` et `entities/redstone_golem.json`.
+- **Sous-sol des planètes** : minerais du jeu (charbon, cuivre, fer, or, lapis, redstone, diamant, émeraude) par couches, + minerai bonus par planète (Skaro redstone, Gallifrey or, Lune fer) ; couche d'ardoise des abîmes sous Y 8-20 (minerais « deepslate ») ; grottes, grandes cavernes, canyons ; **puits de mine abandonnés** (ceux du jeu).
 - **Gallifrey en plein jour permanent** (`fixed_time: 6000` dans `dimension_type/gallifrey.json`).
 
 ### Pièges déjà rencontrés (à connaître)
@@ -108,13 +110,21 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - Les noms d'os et d'animations utilisés par le Java ne doivent pas changer (dalek idle/walk/shoot ; cyberman, zygon, slitheen, sontarien idle/walk/attack ; ood, silence, adipose, k9 idle/walk ; weeping_angel covering/attack).
 - Mode Peaceful : message « aucun monstre ne peut apparaître » au lieu d'un crash. Voix : cooldown de 70 ticks pour éviter les répliques doublées.
 - Limite connue : formes en cubes ; pour un rendu type Dalek Mod il faudrait remodeler à la main dans Blockbench (mêmes noms de fichiers, aucun changement de code).
-- Pas encore fait : le **déguisement** des Zygons/Slitheens en villageois.
+- **Déguisement** (`DisguisedMonsterEntity`, rendu `DisguisedCreatureRenderer`) : Zygons et Slitheens apparaissent en villageois (6 métiers, nom « Villageois », refusent de commercer, ni golems ni monstres ne les ciblent). Le Zygon se révèle quand un joueur (survie) approche à 3 blocs ; le Slitheen seulement quand on le frappe (éclair + gaz vert). Déguisés : 2 fois sur 3 dans la nature, toujours avec l'œuf ou dans un village ; `/summon` = vraie forme (ou `{Disguised:1b,DisguiseLook:0-5}`).
+- **Golem de redstone** (mini-boss, `RedstoneGolemEntity`) : 140 PV, armure 12, barre de boss, coup de poing de zone toutes les 2 s (le bouclier le bloque), onde de choc toutes les 8 s (1 s de préparation : sauter pour l'éviter) suivie de 2 s d'essoufflement. Testé : en armure de fer, un joueur immobile tient ~14 s.
 
 ### Pièges GeckoLib liés aux créatures
 - Une texture `_glowmask.png` **vide** fait planter le jeu : `generate_entities.py` supprime les masques vides (`prune_empty_glowmasks`) et le renderer n'ajoute la couche lumineuse (`AutoGlowingGeoLayer`) que pour dalek, cyberman, ood, k9.
 - `TameableEntity` (K9) doit implémenter `public EntityView method_48926(){ return getWorld(); }` ; `RangedAttackMob.attack(LivingEntity, float)` (pas `shootAt`).
 - Si le jar est verrouillé au `build` (« deployCurseForge FAILED »), c'est que Minecraft est ouvert : le fermer et relancer.
 - Éditer les fichiers : en bash les apostrophes cassent les heredocs ; écrire un petit `.py` de patch (lancé avec `python -I`) ou utiliser l'outil d'édition.
+
+### Pièges de la génération du monde
+- Nombres aléatoires « flottants » des carvers en 1.20.1 : `{"type":"minecraft:uniform","value":{"min_inclusive":…,"max_exclusive":…}}` (sinon « Not a JSON object: null »).
+- Les puits de mine se placent sous le niveau de la mer : `sea_level` des planètes mis à 63.
+- `execute in <dimension>` ne limite pas `@e` à la dimension : ajouter `positioned … distance=..N` pour compter les entités d'une planète.
+- Pour qu'aucun mob ne cible une créature (golem de fer et espions), surcharger `canTakeDamage()` (utilisé par `TargetPredicate`, pas par les dégâts).
+- Rendu logiciel du cloud : les couches lumineuses GeckoLib (`_glowmask`) s'affichent **noires** (cristaux du golem, yeux du Cyberman) ; à vérifier sur un vrai PC.
 
 ### Points connus à améliorer
 - Le cœur lumineux du rotor reste peu visible dans la colonne de verre.
@@ -160,8 +170,11 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 - C1 choix du décor à la 1re entrée, C2 clé (jumelage, verrou, rappel au sol, localisation, copie), C3 plus d'avertissement expérimental, C4 sons synthétisés, C5 variantes (+3 extérieurs, +2 décors, +5 tournevis), C6 recettes (demande de David).
 - Tout testé dans le vrai client (écran virtuel dans le cloud), **sauf les sons** (pas de carte son).
 
+### Grosse mise à jour des planètes (demande de David) — ✅ FAITE
+- Moins de bâtiments + 3 tailles avec d'autres mobs, villages, minerais par couches, grottes et puits de mine, golem de redstone et son repaire. Vérifié sur serveur de test (rendus, comptages) et dans le client virtuel (repaire, combat, barre de boss).
+
 ### Étape C bis — Restes
-- Déguisement des Zygons et Slitheens en villageois (se révèlent à l'approche / quand attaqués).
+- ✅ Déguisement des Zygons et Slitheens en villageois (testé dans le client virtuel : apparence, approche, coup, espions de village).
 - Retours de David après ses tests en jeu des créatures (plantages, designs ratés) : à traiter en priorité.
 - Optionnel : appliquer aux blocs et au TARDIS la même passe de finition de textures que les créatures (`finish()` dans `generate_entities.py`).
 
@@ -170,4 +183,4 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 - Tester à plusieurs (serveur ou LAN) : TARDIS partagé, panneau, voyages.
 - Petite icône du mod (`assets/doctorwho/icon.png`) et passage en version 0.2.0. Pas de publication publique.
 
-Commence par l'**étape C bis (restes)** puis l'**étape D**, en demandant d'abord à David ses retours sur l'étape C (sons, clé, décors, recettes) : à traiter en priorité.
+Prochaine étape : l'**étape D**, en demandant d'abord à David ses retours sur la grosse mise à jour des planètes (golem trop fort/faible ? fréquence des bâtiments ? espions) : à traiter en priorité.

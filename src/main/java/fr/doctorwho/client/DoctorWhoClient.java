@@ -2,6 +2,7 @@ package fr.doctorwho.client;
 
 import fr.doctorwho.DoctorWhoMod;
 import fr.doctorwho.client.renderer.CreatureRenderer;
+import fr.doctorwho.client.renderer.DisguisedCreatureRenderer;
 import fr.doctorwho.client.renderer.TardisConsoleRenderer;
 import fr.doctorwho.client.renderer.TardisExteriorModel;
 import fr.doctorwho.client.renderer.TardisRenderer;
@@ -48,8 +49,8 @@ public class DoctorWhoClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.K9, context -> new CreatureRenderer<>(context, "k9", 0.4f, true));
         EntityRendererRegistry.register(ModEntities.SONTARIAN, context -> new CreatureRenderer<>(context, "sontarian", 0.5f, false));
         EntityRendererRegistry.register(ModEntities.SILENCE, context -> new CreatureRenderer<>(context, "silence", 0.4f, false));
-        EntityRendererRegistry.register(ModEntities.ZYGON, context -> new CreatureRenderer<>(context, "zygon", 0.5f, false));
-        EntityRendererRegistry.register(ModEntities.SLITHEEN, context -> new CreatureRenderer<>(context, "slitheen", 0.7f, false));
+        EntityRendererRegistry.register(ModEntities.ZYGON, context -> new DisguisedCreatureRenderer<>(context, "zygon", 0.5f));
+        EntityRendererRegistry.register(ModEntities.SLITHEEN, context -> new DisguisedCreatureRenderer<>(context, "slitheen", 0.7f));
         EntityRendererRegistry.register(ModEntities.REDSTONE_GOLEM, context -> new CreatureRenderer<>(context, "redstone_golem", 1.4f, true));
         EntityRendererRegistry.register(ModEntities.ADIPOSE, context -> new CreatureRenderer<>(context, "adipose", 0.3f, false));
 

@@ -1,5 +1,6 @@
 package fr.doctorwho.worldgen;
 
+import fr.doctorwho.registry.ModEntities;
 import fr.doctorwho.registry.ModBlocks;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
@@ -111,6 +112,10 @@ final class VillageBuilder {
         }
         plaza();
         c.mob(3.5, 1, -3.5, EntityType.IRON_GOLEM);
+        // Un village sur deux cache un espion : un Zygon ou un Slitheen déguisé en villageois
+        if (c.pick(91, 2) == 0) {
+            c.mob(-3.5, 1, 3.5, c.pick(92, 2) == 0 ? ModEntities.ZYGON : ModEntities.SLITHEEN);
+        }
     }
 
     // --- Sol, place et chemins ----------------------------------------------------------------------
