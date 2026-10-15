@@ -10,6 +10,33 @@
   },
   "spawners": {},
   "spawn_costs": {},
-  "carvers": {},
-  "features": []
+  "carvers": {
+    "air": [
+      "doctorwho:cave_moon",
+      "doctorwho:cave_large_moon",
+      "doctorwho:canyon_moon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "doctorwho:ore_coal_moon",
+      "doctorwho:ore_copper_moon",
+      "doctorwho:ore_iron_moon",
+      "doctorwho:ore_gold_moon",
+      "doctorwho:ore_lapis_moon",
+      "doctorwho:ore_redstone_moon",
+      "doctorwho:ore_diamond_moon",
+      "doctorwho:ore_emerald_moon"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
 }

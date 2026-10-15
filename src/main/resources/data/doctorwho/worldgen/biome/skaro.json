@@ -10,6 +10,33 @@
   },
   "spawners": {},
   "spawn_costs": {},
-  "carvers": {},
-  "features": []
+  "carvers": {
+    "air": [
+      "doctorwho:cave_skaro",
+      "doctorwho:cave_large_skaro",
+      "doctorwho:canyon_skaro"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "doctorwho:ore_coal_skaro",
+      "doctorwho:ore_copper_skaro",
+      "doctorwho:ore_iron_skaro",
+      "doctorwho:ore_gold_skaro",
+      "doctorwho:ore_lapis_skaro",
+      "doctorwho:ore_redstone_skaro",
+      "doctorwho:ore_diamond_skaro",
+      "doctorwho:ore_emerald_skaro"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
 }

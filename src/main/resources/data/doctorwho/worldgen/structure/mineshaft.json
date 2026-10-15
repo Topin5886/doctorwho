@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:mineshaft",
+  "biomes": "#doctorwho:has_mineshaft",
+  "mineshaft_type": "normal",
+  "step": "underground_structures",
+  "spawn_overrides": {}
+}

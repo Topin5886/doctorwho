@@ -10,7 +10,13 @@
   },
   "spawners": {},
   "spawn_costs": {},
-  "carvers": {},
+  "carvers": {
+    "air": [
+      "doctorwho:cave_gallifrey",
+      "doctorwho:cave_large_gallifrey",
+      "doctorwho:canyon_gallifrey"
+    ]
+  },
   "features": [
     [],
     [],
@@ -18,11 +24,21 @@
     [],
     [],
     [],
-    [],
+    [
+      "doctorwho:ore_coal_gallifrey",
+      "doctorwho:ore_copper_gallifrey",
+      "doctorwho:ore_iron_gallifrey",
+      "doctorwho:ore_gold_gallifrey",
+      "doctorwho:ore_lapis_gallifrey",
+      "doctorwho:ore_redstone_gallifrey",
+      "doctorwho:ore_diamond_gallifrey",
+      "doctorwho:ore_emerald_gallifrey"
+    ],
     [],
     [],
     [
       "doctorwho:gallifrey_trees"
-    ]
+    ],
+    []
   ]
 }
