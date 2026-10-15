@@ -145,8 +145,9 @@ public final class TardisFlight {
         if (world == null) {
             world = server.getOverworld();
         }
-        Direction facing = data.getExteriorFacing();
-        BlockPos pos = findLanding(world, data.getDestinationPos());
+        Landing landing = findLanding(world, data.getDestinationPos(), data.getExteriorFacing());
+        BlockPos pos = landing.pos();
+        Direction facing = landing.facing();
         BlockState lower = ModBlocks.TARDIS.getDefaultState()
                 .with(AbstractTardisDoorBlock.FACING, facing)
                 .with(AbstractTardisDoorBlock.HALF, DoubleBlockHalf.LOWER);
@@ -213,35 +214,105 @@ public final class TardisFlight {
 
     // --- Outils --------------------------------------------------------------------------
 
+    /** Distance maximale (en blocs) autour de la destination pour trouver une bonne place. */
+    private static final int SEARCH_RADIUS = 16;
+
+    /** Où se poser et dans quel sens (porte dégagée). */
+    record Landing(BlockPos pos, Direction facing) {
+    }
+
     /**
-     * Trouve où se poser : deux blocs d'air au-dessus d'un sol solide, en cherchant
-     * autour de la hauteur demandée. S'il n'y a aucun sol (vide de l'End...), on
-     * pose une petite plateforme pour ne pas lâcher le Docteur dans le vide.
+     * Trouve où se poser : deux blocs d'air au-dessus d'un sol solide, <b>et la place de sortir</b>
+     * (deux blocs d'air sur sol solide devant la porte). Dans un monde qui a un ciel (Surface,
+     * planètes, End), on se pose toujours <b>à l'air libre</b>, jamais dans une grotte : on regarde
+     * la surface de la colonne visée, puis de plus en plus loin autour. Dans le Nether (plafond de
+     * roche), on cherche autour de la hauteur demandée. En dernier recours (océan, vide de l'End),
+     * on pose une petite plateforme avec la place de sortir.
      */
-    static BlockPos findLanding(ServerWorld world, BlockPos target) {
+    static Landing findLanding(ServerWorld world, BlockPos target, Direction preferred) {
         int minY = world.getBottomY() + 1;
         int maxY = Math.min(world.getTopY(), world.getBottomY() + world.getLogicalHeight()) - 3;
         int startY = MathHelper.clamp(target.getY(), minY, maxY);
-        int x = target.getX();
-        int z = target.getZ();
-        world.getChunk(x >> 4, z >> 4);
-        for (int d = 0; d <= maxY - minY; d++) {
-            for (int y : new int[]{startY - d, startY + d}) {
-                BlockPos pos = new BlockPos(x, y, z);
-                if (y >= minY && y <= maxY && canLand(world, pos)) {
-                    return pos;
+        boolean sky = !world.getDimension().hasCeiling();
+        for (int r = 0; r <= SEARCH_RADIUS; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                        continue; // seulement l'anneau de rayon r
+                    }
+                    int x = target.getX() + dx;
+                    int z = target.getZ() + dz;
+                    world.getChunk(x >> 4, z >> 4);
+                    Landing landing = sky ? surfaceLanding(world, x, z, minY, maxY, preferred)
+                            : caveLanding(world, x, startY, z, minY, maxY, preferred);
+                    if (landing != null) {
+                        return landing;
+                    }
                 }
             }
         }
+        // Rien de convenable : plateforme à la surface (ou à la hauteur demandée), devant comprise
+        int x = target.getX();
+        int z = target.getZ();
         int top = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
-        BlockPos pos = new BlockPos(x, top > minY ? Math.min(top, maxY) : startY, z);
+        BlockPos pos = new BlockPos(x, sky && top > minY ? Math.min(top, maxY) : startY, z);
         for (BlockPos floor : BlockPos.iterate(pos.add(-1, -1, -1), pos.add(1, -1, 1))) {
             world.setBlockState(floor, Blocks.SMOOTH_STONE.getDefaultState(), Block.NOTIFY_ALL);
         }
-        return pos;
+        for (BlockPos air : BlockPos.iterate(pos.add(-1, 0, -1), pos.add(1, 1, 1))) {
+            world.setBlockState(air, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
+        }
+        return new Landing(pos, preferred);
     }
 
-    private static boolean canLand(ServerWorld world, BlockPos pos) {
+    /** Se poser sur le dessus de la colonne (x, z), à condition qu'il n'y ait rien au-dessus. */
+    @Nullable
+    private static Landing surfaceLanding(ServerWorld world, int x, int z, int minY, int maxY, Direction preferred) {
+        int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z);
+        if (y < minY || y > maxY) {
+            return null;
+        }
+        return landingAt(world, new BlockPos(x, y, z), preferred, true);
+    }
+
+    /** Monde à plafond (Nether) : on cherche de haut en bas autour de la hauteur demandée. */
+    @Nullable
+    private static Landing caveLanding(ServerWorld world, int x, int startY, int z, int minY, int maxY, Direction preferred) {
+        for (int d = 0; d <= maxY - minY; d++) {
+            for (int y : new int[]{startY - d, startY + d}) {
+                if (y >= minY && y <= maxY) {
+                    Landing landing = landingAt(world, new BlockPos(x, y, z), preferred, false);
+                    if (landing != null) {
+                        return landing;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** La cabine tient ici, avec au moins un côté dégagé pour la porte (de préférence celui demandé). */
+    @Nullable
+    private static Landing landingAt(ServerWorld world, BlockPos pos, Direction preferred, boolean openSky) {
+        if (!canStand(world, pos)) {
+            return null;
+        }
+        if (openSky && pos.getY() < world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ())) {
+            return null;
+        }
+        if (canStand(world, pos.offset(preferred))) {
+            return new Landing(pos, preferred);
+        }
+        for (Direction side : Direction.Type.HORIZONTAL) {
+            if (canStand(world, pos.offset(side))) {
+                return new Landing(pos, side);
+            }
+        }
+        return null;
+    }
+
+    /** Deux blocs libres (sans liquide) au-dessus d'un sol solide : la cabine, ou le Docteur, y tient. */
+    static boolean canStand(ServerWorld world, BlockPos pos) {
         BlockState here = world.getBlockState(pos);
         BlockState above = world.getBlockState(pos.up());
         BlockPos below = pos.down();

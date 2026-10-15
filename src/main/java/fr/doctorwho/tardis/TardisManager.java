@@ -131,7 +131,33 @@ public final class TardisManager {
             return;
         }
         Direction facing = data.getExteriorFacing();
-        teleport(entity, target, Vec3d.ofBottomCenter(data.getExteriorPos().offset(facing)), facing.asRotation());
+        BlockPos exterior = data.getExteriorPos();
+        teleport(entity, target, Vec3d.ofBottomCenter(exitSpot(target, exterior, facing)), facing.asRotation());
+    }
+
+    /**
+     * Où poser celui qui sort : devant la porte si c'est libre, sinon la place libre la plus proche
+     * autour de la cabine (même un bloc plus haut ou plus bas), et au pire sur le toit du TARDIS.
+     * Ainsi, on ne reste jamais coincé dans un bloc (ni renvoyé à l'intérieur).
+     */
+    private static BlockPos exitSpot(ServerWorld world, BlockPos exterior, Direction facing) {
+        BlockPos front = exterior.offset(facing);
+        for (int dy : new int[]{0, 1, -1}) {
+            if (TardisFlight.canStand(world, front.up(dy))) {
+                return front.up(dy);
+            }
+        }
+        for (int r = 1; r <= 3; r++) {
+            for (int dy : new int[]{0, 1, -1, 2}) {
+                for (BlockPos spot : BlockPos.iterate(exterior.add(-r, dy, -r), exterior.add(r, dy, r))) {
+                    boolean ring = Math.max(Math.abs(spot.getX() - exterior.getX()), Math.abs(spot.getZ() - exterior.getZ())) == r;
+                    if (ring && TardisFlight.canStand(world, spot)) {
+                        return spot.toImmutable();
+                    }
+                }
+            }
+        }
+        return exterior.up(2); // sur le toit de la cabine
     }
 
     private static void teleport(Entity entity, ServerWorld destination, Vec3d pos, float yaw) {
