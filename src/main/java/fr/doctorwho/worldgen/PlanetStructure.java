@@ -28,7 +28,7 @@ public class PlanetStructure extends Structure {
     ).apply(instance, PlanetStructure::new));
 
     /** Les familles de bâtiments (un constructeur chacune). */
-    public enum Family { DALEK, CITADEL, MOON_BASE }
+    public enum Family { DALEK, CITADEL, MOON_BASE, VILLAGE }
 
     /** Les structures disponibles : famille, taille, rayon et hauteur (en blocs). */
     public enum Kind implements StringIdentifiable {
@@ -40,7 +40,10 @@ public class PlanetStructure extends Structure {
         CITADEL("citadel", Family.CITADEL, StructureSize.LARGE),
         MOON_OUTPOST("moon_outpost", Family.MOON_BASE, StructureSize.SMALL),
         MOON_BASE("moon_base", Family.MOON_BASE, StructureSize.MEDIUM),
-        MOON_STATION("moon_station", Family.MOON_BASE, StructureSize.LARGE);
+        MOON_STATION("moon_station", Family.MOON_BASE, StructureSize.LARGE),
+        SKARO_VILLAGE("skaro_village", Family.VILLAGE, StructureSize.MEDIUM),
+        GALLIFREY_VILLAGE("gallifrey_village", Family.VILLAGE, StructureSize.MEDIUM),
+        MOON_VILLAGE("moon_village", Family.VILLAGE, StructureSize.MEDIUM);
 
         public static final Codec<Kind> CODEC = StringIdentifiable.createCodec(Kind::values);
 
@@ -67,6 +70,7 @@ public class PlanetStructure extends Structure {
                 case DALEK -> DalekCityBuilder.radius(size);
                 case CITADEL -> CitadelBuilder.radius(size);
                 case MOON_BASE -> MoonBaseBuilder.radius(size);
+                case VILLAGE -> VillageBuilder.RADIUS;
             };
         }
 
@@ -75,6 +79,7 @@ public class PlanetStructure extends Structure {
                 case DALEK -> DalekCityBuilder.height(size);
                 case CITADEL -> CitadelBuilder.height(size);
                 case MOON_BASE -> MoonBaseBuilder.height(size);
+                case VILLAGE -> VillageBuilder.HEIGHT;
             };
         }
 
@@ -84,6 +89,7 @@ public class PlanetStructure extends Structure {
                 case DALEK -> DalekCityBuilder.build(canvas, size);
                 case CITADEL -> CitadelBuilder.build(canvas, size);
                 case MOON_BASE -> MoonBaseBuilder.build(canvas, size);
+                case VILLAGE -> VillageBuilder.build(canvas, this);
             }
         }
 

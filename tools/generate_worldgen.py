@@ -74,6 +74,17 @@ def structure_set(name, structures, spacing, separation, salt):
     })
 
 
+# Villages : un par planète, plus fréquents que les grands bâtiments
+VILLAGES = {"skaro": 34, "gallifrey": 34, "moon": 34}
+
+
+def villages():
+    for i, (planet, spacing) in enumerate(VILLAGES.items()):
+        sid = f"{planet}_village"
+        structure(sid, f"#doctorwho:is_{planet}")
+        structure_set(f"{planet}_villages", [(sid, 1)], spacing, 12, 31415926 + i)
+
+
 def buildings():
     for planet, (structures, spacing, separation, salt) in BUILDINGS.items():
         save(f"tags/worldgen/biome/is_{planet}.json", {"values": [f"doctorwho:{planet}"]})
@@ -221,6 +232,7 @@ def caves():
 
 if __name__ == "__main__":
     buildings()
+    villages()
     ores()
     deepslate_layer()
     caves()

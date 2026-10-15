@@ -1,0 +1,8 @@
+{
+  "type": "doctorwho:planet_structure",
+  "kind": "gallifrey_village",
+  "biomes": "#doctorwho:is_gallifrey",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_box",
+  "spawn_overrides": {}
+}
