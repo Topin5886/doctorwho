@@ -53,24 +53,31 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - `block/` : `AbstractTardisDoorBlock` (bloc 2 de haut, portes, passage en marchant), `TardisBlock`, `TardisInteriorDoorBlock`, `TardisConsoleBlock` (+ `ConsolePartBlock` invisibles), `DecorBlock`, `FacingDecorBlock`.
 - `block/entity/` : `AbstractTardisDoorBlockEntity` (animations portes), `TardisBlockEntity` (id, variante, clignotement), `TardisInteriorDoorBlockEntity`, `TardisConsoleBlockEntity` (rotor, tournevis posé).
 - `tardis/` : `TardisData` + `TardisRegistry` (PersistentState « doctorwho_tardis »), `TardisManager` (entrer/sortir, portes synchronisées, décor), `TardisFlight` (voyages), `InteriorBuilder` (salle de console, **VERSION 4**, 4 décors via `Theme`), `Architecture` (couloirs + salles), `Variants`, `Waypoint`, `RoomExit`, `FlightPhase`.
-- `network/` : `ModNetworking` (paquets panneau ↔ serveur), `FlightPanelData`.
+- `network/` : `ModNetworking` (paquets panneau ↔ serveur, choix du décor), `FlightPanelData`.
+- `tardis/DesktopChoice` (choix du décor à la 1re entrée), `tardis/TardisKeys` (clé : jumelage, verrou, rappel, localisation).
+- `item/` : `TardisKeyItem`, `TardisKeyCopyRecipe` (copie à l'établi), `TardisItem` (extérieur dans `BlockEntityTag.Variant`), `NbtShapedRecipeSerializer` (type `doctorwho:crafting_shaped_nbt` : résultat avec NBT). `registry/ModRecipes`.
+- `mixin/client/IntegratedServerLoaderMixin` (+ `doctorwho.mixins.json`) : plus d'écran « réglages expérimentaux ».
+- `client/sound/ConsoleHumSound` : bourdonnement en boucle dans l'intérieur ; `client/screen/DesktopChoiceScreen`.
 - `client/` : renderers GeckoLib (`TardisRenderer`, `TardisExteriorModel`, `TardisConsoleRenderer`, `SonicScrewdriverRenderer`), écrans `FlightPanelScreen` + `StyledButton`.
 - `worldgen/` : structures des planètes. `ModStructures` (type `doctorwho:planet_structure` + pièce `planet_piece`), `PlanetStructure` (choix de la hauteur, champ JSON `kind`), `PlanetStructurePiece` (sauvegarde centre + graine), `StructureCanvas` (outils de construction limités au chunk en cours : disques, anneaux, sphères étanches, fondations, cages, coffres, créatures), et un constructeur par bâtiment : `DalekCityBuilder`, `CitadelBuilder`, `MoonBaseBuilder`.
-- `tools/generate_assets.py` (modèles/textures GeckoLib : TARDIS ×6, porte, console, 8 soniques) et `tools/generate_blocks.py` (blocs JSON, sceau gallifreyen). **Les relancer après modification** : `python -I tools/generate_assets.py`.
+- `tools/generate_assets.py` (modèles/textures GeckoLib : TARDIS ×9, porte, console, 13 soniques, icônes TARDIS et clé) et `tools/generate_blocks.py` (blocs JSON, sceau gallifreyen). `tools/generate_recipes.py` (toutes les recettes), `tools/generate_tardis_sounds.py` (sons du TARDIS et du tournevis, synthétisés). **Les relancer après modification** : `python -I tools/generate_assets.py`.
 
 ### Fonctionnalités
-- **TARDIS** : cabine 2 blocs de haut, portes animées (clic droit), lampe lumineuse, **6 extérieurs** (1963, 2005, 2010 avec écusson, 2014, 2018, War Doctor) changeables par circuit caméléon. Cassé puis reposé, il garde son intérieur.
-- **Intérieur** (dimension `doctorwho:tardis_interior`, une zone par TARDIS espacée de 2048 blocs) : on entre/sort en marchant dans les portes ouvertes ; porte intérieure synchronisée ; salle ronde style Dalek Mod ; **4 décors** (Corail, Cuivre, Classique blanc, Sombre avec bibliothèques).
+- **TARDIS** : cabine 2 blocs de haut, portes animées (clic droit), lampe lumineuse, **9 extérieurs** (1963, 1980, 1996, 2005, 2010 avec écusson, 2014, 2018, 2023, War Doctor) changeables par circuit caméléon. Cassé puis reposé, il garde son intérieur.
+- **Intérieur** (dimension `doctorwho:tardis_interior`, une zone par TARDIS espacée de 2048 blocs) : on entre/sort en marchant dans les portes ouvertes ; porte intérieure synchronisée ; salle ronde style Dalek Mod ; **6 décors** (Corail, Cuivre, Classique blanc, Sombre avec bibliothèques, Colonnes 1963, Victorien 1996), **choisis à la première entrée** (écran de cartes illustrées ; Échap = ressortir).
 - **Console** hexagonale 3D : rotor animé en vol, 6 pupitres (manettes, boutons, clavier, écran, cadrans, frein), **logement du tournevis** (os `sonic_port`).
 - **Panneau de console** (style sombre/holographique, sceau gallifreyen animé), 3 onglets :
   - **VOL** : 6 destinations, X/Y/Z, « Ici », aléatoire, 6 waypoints, bouton Décoller ;
   - **APPARENCE** : extérieur, décor (bouton « Reconstruire »), modèle du tournevis posé ;
   - **ARCHITECTURE** : sorties libres + 8 types de salles (chambre, cuisine, bibliothèque, console secondaire pilotable, piscine, serre, atelier, croisement = 3 sorties), max 16, vérification de place.
 - **Voyage** : portes fermées, dématérialisation clignotante (7 s), vortex (5 s), rematérialisation (7 s) sur sol sûr (plateforme si vide), messages de progression pour l'équipage, sons (provisoires, vanilla).
-- **8 tournevis soniques** (Quatrième, Dixième, Onzième, Douzième, Treizième, War Doctor, River Song, laser du Maître), 3 modes (Ouverture — sauf le bois !, Activation, Analyse), sons, animation.
+- **13 tournevis soniques** (Deuxième, Troisième, Quatrième, Septième, Huitième, Dixième, Onzième, Douzième, Treizième, Quatorzième, War Doctor, River Song, laser du Maître), 3 modes (Ouverture — sauf le bois !, Activation, Analyse), sons, animation.
 - **Planètes** : Lune (ciel noir, gravité réduite), Skaro (désert rouge), Gallifrey (herbe rouge, ciel orange, **arbres argentés**).
 - **Blocs décoratifs** (onglet créatif) : murs à roundels (4 couleurs, éteints/lumineux), corail, grille, dalle hexagonale, piliers/branches de corail, poutre, applique, rambarde ; blocs des planètes.
-- Recettes : tournevis (colorant bleu clair + redstone + fer), TARDIS (glowstone + béton bleu + œil de l'Ender).
+- **Clé du TARDIS** : un TARDIS neuf est livré avec sa clé ; clé vierge (fer + pépite d'or + lapis) → clic droit sur un TARDIS non verrouillé pour la jumeler. Clé jumelée : clic droit sur le TARDIS = verrouiller/déverrouiller (portes fermées, incassable en survie, ouvrir de l'intérieur déverrouille) ; **clic droit sur le sol = le TARDIS vient s'y poser** ; clic droit dans le vide = où est le TARDIS. Copie : clé jumelée + clé vierge à l'établi.
+- **Recettes** (41) : tournevis par modèle (verre de couleur + redstone + fer/cuivre/or), TARDIS par extérieur (béton bleu + œil de l'Ender + lampe du toit : glowstone = 2014, lanterne = 1963, lanterne aquatique = 2005, champilampe = 2010, lampe à redstone = 2018, lanterne des âmes = War, barre de l'End = 1980, bougie = 1996, perlesciente = 2023), clé, 15 blocs décoratifs.
+- **Sons** synthétisés : décollage/atterrissage « vworp », choc, bourdonnement de la salle (boucle), tournevis. **Jamais écoutés par Claude** (pas de carte son dans le cloud) : à valider à l'oreille.
+- **Plus d'écran « réglages expérimentaux »** (création et chargement de monde).
 - **Structures des planètes** (étape B, voir `apercu_structures.png`) — on les trouve avec `/locate structure doctorwho:<id>` puis on tape les coordonnées dans le panneau de vol :
   - `dalek_city` (Skaro, ~70 blocs) : grand dôme de bronze troué + estrade avec cage à Daleks, 6 tours à dôme (certaines effondrées), passerelles, pylônes ; 3 cages à Daleks, 4 coffres.
   - `citadel` (Gallifrey, ~80 blocs) : dôme de verre à nervures sur socle de calcite, 4 portes ; Capitole (salle au sceau gallifreyen, bibliothèques) avec **crypte** sous la salle (échelle, cage à Ange Pleureur, 2 coffres) ; 8 flèches à pointe dorée (2 coffres), jardins aux arbres argentés, lampadaires ; 4 Ood posés à la génération.
@@ -86,7 +93,10 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - Surcharger `render(...)` d'un `GeoBlockRenderer` crée un conflit de génériques : utiliser `renderFinal` ou un `BlockAndItemGeoLayer`.
 - `/setblock` aligne les deux moitiés d'une porte (postProcessState) : pour poser un TARDIS ouvert, poser d'abord la moitié basse.
 - Les sons vanilla s'appellent par leur fichier (`minecraft:portal/trigger`, `minecraft:block/beacon/power1`).
-- Toute nouvelle dimension déclenche l'avertissement « réglages expérimentaux » (normal).
+- L'avertissement « réglages expérimentaux » est supprimé par le mixin client (`IntegratedServerLoaderMixin`).
+- Recette avec NBT : utiliser `"type": "doctorwho:crafting_shaped_nbt"` et `"result": {"item": …, "nbt": "{Variant:\"tenth\"}"}` (générées par `tools/generate_recipes.py`).
+- `Map.of` est limité à 10 paires : au-delà, `Map.ofEntries`.
+- Test en jeu possible **dans le cloud** : Xvfb + rendu logiciel (`DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1 gradle runClient`), captures `import -window root`, clavier/souris `xdotool` (pas de son). Ne pas tuer le client avec un `pkill -f` dont le motif apparaît dans la commande elle-même (motif `devlaunch[i]njector`).
 - Grandes constructions : une `Feature` ne peut écrire qu'à ±1 chunk autour du sien (les blocs plus loin sont perdus). Pour un bâtiment de plus de ~30 blocs, utiliser une **Structure** (comme `worldgen/`) : sa pièce est rappelée pour chaque chunk touché et ne pose que les blocs de ce chunk (`StructureCanvas` s'en charge). Le hasard doit dépendre de la position du bloc (`canvas.noise(x,y,z)`), jamais du `Random` du chunk, sinon les morceaux ne se raccordent pas.
 - `terrain_adaptation: "beard_box"` aplanit le terrain jusqu'au bas de la boîte de la pièce : la boîte commence donc au niveau du sol (y du centre), pas sous les fondations.
 - Cages à monstres : sans `custom_spawn_rules`, un monstre ne sort pas d'une cage en plein jour. `StructureCanvas.spawner` en ajoute (plage de lumière 0-15) ; dans le NBT elles s'affichent `custom_spawn_rules: {}` (valeurs par défaut omises) : c'est normal.
@@ -146,12 +156,9 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 - **Pas encore vue en jeu par David** : à tester (aller sur chaque planète, `/locate structure doctorwho:dalek_city` / `citadel` / `moon_base`, combattre les gardiens, ouvrir les coffres, descendre dans la crypte de la Citadelle).
 - Les mondes déjà créés n'ont les structures que dans les chunks **pas encore explorés** de chaque planète.
 
-### Étape C — Finitions TARDIS
-- **Choix de l'intérieur à la première entrée** (écran de sélection du décor).
-- **Clé du TARDIS** pour verrouiller/déverrouiller les portes (et appeler le TARDIS ?).
-- Masquer l'avertissement « réglages expérimentaux ».
-- Vrais sons (vworp-vworp, bourdonnement de la salle de console, tournevis).
-- Plus de variantes : autres extérieurs, autres décors (salle 2010 en verre/cuivre plus fidèle, salle 1963 à colonnes), autres tournevis (Deuxième, Troisième, Septième, Huitième, Quatorzième).
+### Étape C — Finitions TARDIS — ✅ FAITE (voir « Fonctionnalités » plus haut)
+- C1 choix du décor à la 1re entrée, C2 clé (jumelage, verrou, rappel au sol, localisation, copie), C3 plus d'avertissement expérimental, C4 sons synthétisés, C5 variantes (+3 extérieurs, +2 décors, +5 tournevis), C6 recettes (demande de David).
+- Tout testé dans le vrai client (écran virtuel dans le cloud), **sauf les sons** (pas de carte son).
 
 ### Étape C bis — Restes
 - Déguisement des Zygons et Slitheens en villageois (se révèlent à l'approche / quand attaqués).
@@ -163,4 +170,4 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 - Tester à plusieurs (serveur ou LAN) : TARDIS partagé, panneau, voyages.
 - Petite icône du mod (`assets/doctorwho/icon.png`) et passage en version 0.2.0. Pas de publication publique.
 
-Commence par l'**étape C (finitions TARDIS)**, en demandant d'abord à David s'il a des retours sur les créatures et sur les structures des planètes (à traiter en priorité).
+Commence par l'**étape C bis (restes)** puis l'**étape D**, en demandant d'abord à David ses retours sur l'étape C (sons, clé, décors, recettes) : à traiter en priorité.
