@@ -55,6 +55,7 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - `tardis/` : `TardisData` + `TardisRegistry` (PersistentState « doctorwho_tardis »), `TardisManager` (entrer/sortir, portes synchronisées, décor), `TardisFlight` (voyages), `InteriorBuilder` (salle de console, **VERSION 4**, 4 décors via `Theme`), `Architecture` (couloirs + salles), `Variants`, `Waypoint`, `RoomExit`, `FlightPhase`.
 - `network/` : `ModNetworking` (paquets panneau ↔ serveur), `FlightPanelData`.
 - `client/` : renderers GeckoLib (`TardisRenderer`, `TardisExteriorModel`, `TardisConsoleRenderer`, `SonicScrewdriverRenderer`), écrans `FlightPanelScreen` + `StyledButton`.
+- `worldgen/` : structures des planètes. `ModStructures` (type `doctorwho:planet_structure` + pièce `planet_piece`), `PlanetStructure` (choix de la hauteur, champ JSON `kind`), `PlanetStructurePiece` (sauvegarde centre + graine), `StructureCanvas` (outils de construction limités au chunk en cours : disques, anneaux, sphères étanches, fondations, cages, coffres, créatures), et un constructeur par bâtiment : `DalekCityBuilder`, `CitadelBuilder`, `MoonBaseBuilder`.
 - `tools/generate_assets.py` (modèles/textures GeckoLib : TARDIS ×6, porte, console, 8 soniques) et `tools/generate_blocks.py` (blocs JSON, sceau gallifreyen). **Les relancer après modification** : `python -I tools/generate_assets.py`.
 
 ### Fonctionnalités
@@ -70,6 +71,13 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - **Planètes** : Lune (ciel noir, gravité réduite), Skaro (désert rouge), Gallifrey (herbe rouge, ciel orange, **arbres argentés**).
 - **Blocs décoratifs** (onglet créatif) : murs à roundels (4 couleurs, éteints/lumineux), corail, grille, dalle hexagonale, piliers/branches de corail, poutre, applique, rambarde ; blocs des planètes.
 - Recettes : tournevis (colorant bleu clair + redstone + fer), TARDIS (glowstone + béton bleu + œil de l'Ender).
+- **Structures des planètes** (étape B, voir `apercu_structures.png`) — on les trouve avec `/locate structure doctorwho:<id>` puis on tape les coordonnées dans le panneau de vol :
+  - `dalek_city` (Skaro, ~70 blocs) : grand dôme de bronze troué + estrade avec cage à Daleks, 6 tours à dôme (certaines effondrées), passerelles, pylônes ; 3 cages à Daleks, 4 coffres.
+  - `citadel` (Gallifrey, ~80 blocs) : dôme de verre à nervures sur socle de calcite, 4 portes ; Capitole (salle au sceau gallifreyen, bibliothèques) avec **crypte** sous la salle (échelle, cage à Ange Pleureur, 2 coffres) ; 8 flèches à pointe dorée (2 coffres), jardins aux arbres argentés, lampadaires ; 4 Ood posés à la génération.
+  - `moon_base` (Lune, ~50 blocs) : dôme de contrôle + 4 modules reliés par des tubes (labo, dortoir, salle de conversion avec cage à Cybermen, entrepôt avec cage + tonneaux), vitres brisées, antenne, panneaux solaires, aire d'atterrissage ; entrées par les modules est/ouest.
+  - Butin : `data/doctorwho/loot_tables/chests/{dalek_city,citadel,moon_base}.json` (tournevis sonique rare ; un TARDIS très rare dans la Citadelle).
+  - Fréquence : `worldgen/structure_set/*.json` (espacement 24 / 30 / 22 chunks). Planète : tags `tags/worldgen/biome/has_structure/*.json`.
+- **Gallifrey en plein jour permanent** (`fixed_time: 6000` dans `dimension_type/gallifrey.json`).
 
 ### Pièges déjà rencontrés (à connaître)
 - GeckoLib **inverse l'axe X** : sur un cube, la face extérieure côté −X est « east » et côté +X « west ». Le front des modèles = nord (−Z).
@@ -79,6 +87,10 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 - `/setblock` aligne les deux moitiés d'une porte (postProcessState) : pour poser un TARDIS ouvert, poser d'abord la moitié basse.
 - Les sons vanilla s'appellent par leur fichier (`minecraft:portal/trigger`, `minecraft:block/beacon/power1`).
 - Toute nouvelle dimension déclenche l'avertissement « réglages expérimentaux » (normal).
+- Grandes constructions : une `Feature` ne peut écrire qu'à ±1 chunk autour du sien (les blocs plus loin sont perdus). Pour un bâtiment de plus de ~30 blocs, utiliser une **Structure** (comme `worldgen/`) : sa pièce est rappelée pour chaque chunk touché et ne pose que les blocs de ce chunk (`StructureCanvas` s'en charge). Le hasard doit dépendre de la position du bloc (`canvas.noise(x,y,z)`), jamais du `Random` du chunk, sinon les morceaux ne se raccordent pas.
+- `terrain_adaptation: "beard_box"` aplanit le terrain jusqu'au bas de la boîte de la pièce : la boîte commence donc au niveau du sol (y du centre), pas sous les fondations.
+- Cages à monstres : sans `custom_spawn_rules`, un monstre ne sort pas d'une cage en plein jour. `StructureCanvas.spawner` en ajoute (plage de lumière 0-15) ; dans le NBT elles s'affichent `custom_spawn_rules: {}` (valeurs par défaut omises) : c'est normal.
+- Dans Yarn 1.20.1 : `net.minecraft.world.MobSpawnerEntry` (pas `block.spawner`), `LootableContainerBlockEntity.setLootTable(world, random, pos, id)`.
 
 ### Créatures (étape A — FAITE, compilée et déployée ; **jamais vue en jeu par Claude**, David les teste lui-même dans CurseForge)
 - 10 créatures : Dalek (5 couleurs : bronze, argent, rouge, noir, blanc), Cyberman (Cybus 2006), Ange Pleureur, Ood, Adipose, K9 (apprivoisable à la redstone, 1 chance sur 3), Sontarien, Silence, Zygon, Slitheen. Entités dans `entity/` (`SimpleMonsterEntity` = base), renderer `client/renderer/CreatureRenderer`, types/œufs/apparitions dans `registry/ModEntities`, voix dans `ModSounds` + `tools/generate_sounds.py`.
@@ -97,7 +109,8 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 ### Points connus à améliorer
 - Le cœur lumineux du rotor reste peu visible dans la colonne de verre.
 - Sons de vol et de tournevis = sons vanilla détournés (à remplacer par de vrais .ogg).
-- Il fait parfois sombre sur Skaro/Gallifrey (cycle jour/nuit normal) — envisager un jour fixe sur Gallifrey.
+- Il fait parfois sombre sur Skaro (cycle jour/nuit normal) ; Gallifrey est maintenant en plein jour permanent.
+- Idée : un bouton « Atterrir près de la structure » dans le panneau de vol (via `ServerWorld.locateStructure`) pour éviter de passer par `/locate`.
 
 ---
 
@@ -128,13 +141,10 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 10. **Slitheen** — grand extraterrestre vert ; se cache sous une « peau humaine » (apparence de villageois), se révèle quand attaqué, griffes. Surface (rare).
 - Ordre conseillé : Dalek → Cyberman → Ange Pleureur → Ood → Adipose → K9 → Sontarien → Silence → Zygon → Slitheen.
 
-### Étape B — Structures des planètes — *PROCHAINE ÉTAPE (juste commencée : rien n'est encore écrit)*
-- État du terrain : les biomes `data/doctorwho/worldgen/biome/{skaro,gallifrey,moon}.json` ont `"features"` vide sauf Gallifrey (arbres via `placed_feature/gallifrey_trees.json`). Blocs utilisables : `SKARO_ROCK`, `SKARO_SAND`, `MOON_ROCK`, `MOON_DUST`, `GALLIFREY_*`, murs à roundels, `HEX_LIGHT`, verre vanilla.
-- Plan : une `Feature<…Config>` Java (config = type de structure) enregistrée dans un `ModWorldgen`, appelée depuis `DoctorWhoMod.onInitialize` ; un `configured_feature` + `placed_feature` (rareté `rarity_filter`, `in_square`, `heightmap`) par planète ; les ajouter à l'étape « surface_structures » (index 3) de la liste `features` du biome. Gardiens : **cages à monstres** (`MobSpawnerBlockEntity`, type `ModEntities.DALEK` / `CYBERMAN`) plutôt que des entités posées pendant la génération.
-- **Skaro** : ville dalek en ruine (dômes, tours) avec Daleks.
-- **Gallifrey** : la Citadelle sous son dôme de verre (+ éventuellement un jour fixe).
-- **Lune** : base lunaire (Cybermen).
-- Approche suggérée : `Feature` Java qui construit en code, placée via `placed_feature` + liste `features` des biomes (rareté contrôlée).
+### Étape B — Structures des planètes — ✅ FAITE (voir « Structures des planètes » plus haut)
+- Vérifiée sur un serveur de test sans écran (dans le cloud) : les 3 structures se génèrent sans erreur, `/locate` les trouve (et pas dans l'Overworld), cages et coffres bien réglés, Ood présents, tables de butin valides. Rendus 3D lus directement dans les fichiers du monde → `apercu_structures.png`.
+- **Pas encore vue en jeu par David** : à tester (aller sur chaque planète, `/locate structure doctorwho:dalek_city` / `citadel` / `moon_base`, combattre les gardiens, ouvrir les coffres, descendre dans la crypte de la Citadelle).
+- Les mondes déjà créés n'ont les structures que dans les chunks **pas encore explorés** de chaque planète.
 
 ### Étape C — Finitions TARDIS
 - **Choix de l'intérieur à la première entrée** (écran de sélection du décor).
@@ -153,4 +163,4 @@ Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : c
 - Tester à plusieurs (serveur ou LAN) : TARDIS partagé, panneau, voyages.
 - Petite icône du mod (`assets/doctorwho/icon.png`) et passage en version 0.2.0. Pas de publication publique.
 
-Commence par l'**étape B (structures des planètes)**, en demandant d'abord à David s'il a des retours sur les créatures.
+Commence par l'**étape C (finitions TARDIS)**, en demandant d'abord à David s'il a des retours sur les créatures et sur les structures des planètes (à traiter en priorité).

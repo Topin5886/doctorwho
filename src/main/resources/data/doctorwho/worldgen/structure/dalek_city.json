@@ -1,0 +1,8 @@
+{
+  "type": "doctorwho:planet_structure",
+  "kind": "dalek_city",
+  "biomes": "#doctorwho:has_structure/dalek_city",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_box",
+  "spawn_overrides": {}
+}

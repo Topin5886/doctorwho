@@ -1,0 +1,8 @@
+{
+  "type": "doctorwho:planet_structure",
+  "kind": "citadel",
+  "biomes": "#doctorwho:has_structure/citadel",
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_box",
+  "spawn_overrides": {}
+}

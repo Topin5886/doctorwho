@@ -10,6 +10,7 @@ import fr.doctorwho.registry.ModEntities;
 import fr.doctorwho.registry.ModItemGroups;
 import fr.doctorwho.registry.ModItems;
 import fr.doctorwho.registry.ModSounds;
+import fr.doctorwho.worldgen.ModStructures;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class DoctorWhoMod implements ModInitializer {
         TardisFlight.register();     // voyages (dématérialisation, vortex, atterrissage)
         ModDimensions.register();    // planètes : Lune, Skaro, Gallifrey
         ModEntities.register();      // Daleks, Cybermen, Anges Pleureurs, Ood, Adipose
+        ModStructures.register();    // ville dalek, Citadelle de Gallifrey, base lunaire
 
         LOGGER.info("Mod Doctor Who prêt.");
     }
