@@ -342,6 +342,8 @@ def build_blocks():
         simple_block(theme + "_roundel_wall", model_cube_all(theme + "_roundel_wall"))
         simple_block(theme + "_roundel_wall_lit", model_cube_all(theme + "_roundel_wall_lit"))
 
+    interior_blocks()
+
     # --- Planètes ---------------------------------------------------------------
     tex("moon_dust", moon_dust())
     tex("moon_rock", moon_rock())
@@ -382,6 +384,159 @@ def build_blocks():
             "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "doctorwho:" + name}],
                        "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
     print("OK", len(BLOCKS), "blocs :", ", ".join(BLOCKS))
+
+
+# ---------------------------------------------------------------------------
+# Décor des grandes salles de console (thèmes d'intérieur)
+# ---------------------------------------------------------------------------
+# Familles de roundels en relief : couleur du panneau, du creux éteint, et dégradé du disque allumé.
+# Pour un nouveau thème : ajouter une ligne ici, puis le nom dans ModBlocks.ROUNDEL_FAMILIES.
+ROUNDEL_FAMILIES = {
+    "classic": ((232, 232, 226), (206, 206, 200), ((255, 226, 170), (255, 252, 236))),
+}
+HOLE = 12.5   # rayon du trou (sur 32 px)
+
+
+def roundel_front(panel):
+    """Face avant : panneau percé d'un trou rond (transparent), avec un biseau sombre autour."""
+    img = Image(32, 32)
+    noise_fill(img, panel, 0.025, 21)
+    c = 15.5
+    for y in range(32):
+        for x in range(32):
+            d = math.hypot(x - c, y - c)
+            if d <= HOLE:
+                img.px[(y * 32 + x) * 4 + 3] = 0
+            elif d <= HOLE + 1.6:
+                # biseau : ombre en haut à gauche, lumière en bas à droite
+                k = 0.78 + 0.16 * ((x - c) + (y - c)) / (2 * HOLE)
+                img.set(x, y, shade(panel, k))
+    img.frame(0, 0, 32, 32, shade(panel, 0.86), 1)
+    return img
+
+
+def roundel_disc(panel, hollow, glow, lit):
+    """Fond du creux : disque éteint (ombré) ou allumé (dégradé lumineux)."""
+    img = Image(32, 32)
+    c = 15.5
+    for y in range(32):
+        for x in range(32):
+            d = math.hypot(x - c, y - c)
+            if lit:
+                k = max(0.0, 1 - d / (HOLE + 1))
+                a, b = glow
+                img.set(x, y, tuple(int(a[i] + (b[i] - a[i]) * k) for i in range(3)))
+            else:
+                k = 0.86 + 0.12 * ((x - c) + (y - c)) / 32 + (0.06 if d < HOLE - 3 else 0)
+                img.set(x, y, shade(hollow, k))
+    return img
+
+
+def roundel_model(front, disc, side):
+    """Bloc plein dont la face nord porte un disque creusé de 3 px (regarde au nord par défaut)."""
+    t = {"front": front, "disc": disc, "side": side, "particle": side}
+    back = {"from": [0, 0, 3], "to": [16, 16, 16], "faces": {
+        "north": {"texture": "#disc"},
+        "south": {"texture": "#side", "cullface": "south"},
+        "east": {"texture": "#side", "cullface": "east"},
+        "west": {"texture": "#side", "cullface": "west"},
+        "up": {"texture": "#side", "cullface": "up"},
+        "down": {"texture": "#side", "cullface": "down"}}}
+    plate = {"from": [0, 0, 0], "to": [16, 16, 3], "faces": {
+        "north": {"texture": "#front", "cullface": "north"},
+        "east": {"texture": "#side", "cullface": "east"},
+        "west": {"texture": "#side", "cullface": "west"},
+        "up": {"texture": "#side", "cullface": "up"},
+        "down": {"texture": "#side", "cullface": "down"}}}
+    return {"parent": "minecraft:block/block", "textures": t, "elements": [back, plate]}
+
+
+def pilaster(panel):
+    """Pilastre cannelé (côtés) : cannelures verticales."""
+    img = Image(16, 16)
+    noise_fill(img, panel, 0.02, 31)
+    for x in range(16):
+        k = {0: 0.8, 1: 0.95, 2: 1.04, 3: 0.9}[x % 4]
+        for y in range(16):
+            img.set(x, y, shade(panel, k * (1 + 0.02 * ((x * 7 + y * 3) % 3 - 1))))
+    return img
+
+
+def light_panel():
+    img = Image(16, 16)
+    for y in range(16):
+        for x in range(16):
+            d = max(abs(x - 7.5), abs(y - 7.5)) / 7.5
+            img.set(x, y, shade((255, 250, 236), 1 - 0.08 * d))
+    img.frame(0, 0, 16, 16, (214, 212, 204), 1)
+    return img
+
+
+def scanner_screen():
+    """Écran du scanner : une galaxie spirale turquoise sur fond sombre."""
+    img = Image(32, 32)
+    rnd = random.Random(8)
+    for y in range(32):
+        for x in range(32):
+            img.set(x, y, (8 + rnd.randint(0, 6), 14 + rnd.randint(0, 6), 24 + rnd.randint(0, 8)))
+    c = 15.5
+    for arm in range(2):
+        for s in range(160):
+            a = s * 0.07 + arm * math.pi
+            r = s * 0.085
+            x, y = c + math.cos(a) * r, c + math.sin(a) * r * 0.7
+            for dx in (0, 1):
+                k = 1 - s / 200
+                img.set(int(x) + dx, int(y), (int(80 * k + 40), int(230 * k + 20), int(220 * k + 30)))
+    for y in range(13, 19):
+        for x in range(13, 19):
+            if math.hypot(x - c, y - c) < 3:
+                img.set(x, y, (220, 255, 250))
+    img.frame(0, 0, 32, 32, (60, 64, 70), 1)
+    return img
+
+
+def interior_blocks():
+    for family, (panel, hollow, glow) in ROUNDEL_FAMILIES.items():
+        tex(family + "_roundel_front", roundel_front(panel))
+        tex(family + "_roundel_side", solid_tex(panel, 0.02, 41))
+        tex(family + "_roundel_disc", roundel_disc(panel, hollow, glow, False))
+        tex(family + "_roundel_disc_lit", roundel_disc(panel, hollow, glow, True))
+        for lit in (False, True):
+            name = family + "_roundel" + ("_lit" if lit else "")
+            simple_block(name, roundel_model("doctorwho:block/%s_roundel_front" % family,
+                                             "doctorwho:block/%s_roundel_disc%s" % (family, "_lit" if lit else ""),
+                                             "doctorwho:block/%s_roundel_side" % family), facing=True)
+
+    tex("classic_pilaster", pilaster((236, 236, 230)))
+    tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))
+    simple_block("classic_pilaster", {"parent": "minecraft:block/cube_column", "textures": {
+        "end": "doctorwho:block/classic_pilaster_top", "side": "doctorwho:block/classic_pilaster"}})
+
+    tex("light_panel", light_panel())
+    simple_block("light_panel", model_cube_all("light_panel"))
+
+    # Écran du scanner, accroché au mur (dos au sud quand il regarde au nord)
+    tex("scanner_screen", scanner_screen())
+    tex("scanner_frame", solid_tex((70, 72, 78), 0.05, 47))
+    simple_block("scanner", model_elements(
+        {"frame": "doctorwho:block/scanner_frame", "screen": "doctorwho:block/scanner_screen",
+         "particle": "doctorwho:block/scanner_frame"},
+        [box([0, 1, 13], [16, 15, 16], "#frame"),
+         {"from": [1, 2, 12.9], "to": [15, 14, 13], "faces": {"north": {"texture": "#screen"}}}]),
+        facing=True)
+
+    # Porte-manteau (≈ 2 blocs de haut), bois sombre et laiton
+    wood, brass = "#wood", "#brass"
+    simple_block("hat_stand", model_elements(
+        {"wood": "minecraft:block/dark_oak_planks", "brass": "doctorwho:block/brass",
+         "particle": "minecraft:block/dark_oak_planks"},
+        [box([3, 0, 7], [13, 1.5, 9], wood), box([7, 0, 3], [9, 1.5, 13], wood),
+         box([7.25, 1.5, 7.25], [8.75, 28, 8.75], wood),
+         box([7, 28, 7], [9, 30, 9], brass),
+         box([4, 25, 7.5], [12, 26, 8.5], brass), box([7.5, 25, 4], [8.5, 26, 12], brass),
+         box([4, 26, 7.5], [5, 27.5, 8.5], brass), box([11, 26, 7.5], [12, 27.5, 8.5], brass),
+         box([7.5, 26, 4], [8.5, 27.5, 5], brass), box([7.5, 26, 11], [8.5, 27.5, 12], brass)]))
 
 
 # ---------------------------------------------------------------------------

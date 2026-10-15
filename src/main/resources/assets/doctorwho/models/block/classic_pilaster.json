@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "doctorwho:block/classic_pilaster_top",
+    "side": "doctorwho:block/classic_pilaster"
+  }
+}

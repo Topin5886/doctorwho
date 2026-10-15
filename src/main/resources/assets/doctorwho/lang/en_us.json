@@ -216,5 +216,14 @@
   "variant.doctorwho.sonic.fourteenth": "Fourteenth",
   "subtitles.doctorwho.tardis.enter": "Stepping through the TARDIS",
   "entity.doctorwho.redstone_golem": "Redstone Golem",
-  "item.doctorwho.redstone_golem_spawn_egg": "Redstone Golem Spawn Egg"
+  "item.doctorwho.redstone_golem_spawn_egg": "Redstone Golem Spawn Egg",
+  "block.doctorwho.classic_roundel": "Classic Roundel",
+  "block.doctorwho.classic_roundel_lit": "Lit Classic Roundel",
+  "block.doctorwho.classic_pilaster": "Fluted Pilaster",
+  "block.doctorwho.light_panel": "Light Panel",
+  "block.doctorwho.scanner": "Scanner Screen",
+  "block.doctorwho.hat_stand": "Hat Stand",
+  "command.doctorwho.desktop.not_inside": "You must be inside a TARDIS to change its desktop.",
+  "command.doctorwho.desktop.unknown": "Unknown desktop: %s",
+  "command.doctorwho.desktop.done": "Console room rebuilt: %s"
 }

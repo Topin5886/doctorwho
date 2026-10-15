@@ -22,7 +22,9 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.BlockSoundGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class ModBlocks {
 
@@ -92,6 +94,46 @@ public final class ModBlocks {
     public static final Block DARK_ROUNDEL_WALL_LIT = decor("dark_roundel_wall_lit", new Block(stone(MapColor.GRAY).luminance(state -> 15)));
     public static final Block COPPER_ROUNDEL_WALL = decor("copper_roundel_wall", new Block(stone(MapColor.ORANGE)));
     public static final Block COPPER_ROUNDEL_WALL_LIT = decor("copper_roundel_wall_lit", new Block(stone(MapColor.ORANGE).luminance(state -> 15)));
+
+    // --- Grandes salles de console (thèmes d'intérieur) ---------------------------------
+
+    /**
+     * Familles de roundels en relief (disque creusé, éteint ou allumé), une par thème.
+     * Pour un nouveau thème : ajouter son nom ici et dans ROUNDEL_FAMILIES de tools/generate_blocks.py.
+     */
+    public static final List<String> ROUNDEL_FAMILIES = List.of("classic");
+    private static final Map<String, Block> ROUNDELS = new HashMap<>();
+
+    static {
+        for (String family : ROUNDEL_FAMILIES) {
+            ROUNDELS.put(family, decor(family + "_roundel", roundelBlock(0)));
+            ROUNDELS.put(family + "_lit", decor(family + "_roundel_lit", roundelBlock(14)));
+        }
+    }
+
+    /** Pilastre cannelé des murs du décor classique. */
+    public static final Block CLASSIC_PILASTER = decor("classic_pilaster", new Block(stone(MapColor.WHITE)));
+    /** Panneau lumineux (plafonds). */
+    public static final Block LIGHT_PANEL = decor("light_panel", new Block(stone(MapColor.WHITE).luminance(state -> 15)));
+    /** Écran du scanner (galaxie), accroché au mur. */
+    public static final Block SCANNER = decor("scanner", new FacingDecorBlock(metal().nonOpaque().luminance(state -> 7),
+            Block.createCuboidShape(0, 1, 13, 16, 15, 16), true));
+    /** Porte-manteau (≈ 2 blocs de haut), comme dans la salle classique. */
+    public static final Block HAT_STAND = decor("hat_stand", new DecorBlock(FabricBlockSettings.create()
+            .mapColor(MapColor.BROWN).strength(1.0f).sounds(BlockSoundGroup.WOOD).nonOpaque(),
+            Block.createCuboidShape(6, 0, 6, 10, 16, 10)));
+
+    /** Roundel en relief d'une famille ({@link #ROUNDEL_FAMILIES}), éteint ou allumé. */
+    public static Block roundel(String family, boolean lit) {
+        Block block = ROUNDELS.get(lit ? family + "_lit" : family);
+        return block != null ? block : (lit ? WHITE_ROUNDEL_WALL_LIT : WHITE_ROUNDEL_WALL);
+    }
+
+    /** Bloc plein orientable dont une face porte le disque ; non opaque pour que la lumière éclaire le creux. */
+    private static Block roundelBlock(int light) {
+        return new FacingDecorBlock(stone(MapColor.WHITE).nonOpaque().luminance(state -> light),
+                Block.createCuboidShape(0, 0, 0, 16, 16, 16), false);
+    }
 
     // --- Sols des planètes -------------------------------------------------------------
 

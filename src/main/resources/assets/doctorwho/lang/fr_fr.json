@@ -216,5 +216,14 @@
   "variant.doctorwho.sonic.fourteenth": "Quatorzième",
   "subtitles.doctorwho.tardis.enter": "On entre dans le TARDIS",
   "entity.doctorwho.redstone_golem": "Golem de redstone",
-  "item.doctorwho.redstone_golem_spawn_egg": "Œuf d'apparition de golem de redstone"
+  "item.doctorwho.redstone_golem_spawn_egg": "Œuf d'apparition de golem de redstone",
+  "block.doctorwho.classic_roundel": "Roundel classique",
+  "block.doctorwho.classic_roundel_lit": "Roundel classique lumineux",
+  "block.doctorwho.classic_pilaster": "Pilastre cannelé",
+  "block.doctorwho.light_panel": "Panneau lumineux",
+  "block.doctorwho.scanner": "Écran du scanner",
+  "block.doctorwho.hat_stand": "Porte-manteau",
+  "command.doctorwho.desktop.not_inside": "Il faut être dans un TARDIS pour changer son décor.",
+  "command.doctorwho.desktop.unknown": "Décor inconnu : %s",
+  "command.doctorwho.desktop.done": "Salle de console reconstruite : %s"
 }

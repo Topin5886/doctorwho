@@ -56,6 +56,11 @@ public class DoctorWhoClient implements ClientModInitializer {
 
         // La grille métallique a des trous transparents
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.METAL_GRATING, RenderLayer.getCutout());
+        // Roundels en relief : la face avant est percée (texture découpée)
+        for (String family : ModBlocks.ROUNDEL_FAMILIES) {
+            BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
+                    ModBlocks.roundel(family, false), ModBlocks.roundel(family, true));
+        }
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.GALLIFREY_LEAVES, RenderLayer.getCutoutMipped());
 
         // Le serveur demande d'ouvrir le panneau de vol (ou de le rafraîchir s'il est déjà ouvert)

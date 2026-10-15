@@ -3,6 +3,7 @@ package fr.doctorwho;
 import fr.doctorwho.network.ModNetworking;
 import fr.doctorwho.registry.ModBlockEntities;
 
+import fr.doctorwho.tardis.TardisCommands;
 import fr.doctorwho.tardis.TardisFlight;
 import fr.doctorwho.registry.ModBlocks;
 import fr.doctorwho.registry.ModDimensions;
@@ -44,6 +45,7 @@ public class DoctorWhoMod implements ModInitializer {
         ModDimensions.register();    // planètes : Lune, Skaro, Gallifrey
         ModEntities.register();      // Daleks, Cybermen, Anges Pleureurs, Ood, Adipose
         ModStructures.register();    // ville dalek, Citadelle de Gallifrey, base lunaire
+        TardisCommands.register();   // /tardis desktop <décor>
 
         LOGGER.info("Mod Doctor Who prêt.");
     }

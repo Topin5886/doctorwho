@@ -729,7 +729,7 @@ CONSOLE_STYLES = {
     # Classique (années 70) : blanc, roundels, colonne argentée
     "white": {"base": k_roundels((228, 228, 222), (170, 170, 168)), "trim": k_metal((190, 192, 196)),
               "rim": k_metal((236, 236, 232)), "desk": k_desk((214, 214, 210), (60, 62, 70)),
-              "glass": k_glass((230, 240, 255), 30), "rotor": k_rotor((200, 230, 255), (150, 160, 175)),
+              "glass": k_glass((230, 240, 255), 30), "rotor": k_rotor((255, 140, 90), (255, 214, 170)),
               "strut": k_metal((200, 200, 205)), "accent": k_metal((60, 62, 70))},
     # Douzième Docteur (2014) : sombre et doré, colonne bleue, grand anneau au-dessus
     "dark": {"base": k_roundels((52, 50, 56), (22, 22, 26)), "trim": k_metal((196, 156, 72)),

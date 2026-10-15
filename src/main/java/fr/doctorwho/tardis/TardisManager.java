@@ -214,7 +214,7 @@ public final class TardisManager {
         AbstractTardisDoorBlock.setOpen(interior, door, open);
         Vec3d spawn = Vec3d.ofBottomCenter(door.north(2));
         for (var player : interior.getPlayers()) {
-            if (Math.abs(player.getX() - center.getX()) <= 12 && Math.abs(player.getZ() - center.getZ()) <= 12) {
+            if (Math.abs(player.getX() - center.getX()) <= 20 && Math.abs(player.getZ() - center.getZ()) <= 20) {
                 player.teleport(interior, spawn.x, spawn.y, spawn.z, Set.of(), Direction.NORTH.asRotation(), player.getPitch());
             }
         }

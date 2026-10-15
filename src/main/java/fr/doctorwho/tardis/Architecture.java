@@ -3,6 +3,7 @@ package fr.doctorwho.tardis;
 import fr.doctorwho.block.FacingDecorBlock;
 import fr.doctorwho.block.TardisConsoleBlock;
 import fr.doctorwho.registry.ModBlocks;
+import fr.doctorwho.tardis.interior.ConsoleRoom;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -45,8 +46,8 @@ public final class Architecture {
     private static final int HALF = 5;
     /** Plafond des salles (au-dessus du niveau des pieds). */
     private static final int ROOM_TOP = 5;
-    /** Rayon de la salle de console, à éviter. */
-    private static final int CONSOLE_ROOM = 12;
+    /** Demi-côté de la zone de la salle de console, à éviter (mur compris). */
+    private static final int CONSOLE_ROOM = 19;
     /** Limite de la zone de ce TARDIS dans la dimension intérieure. */
     private static final int ZONE_LIMIT = TardisManager.SPACING / 2 - 16;
 
@@ -62,8 +63,7 @@ public final class Architecture {
         }
         BlockPos center = TardisManager.interiorCenter(data);
         for (Direction direction : new Direction[]{Direction.NORTH, Direction.EAST, Direction.WEST}) {
-            data.getExits().add(new RoomExit(center.add(direction.getOffsetX() * 10, 1, direction.getOffsetZ() * 10),
-                    direction, "console", false));
+            data.getExits().add(new RoomExit(consoleExitAnchor(center, direction), direction, "console", false));
         }
     }
 
@@ -111,14 +111,41 @@ public final class Architecture {
         return null;
     }
 
+    /** Premier bloc de mur à percer pour une sortie de la salle de console. */
+    private static BlockPos consoleExitAnchor(BlockPos center, Direction direction) {
+        int d = ConsoleRoom.EXIT_DISTANCE;
+        return center.add(direction.getOffsetX() * d, 1, direction.getOffsetZ() * d);
+    }
+
     /**
-     * Après une reconstruction de la salle de console (changement de décor), on rouvre
+     * Après une reconstruction de la salle de console (changement de décor, mise à jour), on rouvre
      * les passages vers les couloirs déjà construits.
+     * <p>
+     * Anciennes sauvegardes (petite salle de 10 blocs de rayon) : les sorties libres sont déplacées
+     * dans le nouveau mur ; pour les couloirs déjà construits, on perce simplement le nouveau mur
+     * jusqu'à la salle qui se trouve derrière (l'ancien couloir est maintenant dans la grande salle).
      */
     public static void reopenConsoleExits(ServerWorld world, TardisData data) {
+        BlockPos center = TardisManager.interiorCenter(data);
         InteriorBuilder.Theme theme = InteriorBuilder.theme(data.getDesktop());
-        for (RoomExit exit : data.getExits()) {
-            if (exit.used() && exit.parent().equals("console")) {
+        List<RoomExit> exits = data.getExits();
+        for (int i = 0; i < exits.size(); i++) {
+            RoomExit exit = exits.get(i);
+            if (!exit.parent().equals("console")) {
+                continue;
+            }
+            BlockPos anchor = consoleExitAnchor(center, exit.direction());
+            boolean oldLayout = !exit.anchor().equals(anchor);
+            if (!exit.used()) {
+                if (oldLayout) {
+                    exits.set(i, new RoomExit(anchor, exit.direction(), exit.parent(), false));
+                }
+            } else if (oldLayout) {
+                Direction right = exit.direction().rotateYClockwise();
+                BlockState floor = theme.platform().getDefaultState();
+                carveOpening(world, anchor, exit.direction(), right, floor);
+                carveOpening(world, anchor.offset(exit.direction()), exit.direction(), right, floor);
+            } else {
                 buildCorridor(world, exit, theme);
             }
         }
@@ -404,8 +431,8 @@ public final class Architecture {
 
     private static boolean fits(TardisData data, BlockBox candidate, boolean avoidConsoleRoom) {
         BlockPos center = TardisManager.interiorCenter(data);
-        BlockBox consoleRoom = new BlockBox(center.getX() - CONSOLE_ROOM, center.getY() - 2, center.getZ() - CONSOLE_ROOM,
-                center.getX() + CONSOLE_ROOM, center.getY() + 12, center.getZ() + CONSOLE_ROOM);
+        BlockBox consoleRoom = new BlockBox(center.getX() - CONSOLE_ROOM, center.getY() + ConsoleRoom.BOTTOM, center.getZ() - CONSOLE_ROOM,
+                center.getX() + CONSOLE_ROOM, center.getY() + ConsoleRoom.HEIGHT + 2, center.getZ() + CONSOLE_ROOM);
         if (avoidConsoleRoom && candidate.intersects(consoleRoom)) {
             return false;
         }
