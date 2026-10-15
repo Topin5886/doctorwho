@@ -51,6 +51,7 @@ public final class TardisManager {
         TardisData data = blockEntity.getTardisId() == null ? null : registry.get(blockEntity.getTardisId());
         if (data == null) {
             data = registry.create();
+            data.setExteriorVariant(blockEntity.getVariant()); // extérieur choisi à la fabrication
             blockEntity.setTardisId(data.getId());
         }
         if (data.isLanded()) {

@@ -1,0 +1,24 @@
+{
+  "type": "doctorwho:crafting_shaped_nbt",
+  "category": "equipment",
+  "pattern": [
+    "G",
+    "R",
+    "B"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:purple_stained_glass"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "doctorwho:sonic_screwdriver",
+    "nbt": "{Variant:\"twelfth\"}"
+  }
+}

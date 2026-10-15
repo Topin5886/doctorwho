@@ -1,15 +1,24 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "doctorwho:crafting_shaped_nbt",
   "category": "misc",
   "pattern": [
-    " G ",
+    " L ",
     "BEB",
     "BBB"
   ],
   "key": {
-    "G": { "item": "minecraft:glowstone" },
-    "B": { "item": "minecraft:blue_concrete" },
-    "E": { "item": "minecraft:ender_eye" }
+    "L": {
+      "item": "minecraft:glowstone"
+    },
+    "B": {
+      "item": "minecraft:blue_concrete"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    }
   },
-  "result": { "item": "doctorwho:tardis" }
+  "result": {
+    "item": "doctorwho:tardis",
+    "nbt": "{BlockEntityTag:{Variant:\"twelfth\"}}"
+  }
 }

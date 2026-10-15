@@ -198,5 +198,7 @@
   "message.doctorwho.key.called": "The TARDIS is coming! Stand back...",
   "message.doctorwho.key.where": "Your TARDIS: %s, %s %s %s",
   "message.doctorwho.key.where_locked": "Your TARDIS (locked): %s, %s %s %s",
-  "message.doctorwho.key.where_flying": "Your TARDIS is flying through the vortex."
+  "message.doctorwho.key.where_flying": "Your TARDIS is flying through the vortex.",
+  "tooltip.doctorwho.tardis.exterior": "Exterior: %s",
+  "tooltip.doctorwho.tardis.has_interior": "Already has an interior"
 }

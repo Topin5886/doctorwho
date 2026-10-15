@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "OR",
+    "RO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:orange_terracotta"
+    },
+    "R": {
+      "item": "minecraft:red_terracotta"
+    }
+  },
+  "result": {
+    "item": "doctorwho:coral_wall",
+    "count": 4
+  }
+}

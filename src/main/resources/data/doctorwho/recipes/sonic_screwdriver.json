@@ -7,9 +7,17 @@
     "I"
   ],
   "key": {
-    "D": { "item": "minecraft:light_blue_dye" },
-    "R": { "item": "minecraft:redstone" },
-    "I": { "item": "minecraft:iron_ingot" }
+    "D": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
   },
-  "result": { "item": "doctorwho:sonic_screwdriver" }
+  "result": {
+    "item": "doctorwho:sonic_screwdriver"
+  }
 }

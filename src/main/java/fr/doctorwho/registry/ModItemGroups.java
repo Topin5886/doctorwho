@@ -2,6 +2,7 @@ package fr.doctorwho.registry;
 
 import fr.doctorwho.DoctorWhoMod;
 import fr.doctorwho.item.SonicScrewdriverItem;
+import fr.doctorwho.item.TardisItem;
 import fr.doctorwho.tardis.Variants;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
@@ -20,7 +21,10 @@ public final class ModItemGroups {
                     .displayName(Text.translatable("itemGroup.doctorwho.main"))
                     .icon(() -> new ItemStack(ModItems.TARDIS))
                     .entries((context, entries) -> {
-                        entries.add(ModItems.TARDIS);
+                        // Un TARDIS de chaque extérieur
+                        for (String exterior : Variants.EXTERIORS) {
+                            entries.add(TardisItem.withExterior(new ItemStack(ModItems.TARDIS), exterior));
+                        }
                         entries.add(ModItems.TARDIS_KEY);
                         // Un tournevis de chaque modèle
                         for (String variant : Variants.SONICS) {

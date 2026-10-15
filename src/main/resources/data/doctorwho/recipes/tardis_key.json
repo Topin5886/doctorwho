@@ -2,9 +2,17 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    { "item": "minecraft:iron_ingot" },
-    { "item": "minecraft:gold_nugget" },
-    { "item": "minecraft:lapis_lazuli" }
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:gold_nugget"
+    },
+    {
+      "item": "minecraft:lapis_lazuli"
+    }
   ],
-  "result": { "item": "doctorwho:tardis_key" }
+  "result": {
+    "item": "doctorwho:tardis_key"
+  }
 }
