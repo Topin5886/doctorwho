@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "Q",
+    "Q"
+  ],
+  "key": {
+    "Q": {
+      "item": "minecraft:quartz_pillar"
+    }
+  },
+  "result": {
+    "item": "doctorwho:classic_pilaster",
+    "count": 2
+  }
+}

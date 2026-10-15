@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "doctorwho:block/copper_roundel_lit",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "doctorwho:block/copper_roundel_lit",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "doctorwho:block/copper_roundel_lit",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "doctorwho:block/copper_roundel_lit",
+      "y": 270
+    }
+  }
+}

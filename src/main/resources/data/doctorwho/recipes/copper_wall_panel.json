@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CN",
+    "NC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:cut_copper"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "item": "doctorwho:copper_wall_panel",
+    "count": 2
+  }
+}

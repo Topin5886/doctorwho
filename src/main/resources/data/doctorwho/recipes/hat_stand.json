@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "N",
+    "S",
+    "P"
+  ],
+  "key": {
+    "N": {
+      "item": "minecraft:gold_nugget"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "P": {
+      "item": "minecraft:dark_oak_slab"
+    }
+  },
+  "result": {
+    "item": "doctorwho:hat_stand"
+  }
+}

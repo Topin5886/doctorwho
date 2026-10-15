@@ -393,6 +393,15 @@ def build_blocks():
 # Pour un nouveau thème : ajouter une ligne ici, puis le nom dans ModBlocks.ROUNDEL_FAMILIES.
 ROUNDEL_FAMILIES = {
     "classic": ((232, 232, 226), (206, 206, 200), ((255, 226, 170), (255, 252, 236))),
+    "copper": ((178, 106, 56), (140, 80, 40), ((255, 150, 60), (255, 236, 186))),
+}
+# Grilles de sol ajourées (on voit les lumières en dessous) : couleur des barreaux.
+GRATE_FAMILIES = {
+    "copper": (190, 116, 60),
+}
+# Lumières de sous-plancher colorées : couleur du bord et du cœur (niveau de lumière 15).
+UNDERLIGHTS = {
+    "green": ((40, 150, 90), (190, 255, 210)),
 }
 HOLE = 12.5   # rayon du trou (sur 32 px)
 
@@ -496,6 +505,59 @@ def scanner_screen():
     return img
 
 
+def floor_grate(color):
+    """Grille en losanges, trous transparents (rendu « cutout »)."""
+    img = Image(16, 16)
+    for y in range(16):
+        for x in range(16):
+            u, v = (x + y) % 8, (x - y) % 8
+            if u in (0, 1) or v in (0, 1) or x in (0, 15) or y in (0, 15):
+                k = 1.18 if (u == 0 or v == 0) else 0.86
+                if x in (0, 15) or y in (0, 15):
+                    k = 0.72
+                img.set(x, y, shade(color, k))
+    return img
+
+
+def underlight(edge, core):
+    """Lumière hexagonale encastrée, du bord coloré au cœur presque blanc."""
+    img = Image(16, 16)
+    noise_fill(img, shade(edge, 0.45), 0.06, 51)
+    cx = cy = 7.5
+    for y in range(16):
+        for x in range(16):
+            dx, dy = abs(x - cx), abs(y - cy)
+            d = max(dx * 0.866 + dy * 0.5, dy) / 6.8
+            if d <= 1:
+                img.set(x, y, tuple(int(edge[i] + (core[i] - edge[i]) * (1 - d)) for i in range(3)))
+    return img
+
+
+def riveted_panel(color, seed):
+    """Plaque de métal rivetée : joint central et rivets dans les coins."""
+    img = Image(16, 16)
+    noise_fill(img, color, 0.05, seed)
+    img.frame(0, 0, 16, 16, shade(color, 0.7), 1)
+    img.rect(0, 8, 16, 9, shade(color, 0.72))
+    for rx, ry in ((2, 2), (13, 2), (2, 5), (13, 5), (2, 11), (13, 11), (2, 13), (13, 13)):
+        img.set(rx, ry, shade(color, 1.35))
+        img.set(rx + 1, ry + 1, shade(color, 0.6))
+    return img
+
+
+def framed_glass(frame, tint):
+    """Dalle de verre cerclée de métal (rendu translucide)."""
+    img = Image(16, 16)
+    for y in range(16):
+        for x in range(16):
+            img.set(x, y, (*tint, 70 if (x + y) % 9 else 110))
+    img.frame(0, 0, 16, 16, shade(frame, 1.0), 2)
+    img.frame(0, 0, 16, 16, shade(frame, 0.75), 1)
+    for x in range(2, 14):
+        img.set(x, 7, (*shade(frame, 0.9), 255))
+    return img
+
+
 def interior_blocks():
     for family, (panel, hollow, glow) in ROUNDEL_FAMILIES.items():
         tex(family + "_roundel_front", roundel_front(panel))
@@ -507,6 +569,21 @@ def interior_blocks():
             simple_block(name, roundel_model("doctorwho:block/%s_roundel_front" % family,
                                              "doctorwho:block/%s_roundel_disc%s" % (family, "_lit" if lit else ""),
                                              "doctorwho:block/%s_roundel_side" % family), facing=True)
+
+    for family, color in GRATE_FAMILIES.items():
+        tex(family + "_floor_grate", floor_grate(color))
+        simple_block(family + "_floor_grate", model_cube_all(family + "_floor_grate"))
+    for color, (edge, core) in UNDERLIGHTS.items():
+        tex(color + "_underlight", underlight(edge, core))
+        simple_block(color + "_underlight", model_cube_all(color + "_underlight"))
+
+    # --- Cuivre (2010) : plaque rivetée, entretoise (même modèle que la branche de corail), verre au sol
+    tex("copper_wall_panel", riveted_panel((176, 104, 54), 61))
+    simple_block("copper_wall_panel", model_cube_all("copper_wall_panel"))
+    simple_block("copper_strut", {"parent": "doctorwho:block/coral_strut", "textures": {
+        "coral": "doctorwho:block/copper_beam", "particle": "doctorwho:block/copper_beam"}}, facing=True)
+    tex("copper_glass_floor", framed_glass((184, 112, 58), (190, 255, 220)))
+    simple_block("copper_glass_floor", model_cube_all("copper_glass_floor"))
 
     tex("classic_pilaster", pilaster((236, 236, 230)))
     tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))

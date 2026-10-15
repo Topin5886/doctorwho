@@ -225,5 +225,12 @@
   "block.doctorwho.hat_stand": "Hat Stand",
   "command.doctorwho.desktop.not_inside": "You must be inside a TARDIS to change its desktop.",
   "command.doctorwho.desktop.unknown": "Unknown desktop: %s",
-  "command.doctorwho.desktop.done": "Console room rebuilt: %s"
+  "command.doctorwho.desktop.done": "Console room rebuilt: %s",
+  "block.doctorwho.copper_roundel": "Copper Roundel",
+  "block.doctorwho.copper_roundel_lit": "Lit Copper Roundel",
+  "block.doctorwho.copper_floor_grate": "Copper Floor Grate",
+  "block.doctorwho.green_underlight": "Green Underfloor Light",
+  "block.doctorwho.copper_wall_panel": "Riveted Copper Panel",
+  "block.doctorwho.copper_strut": "Copper Strut",
+  "block.doctorwho.copper_glass_floor": "Copper-Framed Glass Floor"
 }

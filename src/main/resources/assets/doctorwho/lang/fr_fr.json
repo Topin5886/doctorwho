@@ -225,5 +225,12 @@
   "block.doctorwho.hat_stand": "Porte-manteau",
   "command.doctorwho.desktop.not_inside": "Il faut être dans un TARDIS pour changer son décor.",
   "command.doctorwho.desktop.unknown": "Décor inconnu : %s",
-  "command.doctorwho.desktop.done": "Salle de console reconstruite : %s"
+  "command.doctorwho.desktop.done": "Salle de console reconstruite : %s",
+  "block.doctorwho.copper_roundel": "Roundel de cuivre",
+  "block.doctorwho.copper_roundel_lit": "Roundel de cuivre lumineux",
+  "block.doctorwho.copper_floor_grate": "Grille de sol en cuivre",
+  "block.doctorwho.green_underlight": "Lumière de sous-plancher verte",
+  "block.doctorwho.copper_wall_panel": "Plaque de cuivre rivetée",
+  "block.doctorwho.copper_strut": "Entretoise de cuivre",
+  "block.doctorwho.copper_glass_floor": "Dalle de verre cerclée de cuivre"
 }

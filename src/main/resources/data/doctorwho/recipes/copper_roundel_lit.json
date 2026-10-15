@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " W ",
+    "WGW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "doctorwho:copper_roundel"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    }
+  },
+  "result": {
+    "item": "doctorwho:copper_roundel_lit",
+    "count": 4
+  }
+}

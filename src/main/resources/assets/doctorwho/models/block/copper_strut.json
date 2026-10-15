@@ -1,0 +1,7 @@
+{
+  "parent": "doctorwho:block/coral_strut",
+  "textures": {
+    "coral": "doctorwho:block/copper_beam",
+    "particle": "doctorwho:block/copper_beam"
+  }
+}

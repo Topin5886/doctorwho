@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.GlassBlock;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.block.PillarBlock;
 import net.minecraft.item.BlockItem;
@@ -101,13 +102,25 @@ public final class ModBlocks {
      * Familles de roundels en relief (disque creusé, éteint ou allumé), une par thème.
      * Pour un nouveau thème : ajouter son nom ici et dans ROUNDEL_FAMILIES de tools/generate_blocks.py.
      */
-    public static final List<String> ROUNDEL_FAMILIES = List.of("classic");
+    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper");
     private static final Map<String, Block> ROUNDELS = new HashMap<>();
+    /** Grilles de sol ajourées, une par thème ({@code <famille>_floor_grate}). */
+    public static final List<String> GRATE_FAMILIES = List.of("copper");
+    private static final Map<String, Block> GRATES = new HashMap<>();
+    /** Lumières de sous-plancher colorées ({@code <couleur>_underlight}, niveau 15). */
+    public static final List<String> UNDERLIGHT_COLORS = List.of("green");
+    private static final Map<String, Block> UNDERLIGHTS = new HashMap<>();
 
     static {
         for (String family : ROUNDEL_FAMILIES) {
             ROUNDELS.put(family, decor(family + "_roundel", roundelBlock(0)));
             ROUNDELS.put(family + "_lit", decor(family + "_roundel_lit", roundelBlock(14)));
+        }
+        for (String family : GRATE_FAMILIES) {
+            GRATES.put(family, decor(family + "_floor_grate", new Block(metal().nonOpaque())));
+        }
+        for (String color : UNDERLIGHT_COLORS) {
+            UNDERLIGHTS.put(color, decor(color + "_underlight", new Block(metal().luminance(state -> 15))));
         }
     }
 
@@ -122,6 +135,26 @@ public final class ModBlocks {
     public static final Block HAT_STAND = decor("hat_stand", new DecorBlock(FabricBlockSettings.create()
             .mapColor(MapColor.BROWN).strength(1.0f).sounds(BlockSoundGroup.WOOD).nonOpaque(),
             Block.createCuboidShape(6, 0, 6, 10, 16, 10)));
+
+    // Cuivre (2010)
+    /** Plaque de cuivre rivetée (bandeaux des murs). */
+    public static final Block COPPER_WALL_PANEL = decor("copper_wall_panel", new Block(metal().mapColor(MapColor.ORANGE)));
+    /** Entretoise de cuivre en biais (même modèle que la branche de corail). */
+    public static final Block COPPER_STRUT = decor("copper_strut", new FacingDecorBlock(metal().nonOpaque().noCollision(),
+            Block.createCuboidShape(4, 0, 2, 12, 16, 16), false));
+    /** Dalle de verre cerclée de cuivre : on voit les lumières sous le plancher. */
+    public static final Block COPPER_GLASS_FLOOR = decor("copper_glass_floor", new GlassBlock(FabricBlockSettings.copyOf(Blocks.GLASS)
+            .strength(2.0f, 6.0f).mapColor(MapColor.ORANGE)));
+
+    /** Grille de sol d'une famille ({@link #GRATE_FAMILIES}). */
+    public static Block floorGrate(String family) {
+        return GRATES.getOrDefault(family, METAL_GRATING);
+    }
+
+    /** Lumière de sous-plancher d'une couleur ({@link #UNDERLIGHT_COLORS}). */
+    public static Block underlight(String color) {
+        return UNDERLIGHTS.getOrDefault(color, HEX_LIGHT);
+    }
 
     /** Roundel en relief d'une famille ({@link #ROUNDEL_FAMILIES}), éteint ou allumé. */
     public static Block roundel(String family, boolean lit) {

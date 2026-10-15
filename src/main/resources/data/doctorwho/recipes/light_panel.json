@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " W ",
+    "WGW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:white_concrete"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    }
+  },
+  "result": {
+    "item": "doctorwho:light_panel",
+    "count": 4
+  }
+}

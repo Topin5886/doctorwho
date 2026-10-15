@@ -188,10 +188,15 @@ public abstract class InteriorTheme {
                 }
                 c.set(x, GALLERY_Y, z, galleryFloor(x, z));
                 if (r < GALLERY_INNER + 1 && stair == 0) {
-                    c.setShaped(x, GALLERY_Y + 1, z, railing());
+                    placeRailing(c, x, GALLERY_Y + 1, z);
                 }
             }
         }
+    }
+
+    /** Pose un élément de garde-corps (par défaut : {@link #railing()}, raccordé à ses voisins). */
+    protected void placeRailing(RoomCanvas c, int x, int y, int z) {
+        c.setShaped(x, y, z, railing());
     }
 
     protected BlockState galleryFloor(int x, int z) {
@@ -224,7 +229,7 @@ public abstract class InteriorTheme {
                     for (int y = 1; y <= h; y++) {
                         c.set(x, y, z, support);
                     }
-                    c.setShaped(x, h + 1, z, railing());
+                    placeRailing(c, x, h + 1, z);
                 } else {
                     // Côté mur : massif plein jusqu'à la marche
                     for (int y = 1; y <= h; y++) {

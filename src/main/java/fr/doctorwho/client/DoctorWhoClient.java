@@ -57,6 +57,11 @@ public class DoctorWhoClient implements ClientModInitializer {
         // La grille métallique a des trous transparents
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.METAL_GRATING, RenderLayer.getCutout());
         // Roundels en relief : la face avant est percée (texture découpée)
+        for (String family : ModBlocks.GRATE_FAMILIES) {
+            BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.floorGrate(family), RenderLayer.getCutout());
+        }
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.COPPER_GLASS_FLOOR, RenderLayer.getTranslucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.COPPER_STRUT, RenderLayer.getCutout());
         for (String family : ModBlocks.ROUNDEL_FAMILIES) {
             BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),
                     ModBlocks.roundel(family, false), ModBlocks.roundel(family, true));
