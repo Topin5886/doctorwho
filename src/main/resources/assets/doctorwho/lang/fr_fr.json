@@ -200,5 +200,6 @@
   "message.doctorwho.key.where_locked": "Votre TARDIS (verrouillé) : %s, %s %s %s",
   "message.doctorwho.key.where_flying": "Votre TARDIS est en plein vol dans le vortex.",
   "tooltip.doctorwho.tardis.exterior": "Extérieur : %s",
-  "tooltip.doctorwho.tardis.has_interior": "Contient déjà un intérieur"
+  "tooltip.doctorwho.tardis.has_interior": "Contient déjà un intérieur",
+  "subtitles.doctorwho.tardis.hum": "Le TARDIS bourdonne"
 }

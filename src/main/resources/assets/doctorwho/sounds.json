@@ -3,14 +3,8 @@
     "subtitle": "subtitles.doctorwho.sonic_screwdriver.use",
     "sounds": [
       {
-        "name": "minecraft:block/beacon/power1",
-        "pitch": 1.9,
-        "volume": 0.6
-      },
-      {
-        "name": "minecraft:block/beacon/power2",
-        "pitch": 1.9,
-        "volume": 0.6
+        "name": "doctorwho:item/sonic",
+        "volume": 0.7
       }
     ]
   },
@@ -18,9 +12,7 @@
     "subtitle": "subtitles.doctorwho.tardis.takeoff",
     "sounds": [
       {
-        "name": "minecraft:portal/trigger",
-        "pitch": 0.6,
-        "volume": 0.8,
+        "name": "doctorwho:tardis/takeoff",
         "attenuation_distance": 32
       }
     ]
@@ -29,9 +21,7 @@
     "subtitle": "subtitles.doctorwho.tardis.landing",
     "sounds": [
       {
-        "name": "minecraft:portal/trigger",
-        "pitch": 0.7,
-        "volume": 0.8,
+        "name": "doctorwho:tardis/landing",
         "attenuation_distance": 32
       }
     ]
@@ -40,9 +30,8 @@
     "subtitle": "subtitles.doctorwho.tardis.landed",
     "sounds": [
       {
-        "name": "minecraft:block/respawn_anchor/set_spawn1",
-        "pitch": 0.8,
-        "volume": 0.8
+        "name": "doctorwho:tardis/landed",
+        "volume": 0.9
       }
     ]
   },
@@ -137,6 +126,15 @@
       {
         "name": "doctorwho:entity/k9_affirm",
         "volume": 1.0
+      }
+    ]
+  },
+  "block.tardis.hum": {
+    "subtitle": "subtitles.doctorwho.tardis.hum",
+    "sounds": [
+      {
+        "name": "doctorwho:tardis/hum",
+        "stream": true
       }
     ]
   }

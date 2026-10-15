@@ -6,6 +6,8 @@ import fr.doctorwho.client.renderer.TardisConsoleRenderer;
 import fr.doctorwho.client.renderer.TardisExteriorModel;
 import fr.doctorwho.client.renderer.TardisRenderer;
 import fr.doctorwho.client.screen.DesktopChoiceScreen;
+import fr.doctorwho.client.sound.ConsoleHumSound;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import fr.doctorwho.client.screen.FlightPanelScreen;
 import fr.doctorwho.network.FlightPanelData;
 import fr.doctorwho.network.ModNetworking;
@@ -29,6 +31,8 @@ import software.bernie.geckolib.model.DefaultedBlockGeoModel;
  */
 @Environment(EnvType.CLIENT)
 public class DoctorWhoClient implements ClientModInitializer {
+
+    private static ConsoleHumSound hum;
 
     @Override
     public void onInitializeClient() {
@@ -66,6 +70,14 @@ public class DoctorWhoClient implements ClientModInitializer {
         // Première entrée dans un TARDIS neuf : choix du décor de la salle de console
         ClientPlayNetworking.registerGlobalReceiver(ModNetworking.OPEN_DESKTOP_CHOICE,
                 (client, handler, buf, responseSender) -> client.execute(() -> client.setScreen(new DesktopChoiceScreen())));
+
+        // Bourdonnement de la salle de console, en boucle tant qu'on est dans un TARDIS
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (ConsoleHumSound.shouldPlay(client.player) && (hum == null || !client.getSoundManager().isPlaying(hum))) {
+                hum = new ConsoleHumSound(client.player);
+                client.getSoundManager().play(hum);
+            }
+        });
 
         DoctorWhoMod.LOGGER.info("Initialisation du client Doctor Who.");
     }

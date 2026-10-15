@@ -8,8 +8,8 @@ import net.minecraft.util.Identifier;
 
 /**
  * Sons du mod. Les fichiers sont déclarés dans assets/doctorwho/sounds.json :
- * pour l'instant ils pointent vers des sons vanilla modifiés, il suffira d'y mettre
- * de vrais .ogg plus tard sans toucher au code.
+ * TARDIS et tournevis : sons synthétisés par tools/generate_tardis_sounds.py ;
+ * voix des créatures : tools/generate_sounds.py.
  */
 public final class ModSounds {
 
@@ -17,6 +17,8 @@ public final class ModSounds {
     public static final SoundEvent TARDIS_TAKEOFF = register("block.tardis.takeoff");
     public static final SoundEvent TARDIS_LANDING = register("block.tardis.landing");
     public static final SoundEvent TARDIS_LANDED = register("block.tardis.landed");
+    /** Bourdonnement de la salle de console (en boucle, côté client). */
+    public static final SoundEvent TARDIS_HUM = register("block.tardis.hum");
 
     // Créatures (voix générées par tools/generate_sounds.py)
     public static final SoundEvent DALEK_EXTERMINATE = register("entity.dalek.exterminate");
