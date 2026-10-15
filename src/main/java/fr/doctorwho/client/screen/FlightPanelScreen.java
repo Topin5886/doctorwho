@@ -59,14 +59,15 @@ public class FlightPanelScreen extends Screen {
     private static final Map<RegistryKey<World>, Integer> PLANET_COLORS = Map.of(
             World.OVERWORLD, 0x5DBB63, World.NETHER, 0xC0392B, World.END, 0xE4E1A8,
             ModDimensions.MOON, 0xC5CAD0, ModDimensions.SKARO, 0xB8683A, ModDimensions.GALLIFREY, 0xF0913A);
-    private static final Map<String, Integer> EXTERIOR_COLORS = Map.of(
-            "classic", 0x5B83C9, "tenth", 0x3F6FC2, "eleventh", 0x3B7FE0,
-            "twelfth", 0x35558F, "thirteenth", 0x3F8AA8, "war", 0x7D8796);
     private static final Map<String, Integer> DESKTOP_COLORS = Map.of(
-            "coral", 0xE08A3C, "copper", 0xC87533, "white", 0xEDEDE8, "dark", 0x5A6170);
-    private static final Map<String, Integer> SONIC_COLORS = Map.of(
-            "fourth", 0xEAF4FF, "tenth", 0x5AC8FF, "eleventh", 0x5AFF78, "twelfth", 0xAA78FF,
-            "thirteenth", 0xFF963C, "war", 0xFF3C3C, "river", 0x5A9CFF, "master", 0xFFC83C);
+            "coral", 0xE08A3C, "copper", 0xC87533, "white", 0xEDEDE8, "dark", 0x5A6170,
+            "columns", 0xBFC4C8, "victorian", 0x8C5A30);
+    private static final Map<String, Integer> SONIC_COLORS = Map.ofEntries(
+            Map.entry("second", 0xDDE2E8), Map.entry("third", 0xF4F4F0), Map.entry("fourth", 0xEAF4FF),
+            Map.entry("seventh", 0xAA78FF), Map.entry("eighth", 0x5AC8FF), Map.entry("tenth", 0x5AC8FF),
+            Map.entry("eleventh", 0x5AFF78), Map.entry("twelfth", 0xAA78FF), Map.entry("thirteenth", 0xFF963C),
+            Map.entry("fourteenth", 0x5A9CFF), Map.entry("war", 0xFF3C3C), Map.entry("river", 0x5A9CFF),
+            Map.entry("master", 0xFFC83C));
     private static final Map<String, Integer> ROOM_COLORS = Map.of(
             "bedroom", 0xD04848, "kitchen", 0xE0A040, "library", 0xA0703C, "console", 0x2FC4E8,
             "pool", 0x3FA8E8, "garden", 0x5DBB63, "workshop", 0x9A9A9A, "junction", 0xC87533);
@@ -217,22 +218,23 @@ public class FlightPanelScreen extends Screen {
         List<String> exteriors = Variants.EXTERIORS;
         for (int i = 0; i < exteriors.size(); i++) {
             String variant = exteriors.get(i);
-            addDrawableChild(new StyledButton(left + 8 + (i % 3) * 110, body + 46 + (i / 3) * 24, 104, 20,
+            addDrawableChild(new StyledButton(left + 8 + (i % 3) * 110, body + 46 + (i / 3) * 20, 104, 18,
                     Variants.exteriorName(variant), TEAL,
                     button -> send(ModNetworking.ACTION_SET_EXTERIOR, b -> b.writeString(variant)))
-                    .selected(variant.equals(data.exteriorVariant())).dot(EXTERIOR_COLORS.getOrDefault(variant, 0xFFFFFF)));
+                    .selected(variant.equals(data.exteriorVariant())));
         }
 
         List<String> desktops = Variants.DESKTOPS;
         for (int i = 0; i < desktops.size(); i++) {
             String desktop = desktops.get(i);
-            addDrawableChild(new StyledButton(left + 8 + i * 82, body + 114, 78, 20, Variants.desktopName(desktop), TEAL,
+            addDrawableChild(new StyledButton(left + 8 + (i % 3) * 110, body + 122 + (i / 3) * 20, 104, 18,
+                    Variants.desktopName(desktop), TEAL,
                     button -> {
                         pendingDesktop = desktop;
                         clearAndInit();
                     }).selected(desktop.equals(pendingDesktop)).dot(DESKTOP_COLORS.getOrDefault(desktop, 0xFFFFFF)));
         }
-        StyledButton rebuild = addDrawableChild(new StyledButton(left + 8, body + 138, PANEL_W - 16, 16,
+        StyledButton rebuild = addDrawableChild(new StyledButton(left + 8, body + 163, PANEL_W - 16, 14,
                 Text.translatable("screen.doctorwho.flight_panel.rebuild", Variants.desktopName(pendingDesktop)), ORANGE,
                 button -> send(ModNetworking.ACTION_SET_DESKTOP, b -> b.writeString(pendingDesktop))));
         rebuild.active = !pendingDesktop.equals(data.desktop()) && data.phase() == FlightPhase.LANDED;
@@ -241,7 +243,7 @@ public class FlightPanelScreen extends Screen {
             List<String> sonics = Variants.SONICS;
             for (int i = 0; i < sonics.size(); i++) {
                 String sonic = sonics.get(i);
-                addDrawableChild(new StyledButton(left + 8 + (i % 4) * 82, body + 178 + (i / 4) * 22, 78, 18,
+                addDrawableChild(new StyledButton(left + 8 + (i % 4) * 82, body + 196 + (i / 4) * 16, 78, 14,
                         Variants.sonicName(sonic), TEAL,
                         button -> send(ModNetworking.ACTION_SET_SONIC, b -> b.writeString(sonic)))
                         .selected(sonic.equals(data.sonicVariant())).dot(SONIC_COLORS.getOrDefault(sonic, 0xFFFFFF)));
@@ -402,11 +404,11 @@ public class FlightPanelScreen extends Screen {
 
     private void renderAppearance(DrawContext context) {
         sectionLabel(context, Text.translatable("screen.doctorwho.flight_panel.section.exterior"), body + 34);
-        sectionLabel(context, Text.translatable("screen.doctorwho.flight_panel.section.desktop"), body + 102);
-        sectionLabel(context, Text.translatable("screen.doctorwho.flight_panel.section.sonic"), body + 166);
+        sectionLabel(context, Text.translatable("screen.doctorwho.flight_panel.section.desktop"), body + 110);
+        sectionLabel(context, Text.translatable("screen.doctorwho.flight_panel.section.sonic"), body + 184);
         if (data.sonicVariant().isEmpty()) {
             context.drawCenteredTextWithShadow(textRenderer, Text.translatable("screen.doctorwho.flight_panel.no_sonic"),
-                    left + PANEL_W / 2, body + 196, 0xFF8A98A8);
+                    left + PANEL_W / 2, body + 214, 0xFF8A98A8);
         }
     }
 

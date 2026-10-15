@@ -27,25 +27,27 @@ public class DesktopChoiceScreen extends Screen {
     private static final int TEAL = 0x2FC4E8;
     private static final int ORANGE = 0xE8913A;
 
-    private static final int CARD_W = 86;
-    private static final int CARD_H = 104;
+    private static final int CARD_W = 94;
+    private static final int CARD_H = 94;
     private static final int GAP = 6;
-    private static final int MAX_COLUMNS = 4;
+    private static final int MAX_COLUMNS = 3;
 
     /**
      * Couleurs de la petite illustration de chaque décor.
      *
      * @param books une rangée de bibliothèques au pied du mur
      */
-    private record Look(int wall, int roundel, int floor, int trim, int glow, boolean books) {
+    private record Look(int wall, int roundel, int floor, int trim, int glow, boolean books, boolean columns) {
     }
 
-    private static final Look DEFAULT_LOOK = new Look(0x3A4250, 0x8A96A8, 0x262A30, 0x707C8C, 0x2FC4E8, false);
+    private static final Look DEFAULT_LOOK = new Look(0x3A4250, 0x8A96A8, 0x262A30, 0x707C8C, 0x2FC4E8, false, false);
     private static final Map<String, Look> LOOKS = Map.of(
-            "coral", new Look(0xB0602E, 0xF0A45C, 0x3E3A36, 0xC8783A, 0x5CF0C8, false),
-            "copper", new Look(0x8C5428, 0xE0904A, 0xA8D4EC, 0xC87533, 0x2FC4E8, false),
-            "white", new Look(0xD8D8D2, 0xF6F6F2, 0xC4C4BE, 0x9A9A96, 0x7FD0FF, false),
-            "dark", new Look(0x343A44, 0x98A2B0, 0x1E2126, 0x5A6170, 0xFFB050, true));
+            "coral", new Look(0xB0602E, 0xF0A45C, 0x3E3A36, 0xC8783A, 0x5CF0C8, false, false),
+            "copper", new Look(0x8C5428, 0xE0904A, 0xA8D4EC, 0xC87533, 0x2FC4E8, false, false),
+            "white", new Look(0xD8D8D2, 0xF6F6F2, 0xC4C4BE, 0x9A9A96, 0x7FD0FF, false, false),
+            "dark", new Look(0x343A44, 0x98A2B0, 0x1E2126, 0x5A6170, 0xFFB050, true, false),
+            "columns", new Look(0xE2E2DC, 0xFAFAF6, 0x8A8C8E, 0xB0B0AA, 0x9FE0FF, false, true),
+            "victorian", new Look(0x4A3020, 0xE8A050, 0x7A5A3A, 0x8C6A48, 0xFFC870, true, true));
 
     private int left;
     private int top;
@@ -63,14 +65,14 @@ public class DesktopChoiceScreen extends Screen {
         int columns = Math.min(MAX_COLUMNS, desktops.size());
         int rows = (desktops.size() + columns - 1) / columns;
         panelW = columns * CARD_W + (columns - 1) * GAP + 24;
-        panelH = 58 + rows * (CARD_H + GAP) + 14;
+        panelH = 50 + rows * (CARD_H + GAP) + 12;
         left = (width - panelW) / 2;
         top = Math.max(2, (height - panelH) / 2);
 
         for (int i = 0; i < desktops.size(); i++) {
             String desktop = desktops.get(i);
             int x = left + 12 + (i % columns) * (CARD_W + GAP);
-            int y = top + 54 + (i / columns) * (CARD_H + GAP);
+            int y = top + 50 + (i / columns) * (CARD_H + GAP);
             addDrawableChild(new DesktopCard(x, y, desktop, button -> choose(desktop)));
         }
     }
@@ -110,9 +112,9 @@ public class DesktopChoiceScreen extends Screen {
 
         context.drawTextWithShadow(textRenderer, title, left + 34, top + 11, 0xFF000000 | TEAL);
         context.drawTextWithShadow(textRenderer, Text.translatable("screen.doctorwho.desktop_choice.line1"),
-                left + 12, top + 28, 0xFFEAF6FF);
+                left + 12, top + 25, 0xFFEAF6FF);
         context.drawTextWithShadow(textRenderer, Text.translatable("screen.doctorwho.desktop_choice.line2"),
-                left + 12, top + 39, 0xFF7F94A8);
+                left + 12, top + 36, 0xFF7F94A8);
         Text hint = Text.translatable("screen.doctorwho.desktop_choice.cancel");
         context.drawTextWithShadow(textRenderer, hint, right - 8 - textRenderer.getWidth(hint), bottom - 11, 0xFF5E6E80);
         super.render(context, mouseX, mouseY, delta);
@@ -143,20 +145,20 @@ public class DesktopChoiceScreen extends Screen {
             int y1 = y0 + height;
             boolean hovered = isSelected();
             context.fill(x0, y0, x1, y1, hovered ? 0x602FC4E8 : 0xA0141C28);
-            drawRoom(context, x0 + 4, y0 + 4, x1 - 4, y0 + 62, hovered);
+            drawRoom(context, x0 + 4, y0 + 4, x1 - 4, y0 + 56, hovered);
             StyledButton.drawBorder(context, x0, y0, x1, y1, hovered ? 0xFF000000 | TEAL : 0x702FC4E8);
 
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
             int cx = x0 + width / 2;
-            context.drawCenteredTextWithShadow(font, getMessage(), cx, y0 + 67, 0xFFEAF6FF);
+            context.drawCenteredTextWithShadow(font, getMessage(), cx, y0 + 60, 0xFFEAF6FF);
             if (desktop.equals(Variants.DEFAULT_DESKTOP)) {
                 // Étoile : le décor par défaut (celui de David)
-                context.drawTextWithShadow(font, Text.literal("★"), cx - font.getWidth(getMessage()) / 2 - 10, y0 + 67,
+                context.drawTextWithShadow(font, Text.literal("★"), cx - font.getWidth(getMessage()) / 2 - 10, y0 + 60,
                         0xFF000000 | ORANGE);
             }
             Text era = Text.translatable("variant.doctorwho.desktop." + desktop + ".era");
             for (int i = 0; i < 2 && i < font.wrapLines(era, width - 6).size(); i++) {
-                context.drawCenteredTextWithShadow(font, font.wrapLines(era, width - 6).get(i), cx, y0 + 79 + i * 10, 0xFF8A98A8);
+                context.drawCenteredTextWithShadow(font, font.wrapLines(era, width - 6).get(i), cx, y0 + 71 + i * 10, 0xFF8A98A8);
             }
         }
 
@@ -176,6 +178,13 @@ public class DesktopChoiceScreen extends Screen {
                 for (int x = x0; x < x1; x += 4) {
                     int color = ((x / 4) % 3 == 0) ? 0x7A4A28 : ((x / 4) % 3 == 1) ? 0x5A3A22 : 0x8C6234;
                     context.fill(x, floorTop - 9, Math.min(x + 3, x1), floorTop, 0xFF000000 | color);
+                }
+            }
+            if (look.columns()) {
+                // Hautes colonnes le long des murs
+                for (int x : new int[]{x0 + 3, x0 + 17, x1 - 22, x1 - 8}) {
+                    context.fill(x, y0, x + 5, floorTop, 0xFF000000 | brighter(look.trim()));
+                    context.fill(x + 4, y0, x + 5, floorTop, 0xFF000000 | darker(look.trim()));
                 }
             }
             context.fill(x0, floorTop, x1, y1, 0xFF000000 | look.floor());

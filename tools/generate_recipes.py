@@ -17,7 +17,11 @@ RECIPES = os.path.join(os.path.dirname(__file__), "..", "src", "main", "resource
 
 # Tournevis : modèle -> (verre de l'embout, corps)
 SONICS = {
+    "second": ("light_gray_stained_glass", "iron_ingot"),
+    "third": ("gray_stained_glass", "iron_ingot"),
     "fourth": ("white_stained_glass", "iron_ingot"),
+    "seventh": ("magenta_stained_glass", "iron_ingot"),
+    "eighth": ("cyan_stained_glass", "iron_ingot"),
     "tenth": ("light_blue_stained_glass", "iron_ingot"),
     "eleventh": ("lime_stained_glass", "copper_ingot"),
     "twelfth": ("purple_stained_glass", "iron_ingot"),
@@ -25,11 +29,15 @@ SONICS = {
     "war": ("red_stained_glass", "iron_ingot"),
     "river": ("blue_stained_glass", "gold_ingot"),
     "master": ("yellow_stained_glass", "gold_ingot"),
+    "fourteenth": ("light_blue_stained_glass", "copper_ingot"),
 }
 
 # TARDIS : extérieur -> objet posé en haut (la lampe du toit)
 EXTERIORS = {
     "classic": "lantern",
+    "fifth": "end_rod",
+    "eighth": "candle",
+    "fourteenth": "pearlescent_froglight",
     "tenth": "sea_lantern",
     "eleventh": "shroomlight",
     "twelfth": "glowstone",

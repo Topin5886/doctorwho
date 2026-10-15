@@ -320,6 +320,12 @@ def tardis():
         "twelfth": ((20, 40, 84), (12, 28, 60), (220, 230, 240), 0.04, False),
         "thirteenth": ((30, 72, 104), (20, 50, 76), (214, 236, 248), 0.04, False),
         "war": ((46, 62, 88), (32, 44, 66), (200, 205, 200), 0.13, False),
+        # Années 80 (Cinquième Docteur) : bleu plus clair et plus vif
+        "fifth": ((52, 92, 160), (36, 66, 124), (240, 244, 248), 0.03, False),
+        # 1996 (Huitième Docteur, le téléfilm) : bleu nuit verni
+        "eighth": ((22, 48, 104), (14, 32, 76), (238, 228, 200), 0.02, False),
+        # 2023 (Quatorzième Docteur) : bleu profond, peinture neuve
+        "fourteenth": ((26, 56, 128), (16, 38, 92), (230, 240, 252), 0.01, False),
     }
     for variant, (blue, dark, glass, wear, badge) in variants.items():
         BLUE, BLUE_DARK, GLASS, WEAR, BADGE = blue, dark, glass, wear, badge
@@ -613,6 +619,29 @@ def sonics():
     sonic_variant("river",
                   [seg(-6.5, 7, 1.5, "black"), seg(0.5, 0.75, 1.75, "silver"), seg(1.25, 1.75, 1.75, "silver")],
                   [seg(3, 1, 1.25, "glow_blue")])
+    # Deuxième Docteur : simple lampe-stylo argentée
+    sonic_variant("second",
+                  [seg(-6.5, 8, 1.0, "silver"), seg(1.5, 0.5, 1.25, "black")],
+                  [seg(2, 0.75, 0.75, "glow_white")])
+    # Troisième Docteur : manche noir, corps annelé, grosse tête ronde
+    sonic_variant("third",
+                  [seg(-6.5, 3.5, 1.5, "black"), seg(-3, 4.5, 1.25, "ringed"), seg(1.5, 1.25, 2.25, "silver")],
+                  [seg(2.75, 0.75, 1.25, "glow_white")])
+    # Septième Docteur : corps sombre, bagues argentées
+    sonic_variant("seventh",
+                  [seg(-6.5, 1, 1.75, "silver"), seg(-5.5, 5, 1.5, "gunmetal"), seg(-0.5, 0.75, 1.75, "silver"),
+                   seg(0.25, 2, 1.25, "ringed")],
+                  [seg(2.25, 1, 1.25, "glow_violet")])
+    # Huitième Docteur (1996) : poignée noire striée, embout bleu
+    sonic_variant("eighth",
+                  [seg(-6.5, 4.5, 1.75, "grip"), seg(-2, 1, 2, "silver"), seg(-1, 3, 1.25, "ringed"),
+                   seg(2, 0.75, 2, "silver")],
+                  [seg(2.75, 1, 1.5, "glow_blue")])
+    # Quatorzième Docteur (2023) : gros corps sombre, collerette cuivrée
+    sonic_variant("fourteenth",
+                  [seg(-6.5, 5.5, 2, "dark"), seg(-1, 1, 2.25, "copper"), seg(0, 2.25, 1.5, "gunmetal"),
+                   seg(2.25, 1, 2.5, "dark")],
+                  [seg(3.25, 1.25, 1.5, "glow_blue")])
     sonic_variant("master",
                   [seg(-7, 8.5, 1.25, "gold"), seg(-4, 0.5, 1.5, "black"), seg(-2, 0.5, 1.5, "black"),
                    seg(1.5, 2, 1.75, "black")],

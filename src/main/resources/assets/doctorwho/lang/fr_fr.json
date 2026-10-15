@@ -201,5 +201,17 @@
   "message.doctorwho.key.where_flying": "Votre TARDIS est en plein vol dans le vortex.",
   "tooltip.doctorwho.tardis.exterior": "Extérieur : %s",
   "tooltip.doctorwho.tardis.has_interior": "Contient déjà un intérieur",
-  "subtitles.doctorwho.tardis.hum": "Le TARDIS bourdonne"
+  "subtitles.doctorwho.tardis.hum": "Le TARDIS bourdonne",
+  "variant.doctorwho.exterior.fifth": "1980 · Cinquième",
+  "variant.doctorwho.exterior.eighth": "1996 · Huitième",
+  "variant.doctorwho.exterior.fourteenth": "2023 · Quatorzième",
+  "variant.doctorwho.desktop.columns": "Colonnes",
+  "variant.doctorwho.desktop.victorian": "Victorien",
+  "variant.doctorwho.desktop.columns.era": "1963 · Premier Docteur",
+  "variant.doctorwho.desktop.victorian.era": "1996 · Huitième Docteur",
+  "variant.doctorwho.sonic.second": "Deuxième",
+  "variant.doctorwho.sonic.third": "Troisième",
+  "variant.doctorwho.sonic.seventh": "Septième",
+  "variant.doctorwho.sonic.eighth": "Huitième",
+  "variant.doctorwho.sonic.fourteenth": "Quatorzième"
 }

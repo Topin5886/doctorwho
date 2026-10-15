@@ -16,15 +16,17 @@ import java.util.List;
  */
 public final class Variants {
 
-    /** 1963, 2005, 2010, 2014, 2018 et celui du War Doctor. */
-    public static final List<String> EXTERIORS = List.of("classic", "tenth", "eleventh", "twelfth", "thirteenth", "war");
+    /** 1963, années 80, 1996, 2005, 2010, 2014, 2018, 2023 et celui du War Doctor. */
+    public static final List<String> EXTERIORS = List.of("classic", "fifth", "eighth", "tenth", "eleventh", "twelfth",
+            "thirteenth", "fourteenth", "war");
     public static final String DEFAULT_EXTERIOR = "twelfth";
 
-    /** Corail (2005), cuivre (2010), blanc classique, sombre (2014). */
-    public static final List<String> DESKTOPS = List.of("coral", "copper", "white", "dark");
+    /** Corail (2005), cuivre (2010), blanc classique, sombre (2014), colonnes (1963), victorien (1996). */
+    public static final List<String> DESKTOPS = List.of("coral", "copper", "white", "dark", "columns", "victorian");
     public static final String DEFAULT_DESKTOP = "dark";
 
-    public static final List<String> SONICS = List.of("fourth", "tenth", "eleventh", "twelfth", "thirteenth", "war", "river", "master");
+    public static final List<String> SONICS = List.of("second", "third", "fourth", "seventh", "eighth", "tenth", "eleventh",
+            "twelfth", "thirteenth", "fourteenth", "war", "river", "master");
     public static final String DEFAULT_SONIC = "twelfth";
 
     private Variants() {

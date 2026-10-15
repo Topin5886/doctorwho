@@ -41,9 +41,11 @@ public final class InteriorBuilder {
      *
      * @param lowerWall rangée basse des murs (ex. bibliothèques), ou null pour des roundels
      * @param strut     branche posée en haut des piliers, ou null
+     * @param column    hautes colonnes le long des murs (décor 1963), ou null
      */
     public record Theme(Block wall, Block wallLit, Block base, Block floor, Block platform, Block subFloor,
-                        Block pillar, @Nullable Block strut, @Nullable Block lowerWall, Block ceiling) {
+                        Block pillar, @Nullable Block strut, @Nullable Block lowerWall, Block ceiling,
+                        @Nullable Block column) {
     }
 
     /** Décors au choix (voir {@link Variants#DESKTOPS}). */
@@ -52,20 +54,28 @@ public final class InteriorBuilder {
             // Onzième Docteur (2010) : cuivre et plancher de verre éclairé par en dessous
             case "copper" -> new Theme(ModBlocks.COPPER_ROUNDEL_WALL, ModBlocks.COPPER_ROUNDEL_WALL_LIT,
                     Blocks.WAXED_COPPER_BLOCK, Blocks.GLASS, Blocks.WAXED_COPPER_BLOCK, Blocks.WAXED_CUT_COPPER,
-                    ModBlocks.COPPER_BEAM, null, null, Blocks.WAXED_CUT_COPPER);
+                    ModBlocks.COPPER_BEAM, null, null, Blocks.WAXED_CUT_COPPER, null);
             // Classique (années 60-70) : tout blanc, roundels lumineux
             case "white" -> new Theme(ModBlocks.WHITE_ROUNDEL_WALL, ModBlocks.WHITE_ROUNDEL_WALL_LIT,
                     Blocks.SMOOTH_QUARTZ, Blocks.SMOOTH_QUARTZ, Blocks.QUARTZ_BRICKS, Blocks.POLISHED_DEEPSLATE,
-                    Blocks.QUARTZ_PILLAR, null, null, Blocks.SMOOTH_QUARTZ);
+                    Blocks.QUARTZ_PILLAR, null, null, Blocks.SMOOTH_QUARTZ, null);
             // Douzième Docteur (2014) : sombre, bibliothèques au pied des murs
             case "dark" -> new Theme(ModBlocks.DARK_ROUNDEL_WALL, ModBlocks.DARK_ROUNDEL_WALL_LIT,
                     Blocks.POLISHED_BLACKSTONE_BRICKS, ModBlocks.METAL_GRATING, Blocks.POLISHED_BLACKSTONE,
                     Blocks.POLISHED_BLACKSTONE, Blocks.POLISHED_BASALT, null, Blocks.BOOKSHELF,
-                    Blocks.POLISHED_BLACKSTONE_BRICKS);
+                    Blocks.POLISHED_BLACKSTONE_BRICKS, null);
+            // Premier Docteur (1963) : blanc, sol gris, hautes colonnes tout autour
+            case "columns" -> new Theme(ModBlocks.WHITE_ROUNDEL_WALL, ModBlocks.WHITE_ROUNDEL_WALL_LIT,
+                    Blocks.SMOOTH_QUARTZ, Blocks.POLISHED_ANDESITE, Blocks.QUARTZ_BRICKS, Blocks.POLISHED_ANDESITE,
+                    Blocks.QUARTZ_PILLAR, null, null, Blocks.SMOOTH_QUARTZ, Blocks.QUARTZ_PILLAR);
+            // Huitième Docteur (1996) : boiseries sombres, bibliothèques, lumières chaudes
+            case "victorian" -> new Theme(Blocks.DARK_OAK_PLANKS, Blocks.SHROOMLIGHT,
+                    Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.SPRUCE_PLANKS, Blocks.POLISHED_GRANITE, Blocks.DARK_OAK_PLANKS,
+                    Blocks.DARK_OAK_LOG, null, Blocks.BOOKSHELF, Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_LOG);
             // Dixième Docteur (2005) : corail
             default -> new Theme(ModBlocks.ROUNDEL_WALL, ModBlocks.ROUNDEL_WALL_LIT, ModBlocks.CORAL_WALL,
                     ModBlocks.METAL_GRATING, Blocks.WAXED_CUT_COPPER, Blocks.POLISHED_DEEPSLATE,
-                    ModBlocks.CORAL_PILLAR, ModBlocks.CORAL_STRUT, null, ModBlocks.CORAL_WALL);
+                    ModBlocks.CORAL_PILLAR, ModBlocks.CORAL_STRUT, null, ModBlocks.CORAL_WALL, null);
         };
     }
 
@@ -124,6 +134,7 @@ public final class InteriorBuilder {
         }
 
         placePillars(world, center, theme);
+        placeColumns(world, center, theme);
         placeLamps(world, center);
         placeRailing(world, center);
         placeConsole(world, center);
@@ -145,6 +156,22 @@ public final class InteriorBuilder {
                 Direction towardCenter = Direction.getFacing(-px, 0, -pz);
                 BlockPos strut = center.add(px, H - 1, pz).offset(towardCenter);
                 set(world, strut, theme.strut().getDefaultState().with(FacingDecorBlock.FACING, towardCenter));
+            }
+        }
+    }
+
+    /** Hautes colonnes le long des murs, par paires de part et d'autre des diagonales (décors 1963 et 1996). */
+    private static void placeColumns(ServerWorld world, BlockPos center, Theme theme) {
+        if (theme.column() == null) {
+            return;
+        }
+        BlockState column = theme.column().getDefaultState();
+        for (int k = 0; k < 8; k++) {
+            double angle = Math.toRadians(30 + (k / 2) * 90 + (k % 2) * 30);
+            int cx = (int) Math.round(Math.cos(angle) * 9.2);
+            int cz = (int) Math.round(Math.sin(angle) * 9.2);
+            for (int dy = 1; dy < H; dy++) {
+                set(world, center, cx, dy, cz, column);
             }
         }
     }
