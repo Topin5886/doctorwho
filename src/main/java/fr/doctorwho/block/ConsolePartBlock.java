@@ -22,7 +22,8 @@ public class ConsolePartBlock extends Block {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        for (BlockPos candidate : BlockPos.iterate(pos.add(-1, -3, -1), pos.add(1, 0, 1))) {
+        int r = TardisConsoleBlock.REACH;
+        for (BlockPos candidate : BlockPos.iterate(pos.add(-r, -3, -r), pos.add(r, 0, r))) {
             BlockState other = world.getBlockState(candidate);
             if (other.getBlock() instanceof TardisConsoleBlock console) {
                 return console.onUse(other, world, candidate.toImmutable(), player, hand, hit);

@@ -2,6 +2,7 @@ package fr.doctorwho.tardis;
 
 import fr.doctorwho.block.AbstractTardisDoorBlock;
 import fr.doctorwho.block.FacingDecorBlock;
+import fr.doctorwho.block.TardisConsoleBlock;
 import fr.doctorwho.registry.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public final class InteriorBuilder {
 
     /** Version de l'agencement : augmentée quand la salle change, pour reconstruire les anciens intérieurs. */
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
 
     /** Rayon intérieur de la salle (le mur est juste au-delà). */
     private static final double ROOM_RADIUS = 9.5;
@@ -114,7 +115,7 @@ public final class InteriorBuilder {
                             // Sous le plancher : lumières hexagonales qui éclairent à travers la grille
                             state = Math.floorMod(dx, 3) == 0 && Math.floorMod(dz, 3) == 0 ? hexLight : subFloor;
                         } else if (dy == 0) {
-                            state = r <= 2.5 ? platform : grating;
+                            state = r <= 3.5 ? platform : grating;
                         } else if (dy == H) {
                             state = Math.floorMod(dx, 4) == 0 && Math.floorMod(dz, 4) == 0 && r < 8 ? hexLight : ceiling;
                         }
@@ -137,7 +138,7 @@ public final class InteriorBuilder {
         placeColumns(world, center, theme);
         placeLamps(world, center);
         placeRailing(world, center);
-        placeConsole(world, center);
+        TardisConsoleBlock.place(world, consolePos(center), ConsoleStyle.forDesktop(desktop));
         placeDoor(world, center);
     }
 
@@ -189,10 +190,10 @@ public final class InteriorBuilder {
 
     /** Rambarde en anneau autour de la console, avec quatre passages. */
     private static void placeRailing(ServerWorld world, BlockPos center) {
-        for (int dx = -5; dx <= 5; dx++) {
-            for (int dz = -5; dz <= 5; dz++) {
+        for (int dx = -7; dx <= 7; dx++) {
+            for (int dz = -7; dz <= 7; dz++) {
                 double r = Math.sqrt(dx * dx + dz * dz);
-                if (r < 3.6 || r > 4.4 || Math.abs(dx) <= 1 || Math.abs(dz) <= 1) {
+                if (r < 5.6 || r > 6.4 || Math.abs(dx) <= 1 || Math.abs(dz) <= 1) {
                     continue;
                 }
                 // La barre suit l'anneau : est-ouest au nord et au sud, nord-sud à l'est et à l'ouest
@@ -200,24 +201,6 @@ public final class InteriorBuilder {
                 set(world, center, dx, 1, dz, ModBlocks.RAILING.getDefaultState().with(FacingDecorBlock.FACING, facing));
             }
         }
-    }
-
-    /**
-     * Console GeckoLib au centre, entourée de blocs invisibles qui donnent sa
-     * collision au modèle (pupitres autour, rotor au-dessus).
-     */
-    private static void placeConsole(ServerWorld world, BlockPos center) {
-        BlockState part = ModBlocks.CONSOLE_PART.getDefaultState();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                if (dx != 0 || dz != 0) {
-                    set(world, center, dx, 1, dz, part);
-                }
-            }
-        }
-        set(world, center, 0, 2, 0, part);
-        set(world, center, 0, 3, 0, part);
-        set(world, consolePos(center), ModBlocks.TARDIS_CONSOLE.getDefaultState());
     }
 
     /**

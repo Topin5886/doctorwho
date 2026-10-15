@@ -63,6 +63,21 @@ def bone_transform(bones, bone, p, pose):
     return p
 
 
+def cube_transform(cube, p):
+    """Rotation propre au cube (même convention que les os)."""
+    rx, ry, rz = cube.get("rotation", [0, 0, 0])
+    pv = cube.get("pivot", [0, 0, 0])
+    if rx:
+        p = rot_x(p, pv, -rx)
+    if ry:
+        p = rot_y(p, pv, ry)
+    if rz:
+        a = math.radians(rz)
+        x, y = p[0] - pv[0], p[1] - pv[1]
+        p = (pv[0] + x * math.cos(a) - y * math.sin(a), pv[1] + x * math.sin(a) + y * math.cos(a), p[2])
+    return p
+
+
 def faces_of(cube):
     (ox, oy, oz), (sx, sy, sz) = cube["origin"], cube["size"]
     x0, x1, y0, y1, z0, z1 = ox, ox + sx, oy, oy + sy, oz, oz + sz
@@ -94,7 +109,7 @@ def render(geo_path, tex_path, size=300, yaw=-32, pitch=18, zoom=None, pose=None
     out = Image(size, size)
     cy, sy_ = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
     cp, sp = math.cos(math.radians(pitch)), math.sin(math.radians(pitch))
-    maxy = max(max(c["origin"][1] + c["size"][1] for c in b.get("cubes", [{"origin": [0, 0, 0], "size": [0, 1, 0]}])) for b in geo["bones"])
+    maxy = max(max(c["origin"][1] + c["size"][1] for c in (b.get("cubes") or [{"origin": [0, 0, 0], "size": [0, 1, 0]}])) for b in geo["bones"])
     scale = zoom or (size * 0.82 / max(maxy, 24))
     normals = {"north": (0, 0, -1), "south": (0, 0, 1), "east": (1, 0, 0), "west": (-1, 0, 0), "up": (0, 1, 0), "down": (0, -1, 0)}
 
@@ -119,6 +134,7 @@ def render(geo_path, tex_path, size=300, yaw=-32, pitch=18, zoom=None, pose=None
             for j in range(rv + 1):
                 a, b = i / ru, j / rv
                 p = (o[0] + r[0] * a + d[0] * b, o[1] + r[1] * a + d[1] * b, o[2] + r[2] * a + d[2] * b)
+                p = cube_transform(cube, p)
                 p = bone_transform(bones, bone, p, pose)
                 x, y, z = cam(p)
                 sx, sy = int(size / 2 + x * scale), int(size * 0.92 - y * scale)

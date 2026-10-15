@@ -1,6 +1,7 @@
 package fr.doctorwho.tardis;
 
 import fr.doctorwho.block.FacingDecorBlock;
+import fr.doctorwho.block.TardisConsoleBlock;
 import fr.doctorwho.registry.ModBlocks;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.Block;
@@ -95,7 +96,7 @@ public final class Architecture {
 
         InteriorBuilder.Theme theme = InteriorBuilder.theme(data.getDesktop());
         buildCorridor(world, exit, theme);
-        buildRoom(world, roomCenter, forward, theme, type);
+        buildRoom(world, roomCenter, forward, theme, type, ConsoleStyle.forDesktop(data.getDesktop()));
 
         data.getExits().set(exitIndex, exit.asUsed());
         data.getOccupied().add(corridorBox);
@@ -162,7 +163,8 @@ public final class Architecture {
         }
     }
 
-    private static void buildRoom(ServerWorld world, BlockPos center, Direction forward, InteriorBuilder.Theme theme, String type) {
+    private static void buildRoom(ServerWorld world, BlockPos center, Direction forward, InteriorBuilder.Theme theme, String type,
+                                  ConsoleStyle style) {
         Direction right = forward.rotateYClockwise();
         BlockState wall = theme.wall().getDefaultState();
         BlockState wallLit = theme.wallLit().getDefaultState();
@@ -194,7 +196,7 @@ public final class Architecture {
             case "bedroom" -> f.bedroom();
             case "kitchen" -> f.kitchen();
             case "library" -> f.library();
-            case "console" -> f.console();
+            case "console" -> f.console(style);
             case "pool" -> f.pool();
             case "garden" -> f.garden();
             case "workshop" -> f.workshop();
@@ -295,18 +297,8 @@ public final class Architecture {
         }
 
         /** Salle de console secondaire : on peut piloter le TARDIS d'ici aussi. */
-        void console() {
-            BlockState part = ModBlocks.CONSOLE_PART.getDefaultState();
-            for (int a = -1; a <= 1; a++) {
-                for (int b = -1; b <= 1; b++) {
-                    if (a != 0 || b != 0) {
-                        put(a, b, 0, part);
-                    }
-                }
-            }
-            put(0, 0, 1, part);
-            put(0, 0, 2, part);
-            put(0, 0, 0, ModBlocks.TARDIS_CONSOLE);
+        void console(ConsoleStyle style) {
+            TardisConsoleBlock.place(world, local(center, forward, right, 0, 0, 0), style);
             for (int a : new int[]{-3, 3}) {
                 for (int b : new int[]{-3, 3}) {
                     for (int dy = 0; dy < ROOM_TOP; dy++) {

@@ -360,11 +360,6 @@ def tardis_door():
 # ---------------------------------------------------------------------------
 # Console hexagonale avec rotor temporel (centre de la salle de console)
 # ---------------------------------------------------------------------------
-COPPER = (184, 115, 51)
-BRONZE = (92, 58, 34)
-BRASS = (150, 112, 60)
-
-
 def hexagon(side, depth_y, y0, material, extra=None):
     """Prisme hexagonal = 3 pavés identiques tournés de 0, 60 et 120 degrés."""
     apothem = side * 0.8660254
@@ -374,122 +369,6 @@ def hexagon(side, depth_y, y0, material, extra=None):
                 {"rotation": [0, angle, 0], "pivot": [0, 0, 0]})
         cubes.append(cube)
     return cubes
-
-
-def c_base(tex, glow, x, y, w, h, s, face, seed):
-    noisy(tex, x, y, x + w, y + h, BRONZE, 0.08, seed)
-    if face not in ("up", "down"):
-        for gy in range(y + 3, y + h, 6):
-            tex.rect(x, gy, x + w, gy + 1, shade(BRONZE, 0.7))
-
-
-def c_copper(tex, glow, x, y, w, h, s, face, seed):
-    noisy(tex, x, y, x + w, y + h, COPPER, 0.07, seed)
-    tex.frame(x, y, x + w, y + h, shade(COPPER, 1.25), 1)
-
-
-def c_panel(tex, glow, x, y, w, h, s, face, seed):
-    noisy(tex, x, y, x + w, y + h, BRASS, 0.06, seed)
-    if face == "up":
-        tex.frame(x, y, x + w, y + h, shade(BRASS, 0.6), 2)
-        for gx in range(x + 6, x + w - 4, 8):
-            tex.rect(gx, y + 3, gx + 1, y + h - 3, shade(BRASS, 0.8))
-
-
-def solid(color, glowing=False):
-    def paint(tex, glow, x, y, w, h, s, face, seed):
-        tex.rect(x, y, x + w, y + h, color)
-        if glowing:
-            glow.rect(x, y, x + w, y + h, color)
-    return paint
-
-
-def c_monitor(tex, glow, x, y, w, h, s, face, seed):
-    tex.rect(x, y, x + w, y + h, (12, 20, 14))
-    if face == "north" or face == "up":
-        for gy in range(y + 2, y + h - 1, 3):
-            tex.rect(x + 2, gy, x + w - 2 - (gy * 7 % 5), gy + 1, (90, 230, 120))
-            glow.rect(x + 2, gy, x + w - 2 - (gy * 7 % 5), gy + 1, (90, 230, 120))
-
-
-def c_glass(tex, glow, x, y, w, h, s, face, seed):
-    if face in ("up", "down"):
-        return  # faces haut/bas invisibles : on voit le rotor au travers
-    tex.rect(x, y, x + w, y + h, (170, 220, 255, 34))
-    tex.frame(x, y, x + w, y + h, (200, 235, 255, 120), 1)
-
-
-def c_rotor(tex, glow, x, y, w, h, s, face, seed):
-    for yy in range(y, y + h):
-        k = 0.75 + 0.25 * math.sin((yy - y) * 0.9)
-        tex.rect(x, yy, x + w, yy + 1, shade((110, 225, 255), k))
-        glow.rect(x, yy, x + w, yy + 1, shade((110, 225, 255), k))
-
-
-def console():
-    base = hexagon(8, 10, 0, "base") + hexagon(15, 2, 10, "copper")
-    bones = [
-        {"name": "root", "pivot": [0, 0, 0], "cubes": base},
-    ]
-    # Six pupitres inclinés, chacun dans son os tourné de 60 degrés, avec ses commandes
-    tilt = {"rotation": [-18, 0, 0], "pivot": [0, 12.5, -8]}
-
-    def ctl(x, z, w, h, d, mat, y=13):
-        return ((x, y, z), (w, h, d), {"*": mat}, tilt)
-
-    colors = ("red", "green", "yellow", "blue")
-    layouts = {
-        # 0 : manettes (la grande manette des gaz est un os animé, plus bas)
-        0: [ctl(-5, -10, 1, 2.5, 1, "silver"), ctl(-5.25, -10.25, 1.5, 0.75, 1.5, "red", 15.5),
-            ctl(4, -10, 1, 2.5, 1, "silver"), ctl(3.75, -10.25, 1.5, 0.75, 1.5, "green", 15.5)]
-           + [ctl(-4 + i * 2.25, -6, 1.25, 0.5, 1.25, colors[i]) for i in range(4)],
-        # 1 : grille de boutons + cadran
-        1: [ctl(-5 + c * 2.25, -10.5 + r * 2.25, 1.5, 0.75, 1.5, colors[(r + c) % 4])
-            for r in range(2) for c in range(3)] + [ctl(2.25, -10.5, 3.5, 0.5, 3.5, "dial")],
-        # 2 : clavier
-        2: [ctl(-5 + i * 1.75, -11 + j * 1.6, 1.25, 0.5, 1.2, "key") for i in range(6) for j in range(3)]
-           + [ctl(-3, -6, 6, 0.5, 1.25, "key")],
-        # 3 : logement du tournevis sonique (anneau de cuivre + trou), interrupteurs
-        3: [ctl(-1.75, -9.75, 3.5, 0.75, 0.75, "copper"), ctl(-1.75, -7, 3.5, 0.75, 0.75, "copper"),
-            ctl(-1.75, -9, 0.75, 0.75, 2, "copper"), ctl(1, -9, 0.75, 0.75, 2, "copper"),
-            ctl(-1, -9, 2, 0.25, 2, "hole"),
-            ctl(-5, -9.5, 1, 1.5, 1, "silver"), ctl(4, -9.5, 1, 1.5, 1, "silver")],
-        # 4 : grand écran
-        4: [ctl(-4.5, -11.25, 9, 0.5, 5.5, "monitor"), ctl(-4, -5, 8, 0.5, 0.75, "yellow")],
-        # 5 : frein à main + jauges
-        5: [ctl(-3, -8.5, 6, 0.75, 1, "silver", 14), ctl(-3.5, -8.75, 1.5, 2, 1.5, "copper"),
-            ctl(2, -8.75, 1.5, 2, 1.5, "copper"), ctl(-4.5, -11, 2.5, 0.5, 2.5, "dial"),
-            ctl(2.5, -11, 2.5, 0.5, 2.5, "dial")],
-    }
-    for k in range(6):
-        cubes = [((-6.5, 12, -12), (13, 1, 8), {"*": "copper", "up": "panel"}, tilt)] + layouts[k]
-        bones.append({"name": "panel_%d" % k, "parent": "root", "pivot": [0, 0, 0],
-                      "rotation": [0, k * 60, 0], "cubes": cubes})
-    # Point d'attache du tournevis sonique, au centre du logement (pupitre 3)
-    bones.append({"name": "sonic_port", "parent": "panel_3", "pivot": [0, 13.25, -8.25],
-                  "rotation": [-18, 0, 0], "cubes": []})
-    # Manette des gaz sur le pupitre 0, dans un os à part pour l'animer
-    bones.append({"name": "throttle", "parent": "panel_0", "pivot": [0, 13.5, -9],
-                  "cubes": [((-0.5, 13, -9.5), (1, 4, 1), {"*": "silver"}, tilt),
-                            ((-1.5, 16.5, -10), (3, 1, 2), {"*": "red"}, tilt)]})
-    # Rotor temporel : cœur lumineux (animé) puis colonne de verre et chapeau
-    bones.append({"name": "rotor", "parent": "root", "pivot": [0, 16, 0],
-                  "cubes": [((-2, 15 + i * 9, -2), (4, 7, 4), {"*": "rotor"}) for i in range(3)]})
-    bones.append({"name": "housing", "parent": "root", "pivot": [0, 0, 0],
-                  "cubes": hexagon(4.5, 30, 13, "glass") + hexagon(6, 2, 43, "copper") + hexagon(5.5, 1, 27, "copper")})
-    painters = {"base": c_base, "copper": c_copper, "panel": c_panel, "monitor": c_monitor,
-                "glass": c_glass, "rotor": c_rotor, "red": solid((200, 40, 40), True),
-                "green": solid((60, 200, 80), True), "yellow": solid((235, 200, 60), True),
-                "blue": solid((70, 150, 235), True), "key": solid((214, 208, 196)),
-                "hole": solid((14, 12, 10)), "dial": c_dial, "silver": s_silver}
-    write("block", "tardis_console", *build("tardis_console", bones, 4, 256, painters))
-
-
-def c_dial(tex, glow, x, y, w, h, s, face, seed):
-    tex.rect(x, y, x + w, y + h, (150, 112, 60))
-    if face == "up":
-        tex.rect(x + 1, y + 1, x + w - 1, y + h - 1, (238, 232, 214))
-        tex.rect(x + w // 2, y + 2, x + w // 2 + 1, y + h // 2 + 1, (30, 30, 30))
 
 
 # ---------------------------------------------------------------------------
@@ -704,10 +583,331 @@ def tardis_key_icon():
     print("OK icone cle")
 
 
+# ---------------------------------------------------------------------------
+# Consoles du TARDIS : une par décor, grandes (≈ 4,6 blocs de large, 4 de haut)
+# Repère : origine = centre du bas du bloc de la console, front = nord (-z).
+# Chaque console garde les os « rotor » (animé), « throttle » (manette des gaz)
+# et « sonic_port » (logement du tournevis), utilisés par le code Java.
+# ---------------------------------------------------------------------------
+TILT = 11             # inclinaison des pupitres (bord extérieur plus bas)
+DESK_SIDE = 37        # côté de l'hexagone du plateau (en pixels de bloc)
+# Bandes des pupitres : (distance extérieure, distance intérieure, hauteur du dessous)
+STRIPS = [(31, 24, 17.5), (24, 17, 18.9), (17, 10, 20.3)]
+STRIP_T = 1.5
+# Colonne jusqu'au plafond, dessinée pour un plafond à 9 blocs (144 px) : du chapeau (65) à 141,
+# puis collerette de 3 px sous le plafond. Le rendu Java l'adapte à la vraie hauteur.
+SHAFT_BOTTOM = 65
+SHAFT_TOP = 141
+
+
+def k_metal(color, amount=0.06, frame=1.2):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        noisy(tex, x, y, x + w, y + h, color, amount, seed)
+        if w > 4 and h > 4:
+            tex.frame(x, y, x + w, y + h, shade(color, frame), 1)
+    return paint
+
+
+def k_ribbed(color, step=6):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        noisy(tex, x, y, x + w, y + h, color, 0.08, seed)
+        if face not in ("up", "down"):
+            for gy in range(y + step // 2, y + h, step):
+                tex.rect(x, gy, x + w, gy + 1, shade(color, 0.65))
+    return paint
+
+
+def k_roundels(color, hole):
+    """Base à roundels (cercles creux), comme les murs du TARDIS."""
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        noisy(tex, x, y, x + w, y + h, color, 0.04, seed)
+        if face in ("up", "down"):
+            return
+        r = 3
+        for cy in range(y + 5, y + h - 3, 9):
+            for cx in range(x + 5, x + w - 3, 9):
+                for yy in range(cy - r, cy + r + 1):
+                    for xx in range(cx - r, cx + r + 1):
+                        if (xx - cx) ** 2 + (yy - cy) ** 2 <= r * r + 1:
+                            tex.set(xx, yy, hole)
+    return paint
+
+
+def k_coral(color):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        rnd = random.Random(seed)
+        noisy(tex, x, y, x + w, y + h, color, 0.12, seed)
+        for _ in range(w * h // 18):
+            cx, cy = rnd.randrange(x, x + w), rnd.randrange(y, y + h)
+            tex.set(cx, cy, shade(color, 0.7))
+            tex.set(cx + 1, cy, shade(color, 1.25))
+    return paint
+
+
+def k_wood(color):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        rnd = random.Random(seed)
+        for yy in range(y, y + h):
+            k = 0.9 + 0.12 * math.sin((yy - y) * 0.7 + rnd.random())
+            tex.rect(x, yy, x + w, yy + 1, shade(color, k))
+        for _ in range(max(1, w * h // 60)):
+            gx = rnd.randrange(x, x + w)
+            tex.rect(gx, y, gx + 1, y + h, shade(color, 0.8))
+    return paint
+
+
+def k_desk(color, inset):
+    """Dessus de pupitre : cadre, rainures et (selon le style) un panneau encastré."""
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        noisy(tex, x, y, x + w, y + h, color, 0.05, seed)
+        if face == "up" and w > 8 and h > 6:
+            tex.frame(x, y, x + w, y + h, shade(color, 0.6), 2)
+            if inset:
+                tex.rect(x + 4, y + 3, x + w - 4, y + h - 3, inset)
+    return paint
+
+
+def k_glass(color, alpha=40):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        if face in ("up", "down"):
+            return  # on voit le rotor à travers
+        tex.rect(x, y, x + w, y + h, (*color, alpha))
+        tex.frame(x, y, x + w, y + h, (*shade(color, 1.2), 130), 1)
+        for gx in range(x + 3, x + w - 1, 7):
+            tex.rect(gx, y, gx + 1, y + h, (255, 255, 255, 60))
+    return paint
+
+
+def k_rotor(color, color2=None):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        for yy in range(y, y + h):
+            k = 0.7 + 0.3 * math.sin((yy - y) * 0.8)
+            c = color if color2 is None or (yy - y) % 4 < 2 else color2
+            tex.rect(x, yy, x + w, yy + 1, shade(c, k))
+            glow.rect(x, yy, x + w, yy + 1, shade(c, k))
+    return paint
+
+
+def k_light(color):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        tex.rect(x, y, x + w, y + h, color)
+        glow.rect(x, y, x + w, y + h, color)
+    return paint
+
+
+def k_monitor(color):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        tex.rect(x, y, x + w, y + h, (10, 14, 18))
+        if face in ("up", "north", "south"):
+            for gy in range(y + 2, y + h - 1, 3):
+                x1 = x + w - 2 - (gy * 7 % 6)
+                tex.rect(x + 2, gy, x1, gy + 1, color)
+                glow.rect(x + 2, gy, x1, gy + 1, color)
+    return paint
+
+
+def k_dial(rim):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        tex.rect(x, y, x + w, y + h, rim)
+        if face == "up" and w > 3 and h > 3:
+            tex.rect(x + 1, y + 1, x + w - 1, y + h - 1, (238, 232, 214))
+            tex.rect(x + w // 2, y + 1, x + w // 2 + 1, y + h // 2 + 1, (30, 30, 30))
+    return paint
+
+
+# Styles : couleurs des matières + éléments propres à chaque console
+CONSOLE_STYLES = {
+    # Dixième Docteur (2005) : corail, colonne verte, six branches de corail
+    "coral": {"base": k_coral((176, 104, 66)), "trim": k_metal((120, 92, 60)), "rim": k_coral((150, 96, 60)),
+              "desk": k_desk((128, 116, 78), (96, 84, 56)), "glass": k_glass((150, 235, 170)),
+              "rotor": k_rotor((90, 240, 140)), "strut": k_coral((196, 120, 70)), "accent": k_metal((90, 160, 110))},
+    # Onzième Docteur (2010) : cuivre, verre, rotor orange et bleu, cage de cuivre
+    "copper": {"base": k_ribbed((150, 88, 44)), "trim": k_metal((200, 150, 70)), "rim": k_metal((184, 115, 51)),
+               "desk": k_desk((168, 104, 54), (120, 72, 40)), "glass": k_glass((220, 240, 255)),
+               "rotor": k_rotor((255, 150, 60), (90, 170, 255)), "strut": k_metal((184, 115, 51)),
+               "accent": k_metal((70, 110, 150))},
+    # Classique (années 70) : blanc, roundels, colonne argentée
+    "white": {"base": k_roundels((228, 228, 222), (170, 170, 168)), "trim": k_metal((190, 192, 196)),
+              "rim": k_metal((236, 236, 232)), "desk": k_desk((214, 214, 210), (60, 62, 70)),
+              "glass": k_glass((230, 240, 255), 30), "rotor": k_rotor((200, 230, 255), (150, 160, 175)),
+              "strut": k_metal((200, 200, 205)), "accent": k_metal((60, 62, 70))},
+    # Douzième Docteur (2014) : sombre et doré, colonne bleue, grand anneau au-dessus
+    "dark": {"base": k_roundels((52, 50, 56), (22, 22, 26)), "trim": k_metal((196, 156, 72)),
+             "rim": k_metal((40, 38, 44)), "desk": k_desk((62, 58, 64), (36, 34, 40)),
+             "glass": k_glass((170, 210, 255)), "rotor": k_rotor((110, 200, 255)),
+             "strut": k_metal((196, 156, 72)), "accent": k_metal((150, 110, 60))},
+    # Premier Docteur (1963) : blanc et gris, colonne d'instruments argentés
+    "columns": {"base": k_ribbed((220, 222, 218), 4), "trim": k_metal((120, 124, 130)),
+                "rim": k_metal((200, 202, 200)), "desk": k_desk((190, 192, 190), (40, 40, 44)),
+                "glass": k_glass((240, 245, 255), 30), "rotor": k_rotor((235, 240, 250), (120, 130, 150)),
+                "strut": k_metal((120, 124, 130)), "accent": k_metal((40, 40, 44))},
+    # Huitième Docteur (1996) : bois sombre et laiton, lumière ambrée
+    "victorian": {"base": k_wood((78, 50, 30)), "trim": k_metal((190, 150, 70)), "rim": k_wood((96, 62, 36)),
+                  "desk": k_desk((110, 74, 42), (70, 46, 26)), "glass": k_glass((255, 210, 140), 50),
+                  "rotor": k_rotor((255, 180, 80)), "strut": k_wood((84, 54, 32)), "accent": k_metal((190, 150, 70))},
+}
+CONTROL_PAINTERS = {"red": k_light((210, 50, 40)), "green": k_light((70, 210, 90)), "yellow": k_light((240, 205, 70)),
+                    "blue": k_light((80, 160, 240)), "white": k_light((240, 240, 230)), "key": k_metal((214, 208, 196)),
+                    "hole": k_metal((14, 12, 10)), "silver": s_silver, "monitor": k_monitor((90, 230, 120)),
+                    "dial": k_dial((150, 112, 60))}
+
+
+def strip_cube(j, w, mat, faces=None):
+    d_out, d_in, y0 = STRIPS[j]
+    m = {"*": "trim", "up": mat}
+    m.update(faces or {})
+    return ((-w / 2, y0, -d_out), (w, STRIP_T, d_out - d_in), m,
+            {"rotation": [TILT, 0, 0], "pivot": [0, y0, -(d_out + d_in) / 2]})
+
+
+def on_strip(j, x, z, w, h, d, mat):
+    """Commande posée sur la bande j : x depuis le centre, z depuis le bord extérieur de la bande."""
+    d_out, d_in, y0 = STRIPS[j]
+    return ((x, y0 + STRIP_T, -d_out + z), (w, h, d), {"*": mat},
+            {"rotation": [TILT, 0, 0], "pivot": [0, y0, -(d_out + d_in) / 2]})
+
+
+def console_bones(style):
+    s = DESK_SIDE
+    root = (hexagon(20, 2, 0, "trim") + hexagon(13, 12, 2, "base") + hexagon(27, 3, 13, "base")
+            + hexagon(s, 2, 16, "rim"))
+    if style == "victorian":
+        root += hexagon(15, 2, 7, "trim")           # bague de laiton sur le pied
+    if style == "coral":
+        root += hexagon(10, 6, 2, "accent")
+    bones = [{"name": "root", "pivot": [0, 0, 0], "cubes": root}]
+    colors = ("red", "green", "yellow", "blue")
+    keys = "white" if style in ("white", "columns") else "key"
+    layouts = {
+        # 0 : manettes + rangée de boutons (la manette des gaz est un os à part)
+        0: [on_strip(0, -9, 1.5, 1.5, 4, 1.5, "silver"), on_strip(0, -9.5, 1, 2.5, 1.2, 2.5, "red"),
+            on_strip(0, 7.5, 1.5, 1.5, 4, 1.5, "silver"), on_strip(0, 7, 1, 2.5, 1.2, 2.5, "green")]
+           + [on_strip(0, -4 + i * 2.5, 4, 1.5, 0.8, 1.5, colors[i]) for i in range(4)],
+        # 1 : grille de boutons + deux cadrans
+        1: [on_strip(0, -10 + c * 3, 1.5 + r * 2.6, 2, 0.8, 2, colors[(r + c) % 4]) for r in range(2) for c in range(5)]
+           + [on_strip(1, -7, 1.5, 4, 0.6, 4, "dial"), on_strip(1, 3, 1.5, 4, 0.6, 4, "dial")],
+        # 2 : clavier (machine à écrire)
+        2: [on_strip(0, -10 + i * 2.2, 1 + j * 1.9, 1.6, 0.8, 1.5, keys) for i in range(10) for j in range(3)]
+           + [on_strip(1, -5, 2, 10, 0.6, 1.6, keys)],
+        # 3 : logement du tournevis + interrupteurs
+        3: [on_strip(1, -2.5, 1.5, 5, 1, 1, "trim"), on_strip(1, -2.5, 5, 5, 1, 1, "trim"),
+            on_strip(1, -2.5, 2.5, 1, 1, 2.5, "trim"), on_strip(1, 1.5, 2.5, 1, 1, 2.5, "trim"),
+            on_strip(1, -1.5, 2.5, 3, 0.3, 2.5, "hole")]
+           + [on_strip(0, -9 + i * 4.5, 2, 1.2, 2.5, 1.2, "silver") for i in range(5)],
+        # 4 : grand écran
+        4: [on_strip(0, -9, 1, 18, 0.6, 5, "monitor"), on_strip(1, -5, 2, 10, 0.8, 1.2, "yellow")],
+        # 5 : frein à main + jauges
+        5: [on_strip(0, -5, 2.5, 10, 1, 1.5, "silver"), on_strip(0, -6, 2, 2, 2.5, 2, "trim"),
+            on_strip(0, 4, 2, 2, 2.5, 2, "trim"), on_strip(1, -8, 1.5, 4, 0.6, 4, "dial"),
+            on_strip(1, 4, 1.5, 4, 0.6, 4, "dial")],
+    }
+    for k in range(6):
+        cubes = [strip_cube(0, 26.5, "desk"), strip_cube(1, 18.5, "desk"), strip_cube(2, 10.5, "desk")]
+        cubes += layouts[k]
+        # Petites lumières sur la bande intérieure
+        cubes += [on_strip(2, -3.5 + i * 2.5, 2.5, 1.2, 0.6, 1.2, colors[(i + k) % 4]) for i in range(3)]
+        bones.append({"name": "panel_%d" % k, "parent": "root", "pivot": [0, 0, 0],
+                      "rotation": [0, k * 60, 0], "cubes": cubes})
+        # Arête entre deux pupitres (vers le coin de l'hexagone)
+        bones.append({"name": "edge_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                      "cubes": [((-1, 18, -33), (2, 2.5, 23), {"*": "trim"},
+                                 {"rotation": [TILT, 0, 0], "pivot": [0, 18, -21.5]})]})
+    d1_out, d1_in, y1 = STRIPS[1]
+    mid1 = (d1_out + d1_in) / 2
+    # Logement du tournevis (pupitre 3) et manette des gaz (pupitre 0)
+    bones.append({"name": "sonic_port", "parent": "panel_3", "pivot": [0, y1 + STRIP_T + 0.3, -(d1_out - 3.75)],
+                  "rotation": [TILT, 0, 0], "cubes": []})
+    bones.append({"name": "throttle", "parent": "panel_0", "pivot": [0, y1 + STRIP_T, -mid1],
+                  "cubes": [((-0.75, y1 + STRIP_T, -mid1 - 0.75), (1.5, 7, 1.5), {"*": "silver"}),
+                            ((-2.5, y1 + STRIP_T + 6.5, -mid1 - 1.5), (5, 1.8, 3), {"*": "red"})]})
+    # Rotor (animé) dans sa colonne de verre
+    rotor = [((-2.5, 25 + i * 11, -2.5), (5, 7, 5), {"*": "rotor"}) for i in range(3)]
+    if style in ("columns", "white"):
+        rotor += [((-4, 28 + i * 11, -4), (8, 1, 8), {"*": "trim"}) for i in range(3)]   # disques d'instruments
+    bones.append({"name": "rotor", "parent": "root", "pivot": [0, 25, 0], "cubes": rotor})
+    housing = (hexagon(7, 40, 22, "glass") + hexagon(8.5, 2, 21, "trim") + hexagon(8.5, 1.5, 41, "trim")
+               + hexagon(9.5, 3, 62, "trim"))
+    bones.append({"name": "housing", "parent": "root", "pivot": [0, 0, 0], "cubes": housing})
+    bones += console_extras(style)
+    if style != "white":
+        # Colonne qui monte jusqu'au plafond (étirée par le rendu selon la hauteur de la salle)
+        # et collerette de fixation au plafond (déplacée par le rendu). La console classique n'en a pas.
+        bones.append({"name": "shaft", "parent": "root", "pivot": [0, SHAFT_BOTTOM, 0],
+                      "cubes": hexagon(6, SHAFT_TOP - SHAFT_BOTTOM, SHAFT_BOTTOM, "glass")
+                      + [((-1, SHAFT_BOTTOM, -1), (2, SHAFT_TOP - SHAFT_BOTTOM, 2), {"*": "rotor"})]})
+        bones.append({"name": "mount", "parent": "root", "pivot": [0, SHAFT_TOP, 0],
+                      "cubes": hexagon(12, 3, SHAFT_TOP, "trim") + hexagon(8.5, 4, SHAFT_TOP - 4, "trim")})
+    return bones
+
+
+def console_extras(style):
+    """Éléments qui donnent son caractère à chaque console."""
+    extra = []
+    if style == "coral":
+        # Six branches de corail qui montent des coins du plateau vers la colonne
+        for k in range(6):
+            extra.append({"name": "strut_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-2, 17, -37), (4, 58, 4), {"*": "strut"}, {"rotation": [-22, 0, 0], "pivot": [0, 17, -35]}),
+                                    ((-1.5, 30, -32), (3, 3, 3), {"*": "accent"}, {"rotation": [-22, 0, 0], "pivot": [0, 17, -35]})]})
+    elif style == "copper":
+        # Cage de cuivre : six montants aux coins et un anneau hexagonal au-dessus, reliés à la colonne
+        for k in range(6):
+            extra.append({"name": "cage_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-1, 18, -36), (2, 50, 2), {"*": "strut"}),
+                                    ((-1, 66, -36), (2, 2, 27), {"*": "strut"})]})
+            extra.append({"name": "ring_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60, 0],
+                          "cubes": [((-18.5, 66, -32), (37, 2, 2), {"*": "trim"})]})
+    elif style == "dark":
+        # Grand anneau doré suspendu au-dessus de la console, porté par trois bras
+        for k in range(6):
+            extra.append({"name": "ring_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60, 0],
+                          "cubes": [((-15, 70, -26.5), (30, 3, 3), {"*": "trim"}),
+                                    ((-2, 69.5, -27), (4, 4, 0.5), {"*": "rotor"})]})
+        for k in range(3):
+            extra.append({"name": "arm_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 120 + 30, 0],
+                          "cubes": [((-1, 64, -29), (2, 2, 20), {"*": "strut"}, {"rotation": [-14, 0, 0], "pivot": [0, 65, -9]})]})
+        # Écran sur pied, au-dessus du pupitre 4
+        extra.append({"name": "screen", "parent": "root", "pivot": [0, 0, 0], "rotation": [0, 240, 0],
+                      "cubes": [((-0.75, 22, -15), (1.5, 12, 1.5), {"*": "strut"}),
+                                ((-6, 32, -16), (12, 8, 1), {"*": "trim", "north": "monitor"})]})
+    elif style == "white":
+        # Six piliers blancs sous le plateau (pied « champignon »)
+        for k in range(6):
+            extra.append({"name": "leg_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-1.5, 2, -24), (3, 14, 3), {"*": "trim"})]})
+    elif style == "columns":
+        # Colonne centrale plus haute, ceinte d'anneaux, et pupitres soutenus par des montants sombres
+        for k in range(6):
+            extra.append({"name": "leg_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-1, 2, -26), (2, 14, 2), {"*": "accent"})]})
+        extra.append({"name": "crown", "parent": "root", "pivot": [0, 0, 0],
+                      "cubes": hexagon(11, 1.5, 52, "trim") + hexagon(6, 6, 65, "trim")})
+    elif style == "victorian":
+        # Pieds de bois sculptés et dais de laiton au-dessus
+        for k in range(6):
+            extra.append({"name": "leg_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-2, 2, -25), (4, 14, 4), {"*": "strut"}),
+                                    ((-1, 65, -26), (2, 2, 17), {"*": "trim"})]})
+            extra.append({"name": "canopy_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60, 0],
+                          "cubes": [((-13.5, 64.5, -24.5), (27, 3, 3), {"*": "strut"}),
+                                    ((-1.5, 62, -24), (3, 3, 2), {"*": "rotor"})]})
+    return extra
+
+
+def consoles():
+    for style, palette in CONSOLE_STYLES.items():
+        painters = dict(CONTROL_PAINTERS)
+        painters.update(palette)
+        geo, tex, glow = build("console_" + style, console_bones(style), 2, 512, painters)
+        desc = geo["minecraft:geometry"][0]["description"]
+        desc.update({"visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 2.5, 0]})
+        write("block", "console_" + style, geo, tex, glow)
+
+
 if __name__ == "__main__":
     tardis()
     tardis_door()
-    console()
+    consoles()
     sonics()
     tardis_icon()
     tardis_key_icon()
