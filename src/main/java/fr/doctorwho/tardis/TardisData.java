@@ -33,6 +33,8 @@ public class TardisData {
     private int interiorVersion;
     private String exteriorVariant = Variants.DEFAULT_EXTERIOR;
     private String desktop = Variants.DEFAULT_DESKTOP;
+    /** Verrouillé avec la clé : les portes ne s'ouvrent plus de l'extérieur. */
+    private boolean locked;
 
     private FlightPhase phase = FlightPhase.LANDED;
     private int phaseTicks;
@@ -113,6 +115,16 @@ public class TardisData {
 
     public void setDesktop(String desktop) {
         this.desktop = Variants.desktop(desktop);
+    }
+
+    // --- Verrou ------------------------------------------------------------------------
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
     // --- Vol ---------------------------------------------------------------------------
@@ -199,6 +211,7 @@ public class TardisData {
         nbt.putInt("InteriorVersion", interiorVersion);
         nbt.putString("ExteriorVariant", exteriorVariant);
         nbt.putString("Desktop", desktop);
+        nbt.putBoolean("Locked", locked);
         nbt.putInt("Phase", phase.ordinal());
         nbt.putInt("PhaseTicks", phaseTicks);
         nbt.putString("DestinationWorld", destinationWorld.getValue().toString());
@@ -227,6 +240,7 @@ public class TardisData {
         data.interiorVersion = nbt.getInt("InteriorVersion");
         data.setExteriorVariant(nbt.getString("ExteriorVariant"));
         data.setDesktop(nbt.getString("Desktop"));
+        data.locked = nbt.getBoolean("Locked");
         data.phase = FlightPhase.byOrdinal(nbt.getInt("Phase"));
         data.phaseTicks = nbt.getInt("PhaseTicks");
         if (nbt.contains("DestinationWorld")) {

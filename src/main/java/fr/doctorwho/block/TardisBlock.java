@@ -1,6 +1,9 @@
 package fr.doctorwho.block;
 
 import fr.doctorwho.block.entity.TardisBlockEntity;
+import fr.doctorwho.item.TardisKeyItem;
+import fr.doctorwho.registry.ModItems;
+import fr.doctorwho.tardis.TardisData;
 import fr.doctorwho.tardis.TardisManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -11,6 +14,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.world.BlockView;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +36,24 @@ public class TardisBlock extends AbstractTardisDoorBlock {
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         world.setBlockState(pos.up(), state.with(HALF, DoubleBlockHalf.UPPER), Block.NOTIFY_ALL);
         if (world instanceof ServerWorld serverWorld) {
+            boolean brandNew = !(world.getBlockEntity(pos) instanceof TardisBlockEntity blockEntity) || blockEntity.getTardisId() == null;
             // Enregistre (ou retrouve, si l'objet portait déjà un identifiant) l'intérieur de ce TARDIS
-            TardisManager.getOrCreate(serverWorld, pos, state);
+            TardisData data = TardisManager.getOrCreate(serverWorld, pos, state);
+            if (brandNew && data != null && placer instanceof PlayerEntity player) {
+                // Un TARDIS neuf est livré avec sa clé
+                player.getInventory().offerOrDrop(TardisKeyItem.link(new ItemStack(ModItems.TARDIS_KEY), data));
+                player.sendMessage(Text.translatable("message.doctorwho.key.received").formatted(Formatting.AQUA), true);
+            }
         }
+    }
+
+    /** Un TARDIS verrouillé ne se casse pas (sauf en créatif). */
+    @Override
+    public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos) {
+        if (world.getBlockEntity(lowerPos(state, pos)) instanceof TardisBlockEntity blockEntity && blockEntity.isLocked()) {
+            return 0.0f;
+        }
+        return super.calcBlockBreakingDelta(state, player, world, pos);
     }
 
     @Override

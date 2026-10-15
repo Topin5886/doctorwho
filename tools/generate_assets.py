@@ -641,9 +641,44 @@ def tardis_icon():
     print("OK icone tardis")
 
 
+# ---------------------------------------------------------------------------
+# Icône 16x16 de la clé du TARDIS (clé Yale argentée + porte-clés TARDIS)
+# ---------------------------------------------------------------------------
+def tardis_key_icon():
+    img = Image(16, 16)
+    steel = (196, 202, 212)
+    light = (236, 240, 246)
+    dark = (96, 102, 116)
+    # Tête ronde de la clé (anneau)
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x - 4.5, y - 4.5)
+            if 1.6 < d <= 3.6:
+                img.set(x, y, dark if d > 3.0 else (light if x + y < 9 else steel))
+    # Tige et dents
+    img.rect(8, 4, 15, 6, steel)
+    img.rect(8, 4, 15, 5, light)
+    img.rect(15, 4, 16, 6, dark)
+    img.rect(8, 6, 15, 7, dark)
+    for tx in (10, 12, 14):
+        img.set(tx, 6, steel)
+        img.set(tx, 7, dark)
+    # Anneau du porte-clés et petit TARDIS
+    img.set(3, 8, dark)
+    img.set(3, 9, dark)
+    img.rect(2, 10, 5, 11, (235, 245, 255))
+    img.rect(1, 11, 6, 16, BLUE)
+    img.rect(1, 11, 2, 16, BLUE_DARK)
+    img.rect(5, 11, 6, 16, BLUE_DARK)
+    img.rect(2, 12, 5, 13, GLASS)
+    img.save(os.path.join(ROOT, "textures", "item", "tardis_key.png"))
+    print("OK icone cle")
+
+
 if __name__ == "__main__":
     tardis()
     tardis_door()
     console()
     sonics()
     tardis_icon()
+    tardis_key_icon()

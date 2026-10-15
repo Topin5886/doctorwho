@@ -6,7 +6,12 @@ import fr.doctorwho.block.entity.TardisBlockEntity;
 import fr.doctorwho.registry.ModDimensions;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import fr.doctorwho.item.TardisKeyItem;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Formatting;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -53,6 +58,7 @@ public final class TardisManager {
             registry.markDirty();
         }
         blockEntity.setVariant(data.getExteriorVariant());
+        blockEntity.setLocked(data.isLocked());
         return data;
     }
 
@@ -192,6 +198,16 @@ public final class TardisManager {
         if (data != null && !data.isLanded()) {
             return;
         }
+        ItemStack key = TardisKeyItem.heldKey(player);
+        if (data != null && !key.isEmpty() && player instanceof ServerPlayerEntity serverPlayer) {
+            TardisKeys.useOnTardis(serverPlayer, key, data);
+            return;
+        }
+        if (data != null && data.isLocked()) {
+            world.playSound(null, lowerPos, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 0.6f, 1.6f);
+            player.sendMessage(Text.translatable("message.doctorwho.key.locked_door").formatted(Formatting.GOLD), true);
+            return;
+        }
         boolean open = !state.get(AbstractTardisDoorBlock.OPEN);
         AbstractTardisDoorBlock.setOpen(world, lowerPos, open);
         ServerWorld interior = interiorWorld(world.getServer());
@@ -206,7 +222,17 @@ public final class TardisManager {
             player.sendMessage(Text.translatable("message.doctorwho.flight.doors_locked"), true);
             return;
         }
+        ItemStack key = TardisKeyItem.heldKey(player);
+        if (data != null && !key.isEmpty() && player instanceof ServerPlayerEntity serverPlayer) {
+            TardisKeys.useOnTardis(serverPlayer, key, data);
+            return;
+        }
         boolean open = !state.get(AbstractTardisDoorBlock.OPEN);
+        if (open && data != null && data.isLocked()) {
+            // De l'intérieur, on peut toujours sortir : ouvrir déverrouille
+            TardisKeys.setLocked(interior.getServer(), data, false);
+            player.sendMessage(Text.translatable("message.doctorwho.key.unlocked_inside"), true);
+        }
         AbstractTardisDoorBlock.setOpen(interior, lowerPos, open);
         ServerWorld exterior = data == null ? null : interior.getServer().getWorld(data.getExteriorWorld());
         if (exterior != null && exterior.getBlockState(data.getExteriorPos()).getBlock() instanceof TardisBlock) {

@@ -9,6 +9,7 @@ import fr.doctorwho.registry.ModDimensions;
 import fr.doctorwho.registry.ModEntities;
 import fr.doctorwho.registry.ModItemGroups;
 import fr.doctorwho.registry.ModItems;
+import fr.doctorwho.registry.ModRecipes;
 import fr.doctorwho.registry.ModSounds;
 import fr.doctorwho.worldgen.ModStructures;
 import net.fabricmc.api.ModInitializer;
@@ -37,6 +38,7 @@ public class DoctorWhoMod implements ModInitializer {
         ModBlockEntities.register(); // état et animations du TARDIS
         ModItems.register();         // tournevis sonique, objet TARDIS
         ModItemGroups.register();    // onglet créatif
+        ModRecipes.register();       // copie de clé du TARDIS, recettes avec variante
         ModNetworking.registerServer(); // panneau de vol
         TardisFlight.register();     // voyages (dématérialisation, vortex, atterrissage)
         ModDimensions.register();    // planètes : Lune, Skaro, Gallifrey

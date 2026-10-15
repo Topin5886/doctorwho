@@ -21,6 +21,7 @@ public final class ModItemGroups {
                     .icon(() -> new ItemStack(ModItems.TARDIS))
                     .entries((context, entries) -> {
                         entries.add(ModItems.TARDIS);
+                        entries.add(ModItems.TARDIS_KEY);
                         // Un tournevis de chaque modèle
                         for (String variant : Variants.SONICS) {
                             entries.add(SonicScrewdriverItem.withVariant(new ItemStack(ModItems.SONIC_SCREWDRIVER), variant));

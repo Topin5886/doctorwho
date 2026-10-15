@@ -156,6 +156,7 @@ public final class TardisFlight {
         if (world.getBlockEntity(pos) instanceof TardisBlockEntity blockEntity) {
             blockEntity.setTardisId(data.getId());
             blockEntity.setVariant(data.getExteriorVariant());
+            blockEntity.setLocked(data.isLocked());
             blockEntity.setMaterialisation(FlightPhase.MATERIALISING);
         }
         playSound(world, pos, ModSounds.TARDIS_LANDING);

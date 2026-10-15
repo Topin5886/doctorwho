@@ -30,6 +30,7 @@ public class TardisBlockEntity extends AbstractTardisDoorBlockEntity {
     private String variant = Variants.DEFAULT_EXTERIOR;
     private FlightPhase materialisation = FlightPhase.LANDED;
     private long materialisationStart;
+    private boolean locked;
 
     public TardisBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TARDIS, pos, state);
@@ -57,6 +58,22 @@ public class TardisBlockEntity extends AbstractTardisDoorBlockEntity {
             return;
         }
         this.variant = clean;
+        markDirty();
+        if (world != null) {
+            world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+        }
+    }
+
+    /** Verrouillé avec la clé : synchronisé vers les clients (on ne peut pas le casser en survie). */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        if (locked == this.locked) {
+            return;
+        }
+        this.locked = locked;
         markDirty();
         if (world != null) {
             world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
@@ -99,6 +116,7 @@ public class TardisBlockEntity extends AbstractTardisDoorBlockEntity {
         variant = Variants.exterior(nbt.getString("Variant"));
         materialisation = FlightPhase.byOrdinal(nbt.getInt("Materialisation"));
         materialisationStart = nbt.getLong("MaterialisationStart");
+        locked = nbt.getBoolean("Locked");
     }
 
     @Override
@@ -110,6 +128,7 @@ public class TardisBlockEntity extends AbstractTardisDoorBlockEntity {
         nbt.putString("Variant", variant);
         nbt.putInt("Materialisation", materialisation.ordinal());
         nbt.putLong("MaterialisationStart", materialisationStart);
+        nbt.putBoolean("Locked", locked);
     }
 
     @Nullable

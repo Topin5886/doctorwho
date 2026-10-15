@@ -1,6 +1,6 @@
 package fr.doctorwho.item;
 
-import fr.doctorwho.block.TardisBlock;
+import fr.doctorwho.block.AbstractTardisDoorBlock;
 import fr.doctorwho.client.renderer.SonicScrewdriverRenderer;
 import fr.doctorwho.registry.ModSounds;
 import fr.doctorwho.tardis.Variants;
@@ -153,7 +153,7 @@ public class SonicScrewdriverItem extends Item implements GeoItem {
     /** Mode Ouverture. Renvoie un message à afficher, ou null si tout s'est bien passé. */
     @Nullable
     private static Text open(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (state.getBlock() instanceof TardisBlock) {
+        if (state.getBlock() instanceof AbstractTardisDoorBlock) {
             return Text.translatable("message.doctorwho.sonic.tardis");
         }
         // Comme dans la série : le sonique ne fonctionne pas sur le bois
