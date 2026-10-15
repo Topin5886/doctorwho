@@ -404,6 +404,7 @@ ROUNDEL_FAMILIES = {
     "amber": ((204, 140, 62), (166, 104, 42), ((255, 186, 84), (255, 246, 214))),
     # 4e valeur facultative : couleur du liseré autour du creux
     "dark": ((50, 50, 56), (30, 30, 34), ((140, 196, 255), (236, 248, 255)), (196, 156, 72)),
+    "cathedral": ((52, 66, 120), (34, 44, 86), ((120, 160, 255), (232, 240, 255)), (196, 156, 72)),
 }
 # Grilles de sol ajourées (on voit les lumières en dessous) : couleur des barreaux.
 GRATE_FAMILIES = {
@@ -415,6 +416,7 @@ GRATE_FAMILIES = {
 UNDERLIGHTS = {
     "green": ((40, 150, 90), (190, 255, 210)),
     "orange": ((200, 90, 20), (255, 222, 160)),
+    "cyan": ((30, 170, 170), (210, 255, 250)),
 }
 HOLE = 12.5   # rayon du trou (sur 32 px)
 
@@ -638,6 +640,57 @@ def light_column_model():
                          "particle": "doctorwho:block/dark_wall_panel"}, "elements": elements}
 
 
+def truss_side():
+    """Poutre d'acier bleu ajourée de trous ronds (transparents), comme les arches de la salle de 1996."""
+    img = Image(16, 16)
+    blue = (64, 86, 168)
+    noise_fill(img, blue, 0.05, 91)
+    for cy in (4, 11):
+        for y in range(16):
+            for x in range(16):
+                d = math.hypot(x - 7.5, y - cy + 0.5)
+                if d < 3.1:
+                    img.px[(y * 16 + x) * 4 + 3] = 0
+                elif d < 4.0:
+                    img.set(x, y, shade(blue, 0.7))
+    img.frame(0, 0, 16, 16, shade(blue, 1.25), 1)
+    for ry in (0, 15):
+        for rx in (2, 5, 10, 13):
+            img.set(rx, ry, (196, 156, 72))
+    return img
+
+
+def flame():
+    img = Image(16, 16)
+    for y in range(16):
+        for x in range(16):
+            k = 1 - y / 16
+            img.set(x, y, (255, int(200 + 50 * k), int(80 + 140 * k)))
+    return img
+
+
+def hex_front(lit):
+    """Face d'un panneau hexagonal : cyan lumineux ou blanc nacré."""
+    img = Image(16, 16)
+    base = (90, 240, 225) if lit else (226, 238, 236)
+    for y in range(16):
+        for x in range(16):
+            d = max(abs(x - 7.5) * 0.866 + abs(y - 7.5) * 0.5, abs(y - 7.5)) / 7.5
+            img.set(x, y, shade(base, 1.08 - 0.25 * d if lit else 1.02 - 0.1 * d))
+    return img
+
+
+def tech_panel():
+    img = Image(16, 16)
+    noise_fill(img, (228, 236, 234), 0.02, 93)
+    img.frame(0, 0, 16, 16, (196, 208, 206), 1)
+    img.rect(1, 7, 15, 8, (204, 216, 214))
+    for x in (3, 12):
+        img.set(x, 3, (60, 220, 210))
+        img.set(x, 12, (60, 220, 210))
+    return img
+
+
 def interior_blocks():
     for family, spec in ROUNDEL_FAMILIES.items():
         panel, hollow, glow = spec[:3]
@@ -705,6 +758,43 @@ def interior_blocks():
             "glow": "doctorwho:block/light_column_" + color}}
         variants["color=" + color] = {"model": "doctorwho:block/light_column_" + color}
     simple_block("light_column", column, blockstate={"variants": variants}, extra_models=extra)
+
+    # --- Bleu cathédrale (1996) : poutre ajourée (orientable comme une bûche), chandelier
+    tex("cathedral_truss", truss_side())
+    tex("cathedral_truss_end", riveted_panel((64, 86, 168), 95))
+    simple_block("cathedral_truss", {"parent": "minecraft:block/cube_column", "textures": {
+        "end": "doctorwho:block/cathedral_truss_end", "side": "doctorwho:block/cathedral_truss"}}, axis=True)
+    tex("candle_flame", flame())
+    brass_t, wax, fl = "#brass", "#wax", "#flame"
+    candles = []
+    for cx in (3, 7, 11):
+        candles.append(box([cx, 10, 7], [cx + 2, 14, 9], wax))
+        candles.append({"from": [cx + 0.5, 14, 7.5], "to": [cx + 1.5, 16, 8.5], "shade": False,
+                        "faces": {f: {"texture": fl} for f in ("north", "south", "east", "west", "up")}})
+    simple_block("candelabra", model_elements(
+        {"brass": "doctorwho:block/brass", "wax": "minecraft:block/white_candle", "flame": "doctorwho:block/candle_flame",
+         "particle": "doctorwho:block/brass"},
+        [box([5, 0, 5], [11, 1, 11], brass_t), box([7.5, 1, 7.5], [8.5, 9, 8.5], brass_t),
+         box([3, 9, 7.25], [13, 10, 8.75], brass_t)] + candles))
+
+    # --- Turquoise tech (2012) : panneau hexagonal en relief (éteint / allumé), panneau blanc
+    tex("hex_wall_panel_side", solid_tex((214, 226, 224), 0.02, 97))
+    for lit in (False, True):
+        name = "hex_wall_panel" + ("_lit" if lit else "")
+        tex(name + "_front", hex_front(lit))
+        t = {"side": "doctorwho:block/hex_wall_panel_side", "hex": "doctorwho:block/%s_front" % name,
+             "particle": "doctorwho:block/hex_wall_panel_side"}
+        back = {"from": [0, 0, 1], "to": [16, 16, 16], "faces": {
+            "north": {"texture": "#side"}, "south": {"texture": "#side", "cullface": "south"},
+            "east": {"texture": "#side", "cullface": "east"}, "west": {"texture": "#side", "cullface": "west"},
+            "up": {"texture": "#side", "cullface": "up"}, "down": {"texture": "#side", "cullface": "down"}}}
+        plates = [{"from": frm, "to": to, "shade": not lit, "faces": {
+            "north": {"texture": "#hex"}, "east": {"texture": "#side"}, "west": {"texture": "#side"},
+            "up": {"texture": "#side"}, "down": {"texture": "#side"}}}
+            for frm, to in (([4, 1, 0], [12, 15, 1]), ([2, 4, 0], [4, 12, 1]), ([12, 4, 0], [14, 12, 1]))]
+        simple_block(name, {"parent": "minecraft:block/block", "textures": t, "elements": [back] + plates}, facing=True)
+    tex("white_tech_panel", tech_panel())
+    simple_block("white_tech_panel", model_cube_all("white_tech_panel"))
 
     tex("classic_pilaster", pilaster((236, 236, 230)))
     tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))

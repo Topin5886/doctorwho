@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "TTT",
+    "TCT",
+    "TTT"
+  ],
+  "key": {
+    "T": {
+      "item": "doctorwho:white_tech_panel"
+    },
+    "C": {
+      "item": "minecraft:prismarine_crystals"
+    }
+  },
+  "result": {
+    "item": "doctorwho:hex_wall_panel",
+    "count": 8
+  }
+}

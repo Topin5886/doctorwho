@@ -30,7 +30,7 @@ public class DesktopChoiceScreen extends Screen {
     private static final int CARD_W = 94;
     private static final int CARD_H = 94;
     private static final int GAP = 6;
-    private static final int MAX_COLUMNS = 3;
+    private static final int MAX_COLUMNS = 4;
 
     /**
      * Couleurs de la petite illustration de chaque décor.
@@ -47,7 +47,9 @@ public class DesktopChoiceScreen extends Screen {
             "white", new Look(0xD8D8D2, 0xF6F6F2, 0xC4C4BE, 0x9A9A96, 0x7FD0FF, false, false),
             "dark", new Look(0x343A44, 0x98A2B0, 0x1E2126, 0x5A6170, 0xFFB050, true, false),
             "columns", new Look(0xE2E2DC, 0xFAFAF6, 0x8A8C8E, 0xB0B0AA, 0x9FE0FF, false, true),
-            "victorian", new Look(0x4A3020, 0xE8A050, 0x7A5A3A, 0x8C6A48, 0xFFC870, true, true));
+            "victorian", new Look(0x4A3020, 0xE8A050, 0x7A5A3A, 0x8C6A48, 0xFFC870, true, true),
+            "cathedral", new Look(0x23305E, 0x6A8AE8, 0x1A1E2E, 0x4A5AA8, 0x9AB8FF, false, true),
+            "turquoise", new Look(0xD6E4E0, 0x5ADCD0, 0xB8CCC8, 0x5AA8A0, 0x40F0E0, false, false));
 
     private int left;
     private int top;

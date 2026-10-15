@@ -104,13 +104,13 @@ public final class ModBlocks {
      * Familles de roundels en relief (disque creusé, éteint ou allumé), une par thème.
      * Pour un nouveau thème : ajouter son nom ici et dans ROUNDEL_FAMILIES de tools/generate_blocks.py.
      */
-    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper", "amber", "dark");
+    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper", "amber", "dark", "cathedral");
     private static final Map<String, Block> ROUNDELS = new HashMap<>();
     /** Grilles de sol ajourées, une par thème ({@code <famille>_floor_grate}). */
     public static final List<String> GRATE_FAMILIES = List.of("copper", "amber", "dark");
     private static final Map<String, Block> GRATES = new HashMap<>();
     /** Lumières de sous-plancher colorées ({@code <couleur>_underlight}, niveau 15). */
-    public static final List<String> UNDERLIGHT_COLORS = List.of("green", "orange");
+    public static final List<String> UNDERLIGHT_COLORS = List.of("green", "orange", "cyan");
     private static final Map<String, Block> UNDERLIGHTS = new HashMap<>();
 
     static {
@@ -168,6 +168,23 @@ public final class ModBlocks {
             .mapColor(MapColor.GOLD)));
     /** Colonne de lumière animée (orange, cyan ou bleue), empilable. */
     public static final Block LIGHT_COLUMN = decor("light_column", new LightColumnBlock(metal().nonOpaque().luminance(state -> 15)));
+
+    // Bleu cathédrale (1996)
+    /** Poutre d'acier bleu ajourée, orientable comme une bûche (arches gothiques). */
+    public static final Block CATHEDRAL_TRUSS = decor("cathedral_truss", new PillarBlock(metal().mapColor(MapColor.BLUE).nonOpaque()));
+    /** Chandelier de laiton à trois bougies. */
+    public static final Block CANDELABRA = decor("candelabra", new DecorBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD)
+            .strength(1.0f).sounds(BlockSoundGroup.METAL).nonOpaque().luminance(state -> 14),
+            Block.createCuboidShape(3, 0, 5, 13, 16, 11)));
+
+    // Turquoise tech (2012)
+    /** Panneau hexagonal en relief, éteint ou allumé en cyan. */
+    public static final Block HEX_WALL_PANEL = decor("hex_wall_panel", new FacingDecorBlock(stone(MapColor.WHITE).nonOpaque(),
+            Block.createCuboidShape(0, 0, 0, 16, 16, 16), false));
+    public static final Block HEX_WALL_PANEL_LIT = decor("hex_wall_panel_lit", new FacingDecorBlock(stone(MapColor.CYAN).nonOpaque()
+            .luminance(state -> 13), Block.createCuboidShape(0, 0, 0, 16, 16, 16), false));
+    /** Panneau blanc technologique. */
+    public static final Block WHITE_TECH_PANEL = decor("white_tech_panel", new Block(stone(MapColor.WHITE)));
 
     /** Grille de sol d'une famille ({@link #GRATE_FAMILIES}). */
     public static Block floorGrate(String family) {

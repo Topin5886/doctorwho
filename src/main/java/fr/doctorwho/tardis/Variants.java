@@ -22,7 +22,8 @@ public final class Variants {
     public static final String DEFAULT_EXTERIOR = "twelfth";
 
     /** Corail (2005), cuivre (2010), blanc classique, sombre (2014), colonnes (1963), victorien (1996). */
-    public static final List<String> DESKTOPS = List.of("coral", "copper", "white", "dark", "columns", "victorian");
+    public static final List<String> DESKTOPS = List.of("coral", "copper", "white", "dark", "columns", "victorian",
+            "cathedral", "turquoise");
     public static final String DEFAULT_DESKTOP = "dark";
 
     public static final List<String> SONICS = List.of("second", "third", "fourth", "seventh", "eighth", "tenth", "eleventh",

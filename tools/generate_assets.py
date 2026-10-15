@@ -745,6 +745,15 @@ CONSOLE_STYLES = {
     "victorian": {"base": k_wood((78, 50, 30)), "trim": k_metal((190, 150, 70)), "rim": k_wood((96, 62, 36)),
                   "desk": k_desk((110, 74, 42), (70, 46, 26)), "glass": k_glass((255, 210, 140), 50),
                   "rotor": k_rotor((255, 180, 80)), "strut": k_wood((84, 54, 32)), "accent": k_metal((190, 150, 70))},
+    # 1996 (le film), version « cathédrale » : acier bleu, laiton, arcs gothiques
+    "cathedral": {"base": k_ribbed((44, 58, 110)), "trim": k_metal((196, 156, 72)), "rim": k_metal((52, 66, 120)),
+                  "desk": k_desk((40, 48, 84), (26, 30, 56)), "glass": k_glass((150, 180, 255), 50),
+                  "rotor": k_rotor((110, 150, 255), (200, 220, 255)), "strut": k_metal((70, 96, 180)),
+                  "accent": k_metal((196, 156, 72))},
+    # 2012 : blanche et turquoise, socle lumineux
+    "turquoise": {"base": k_ribbed((214, 228, 224), 5), "trim": k_metal((90, 170, 160)), "rim": k_metal((226, 236, 232)),
+                  "desk": k_desk((206, 218, 214), (70, 150, 140)), "glass": k_glass((180, 255, 245), 40),
+                  "rotor": k_rotor((60, 235, 220)), "strut": k_metal((90, 170, 160)), "accent": k_metal((60, 235, 220))},
 }
 CONTROL_PAINTERS = {"red": k_light((210, 50, 40)), "green": k_light((70, 210, 90)), "yellow": k_light((240, 205, 70)),
                     "blue": k_light((80, 160, 240)), "white": k_light((240, 240, 230)), "key": k_metal((214, 208, 196)),
@@ -891,6 +900,16 @@ def console_extras(style):
             extra.append({"name": "canopy_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60, 0],
                           "cubes": [((-13.5, 64.5, -24.5), (27, 3, 3), {"*": "strut"}),
                                     ((-1.5, 62, -24), (3, 3, 2), {"*": "rotor"})]})
+    elif style == "cathedral":
+        # Trois arcs gothiques de laiton qui se rejoignent au-dessus de la colonne
+        for k in range(6):
+            extra.append({"name": "arch_%d" % k, "parent": "root", "pivot": [0, 0, 0], "rotation": [0, k * 60 + 30, 0],
+                          "cubes": [((-1.25, 17, -36), (2.5, 50, 2.5), {"*": "strut"}, {"rotation": [-28, 0, 0], "pivot": [0, 17, -35]}),
+                                    ((-1.5, 40, -27), (3, 3, 3), {"*": "accent"}, {"rotation": [-28, 0, 0], "pivot": [0, 17, -35]})]})
+    elif style == "turquoise":
+        # Socle circulaire lumineux au pied de la console
+        extra.append({"name": "glow_base", "parent": "root", "pivot": [0, 0, 0],
+                      "cubes": hexagon(17, 1.5, 0.2, "rotor") + hexagon(15, 2.5, 1.5, "trim")})
     return extra
 
 

@@ -246,5 +246,17 @@
   "block.doctorwho.orange_underlight": "Orange Underfloor Light",
   "block.doctorwho.dark_wall_panel": "Riveted Steel Panel",
   "block.doctorwho.brass_handrail": "Brass Handrail",
-  "block.doctorwho.light_column": "Light Column"
+  "block.doctorwho.light_column": "Light Column",
+  "variant.doctorwho.desktop.cathedral": "Cathedral",
+  "variant.doctorwho.desktop.turquoise": "Turquoise",
+  "variant.doctorwho.desktop.cathedral.era": "1996 · The TV Movie (blue)",
+  "variant.doctorwho.desktop.turquoise.era": "2012 · Eleventh Doctor",
+  "block.doctorwho.cathedral_roundel": "Blue Roundel",
+  "block.doctorwho.cathedral_roundel_lit": "Lit Blue Roundel",
+  "block.doctorwho.cathedral_truss": "Blue Openwork Truss",
+  "block.doctorwho.candelabra": "Candelabra",
+  "block.doctorwho.hex_wall_panel": "Hexagonal Panel",
+  "block.doctorwho.hex_wall_panel_lit": "Lit Hexagonal Panel",
+  "block.doctorwho.white_tech_panel": "White Tech Panel",
+  "block.doctorwho.cyan_underlight": "Cyan Underfloor Light"
 }

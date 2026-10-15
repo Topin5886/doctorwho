@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "XXX",
+    "XCX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:blue_terracotta"
+    },
+    "C": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "item": "doctorwho:cathedral_roundel",
+    "count": 8
+  }
+}

@@ -19,7 +19,11 @@ public enum ConsoleStyle implements StringIdentifiable {
     /** 1963 : blanche et grise, colonne d'instruments. */
     COLUMNS("columns"),
     /** 1996 : bois et laiton, dais au-dessus. */
-    VICTORIAN("victorian");
+    VICTORIAN("victorian"),
+    /** 1996 (le film) : acier bleu et laiton, arcs gothiques au-dessus. */
+    CATHEDRAL("cathedral"),
+    /** 2012 : blanche et turquoise, socle lumineux cyan. */
+    TURQUOISE("turquoise");
 
     private final String id;
 

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "I I",
+    "IDI",
+    "I I"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "D": {
+      "item": "minecraft:blue_dye"
+    }
+  },
+  "result": {
+    "item": "doctorwho:cathedral_truss",
+    "count": 4
+  }
+}

@@ -19,6 +19,8 @@ public final class InteriorThemes {
         register(new CopperTheme());
         register(new AmberTheme());
         register(new DarkTheme());
+        register(new CathedralTheme());
+        register(new TurquoiseTheme());
         // Décors pas encore détaillés : grande salle commune avec leur palette
         register(new PaletteTheme("columns", Blocks.QUARTZ_STAIRS.getDefaultState(), Blocks.WHITE_STAINED_GLASS_PANE.getDefaultState()));
         register(new PaletteTheme("victorian", Blocks.DARK_OAK_STAIRS.getDefaultState(), Blocks.DARK_OAK_FENCE.getDefaultState()));

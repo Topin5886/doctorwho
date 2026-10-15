@@ -246,5 +246,17 @@
   "block.doctorwho.orange_underlight": "Lumière de sous-plancher orange",
   "block.doctorwho.dark_wall_panel": "Plaque d'acier rivetée",
   "block.doctorwho.brass_handrail": "Rambarde de laiton",
-  "block.doctorwho.light_column": "Colonne de lumière"
+  "block.doctorwho.light_column": "Colonne de lumière",
+  "variant.doctorwho.desktop.cathedral": "Cathédrale",
+  "variant.doctorwho.desktop.turquoise": "Turquoise",
+  "variant.doctorwho.desktop.cathedral.era": "1996 · Le film (bleu)",
+  "variant.doctorwho.desktop.turquoise.era": "2012 · Onzième Docteur",
+  "block.doctorwho.cathedral_roundel": "Roundel bleu",
+  "block.doctorwho.cathedral_roundel_lit": "Roundel bleu lumineux",
+  "block.doctorwho.cathedral_truss": "Poutre ajourée bleue",
+  "block.doctorwho.candelabra": "Chandelier",
+  "block.doctorwho.hex_wall_panel": "Panneau hexagonal",
+  "block.doctorwho.hex_wall_panel_lit": "Panneau hexagonal lumineux",
+  "block.doctorwho.white_tech_panel": "Panneau blanc technologique",
+  "block.doctorwho.cyan_underlight": "Lumière de sous-plancher cyan"
 }

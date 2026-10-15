@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    " G ",
+    " G "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:candle"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "item": "doctorwho:candelabra"
+  }
+}

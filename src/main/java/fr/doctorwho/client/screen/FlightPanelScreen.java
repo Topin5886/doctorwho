@@ -61,7 +61,7 @@ public class FlightPanelScreen extends Screen {
             ModDimensions.MOON, 0xC5CAD0, ModDimensions.SKARO, 0xB8683A, ModDimensions.GALLIFREY, 0xF0913A);
     private static final Map<String, Integer> DESKTOP_COLORS = Map.of(
             "coral", 0xE08A3C, "copper", 0xC87533, "white", 0xEDEDE8, "dark", 0x5A6170,
-            "columns", 0xBFC4C8, "victorian", 0x8C5A30);
+            "columns", 0xBFC4C8, "victorian", 0x8C5A30, "cathedral", 0x4A6AE8, "turquoise", 0x40E0D0);
     private static final Map<String, Integer> SONIC_COLORS = Map.ofEntries(
             Map.entry("second", 0xDDE2E8), Map.entry("third", 0xF4F4F0), Map.entry("fourth", 0xEAF4FF),
             Map.entry("seventh", 0xAA78FF), Map.entry("eighth", 0x5AC8FF), Map.entry("tenth", 0x5AC8FF),
@@ -227,7 +227,8 @@ public class FlightPanelScreen extends Screen {
         List<String> desktops = Variants.DESKTOPS;
         for (int i = 0; i < desktops.size(); i++) {
             String desktop = desktops.get(i);
-            addDrawableChild(new StyledButton(left + 8 + (i % 3) * 110, body + 122 + (i / 3) * 20, 104, 18,
+            // Quatre décors par ligne
+            addDrawableChild(new StyledButton(left + 8 + (i % 4) * 82, body + 122 + (i / 4) * 20, 78, 18,
                     Variants.desktopName(desktop), TEAL,
                     button -> {
                         pendingDesktop = desktop;

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "doctorwho:block/cathedral_truss"
+    },
+    "axis=z": {
+      "model": "doctorwho:block/cathedral_truss",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "doctorwho:block/cathedral_truss",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

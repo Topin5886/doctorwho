@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "doctorwho:block/cathedral_truss_end",
+    "side": "doctorwho:block/cathedral_truss"
+  }
+}

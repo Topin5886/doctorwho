@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "QQ",
+    "QD"
+  ],
+  "key": {
+    "Q": {
+      "item": "minecraft:smooth_quartz"
+    },
+    "D": {
+      "item": "minecraft:cyan_dye"
+    }
+  },
+  "result": {
+    "item": "doctorwho:white_tech_panel",
+    "count": 4
+  }
+}

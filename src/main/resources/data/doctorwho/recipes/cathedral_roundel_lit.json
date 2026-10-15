@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    " W ",
+    "WGW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "doctorwho:cathedral_roundel"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    }
+  },
+  "result": {
+    "item": "doctorwho:cathedral_roundel_lit",
+    "count": 4
+  }
+}

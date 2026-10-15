@@ -62,6 +62,7 @@ public class DoctorWhoClient implements ClientModInitializer {
         }
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.COPPER_GLASS_FLOOR, RenderLayer.getTranslucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.BRASS_HANDRAIL, RenderLayer.getCutoutMipped());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CATHEDRAL_TRUSS, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.COPPER_STRUT, RenderLayer.getCutout());
         for (String family : ModBlocks.ROUNDEL_FAMILIES) {
             BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(),

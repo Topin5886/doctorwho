@@ -58,6 +58,14 @@ public final class InteriorBuilder {
             case "victorian" -> new Theme(Blocks.DARK_OAK_PLANKS, Blocks.SHROOMLIGHT,
                     Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.SPRUCE_PLANKS, Blocks.POLISHED_GRANITE, Blocks.DARK_OAK_PLANKS,
                     Blocks.DARK_OAK_LOG, null, Blocks.BOOKSHELF, Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_LOG);
+            // Film de 1996, version cathédrale : ardoise bleutée, alvéoles bleues, bibliothèques
+            case "cathedral" -> new Theme(Blocks.POLISHED_DEEPSLATE, ModBlocks.BLUE_HEX_LIGHT,
+                    Blocks.DEEPSLATE_TILES, Blocks.DEEPSLATE_TILES, Blocks.POLISHED_DEEPSLATE, Blocks.DEEPSLATE,
+                    ModBlocks.CATHEDRAL_TRUSS, null, Blocks.BOOKSHELF, Blocks.BLACK_CONCRETE, null);
+            // Onzième Docteur (2012) : blanc technologique et turquoise
+            case "turquoise" -> new Theme(ModBlocks.WHITE_TECH_PANEL, ModBlocks.underlight("cyan"),
+                    Blocks.SMOOTH_QUARTZ, ModBlocks.WHITE_TECH_PANEL, Blocks.SMOOTH_QUARTZ, Blocks.SMOOTH_QUARTZ,
+                    Blocks.QUARTZ_PILLAR, null, null, ModBlocks.WHITE_TECH_PANEL, null);
             // Dixième Docteur (2005) : corail
             default -> new Theme(ModBlocks.ROUNDEL_WALL, ModBlocks.ROUNDEL_WALL_LIT, ModBlocks.CORAL_WALL,
                     ModBlocks.METAL_GRATING, Blocks.WAXED_CUT_COPPER, Blocks.POLISHED_DEEPSLATE,

@@ -130,9 +130,9 @@ def decoration():
 
 # Grandes salles de console : roundels en relief (8 blocs de base autour d'une boule d'argile)
 ROUNDEL_BASES = {"classic": "smooth_quartz", "copper": "cut_copper", "amber": "doctorwho:amber_coral",
-                 "dark": "polished_blackstone"}
+                 "dark": "polished_blackstone", "cathedral": "blue_terracotta"}
 # Lumières de sous-plancher : lanterne aquatique + colorant
-UNDERLIGHT_DYES = {"green": "lime_dye", "orange": "orange_dye"}
+UNDERLIGHT_DYES = {"green": "lime_dye", "orange": "orange_dye", "cyan": "cyan_dye"}
 # Grilles de sol : lingot du thème en diagonale avec des barreaux de fer
 GRATE_INGOTS = {"copper": "copper_ingot", "amber": "gold_ingot", "dark": "netherite_scrap"}
 
@@ -169,6 +169,14 @@ def interior_decoration():
     for color, glass in (("orange", "orange_stained_glass"), ("cyan", "cyan_stained_glass"), ("blue", "blue_stained_glass")):
         shaped("light_column_" + color, b, ["GIG", "GSG", "GIG"], {"G": glass, "I": "iron_ingot", "S": "nether_star"},
                "doctorwho:light_column", 4, nbt='{BlockStateTag:{color:"%s"}}' % color)
+    # Bleu cathédrale, Turquoise tech
+    shaped("cathedral_truss", b, ["I I", "IDI", "I I"], {"I": "iron_ingot", "D": "blue_dye"}, "doctorwho:cathedral_truss", 4)
+    shaped("candelabra", b, ["CCC", " G ", " G "], {"C": "candle", "G": "gold_ingot"}, "doctorwho:candelabra")
+    shaped("white_tech_panel", b, ["QQ", "QD"], {"Q": "smooth_quartz", "D": "cyan_dye"}, "doctorwho:white_tech_panel", 4)
+    shaped("hex_wall_panel", b, ["TTT", "TCT", "TTT"], {"T": "doctorwho:white_tech_panel", "C": "prismarine_crystals"},
+           "doctorwho:hex_wall_panel", 8)
+    shaped("hex_wall_panel_lit", b, [" W ", "WGW", " W "], {"W": "doctorwho:hex_wall_panel", "G": "glowstone"},
+           "doctorwho:hex_wall_panel_lit", 4)
     shaped("copper_glass_floor", b, [" C ", "CGC", " C "], {"C": "copper_ingot", "G": "glass"},
            "doctorwho:copper_glass_floor", 2)
 
