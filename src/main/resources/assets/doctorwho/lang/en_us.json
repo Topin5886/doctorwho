@@ -239,5 +239,12 @@
   "block.doctorwho.amber_coral": "Amber Coral",
   "block.doctorwho.amber_pillar": "Amber Pillar",
   "block.doctorwho.amber_strut": "Amber Strut",
-  "block.doctorwho.blue_hex_light": "Blue Hex Light"
+  "block.doctorwho.blue_hex_light": "Blue Hex Light",
+  "block.doctorwho.dark_roundel": "Dark Roundel",
+  "block.doctorwho.dark_roundel_lit": "Lit Dark Roundel",
+  "block.doctorwho.dark_floor_grate": "Dark Floor Grate",
+  "block.doctorwho.orange_underlight": "Orange Underfloor Light",
+  "block.doctorwho.dark_wall_panel": "Riveted Steel Panel",
+  "block.doctorwho.brass_handrail": "Brass Handrail",
+  "block.doctorwho.light_column": "Light Column"
 }

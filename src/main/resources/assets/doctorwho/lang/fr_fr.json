@@ -239,5 +239,12 @@
   "block.doctorwho.amber_coral": "Corail ambré",
   "block.doctorwho.amber_pillar": "Pilier ambré",
   "block.doctorwho.amber_strut": "Branche ambrée",
-  "block.doctorwho.blue_hex_light": "Alvéole bleue lumineuse"
+  "block.doctorwho.blue_hex_light": "Alvéole bleue lumineuse",
+  "block.doctorwho.dark_roundel": "Roundel sombre",
+  "block.doctorwho.dark_roundel_lit": "Roundel sombre lumineux",
+  "block.doctorwho.dark_floor_grate": "Grille de sol sombre",
+  "block.doctorwho.orange_underlight": "Lumière de sous-plancher orange",
+  "block.doctorwho.dark_wall_panel": "Plaque d'acier rivetée",
+  "block.doctorwho.brass_handrail": "Rambarde de laiton",
+  "block.doctorwho.light_column": "Colonne de lumière"
 }

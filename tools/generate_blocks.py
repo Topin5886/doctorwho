@@ -266,8 +266,10 @@ def model_elements(textures, elements, parent="minecraft:block/block"):
 BLOCKS = {}
 
 
-def simple_block(name, model, facing=False, item_model=None, axis=False):
-    BLOCKS[name] = {"model": model, "facing": facing, "item_model": item_model, "axis": axis}
+def simple_block(name, model, facing=False, item_model=None, axis=False, blockstate=None, extra_models=None):
+    """Déclare un bloc. blockstate : fichier d'états personnalisé ; extra_models : autres modèles {nom: json}."""
+    BLOCKS[name] = {"model": model, "facing": facing, "item_model": item_model, "axis": axis,
+                    "blockstate": blockstate, "extra_models": extra_models or {}}
 
 
 def build_blocks():
@@ -367,7 +369,11 @@ def build_blocks():
     # --- Fichiers : modèles, états, objets, butin --------------------------------
     for name, spec in BLOCKS.items():
         save_json(os.path.join(ASSETS, "models", "block", name + ".json"), spec["model"])
-        if spec["axis"]:
+        for extra, model in spec["extra_models"].items():
+            save_json(os.path.join(ASSETS, "models", "block", extra + ".json"), model)
+        if spec["blockstate"]:
+            save_json(os.path.join(ASSETS, "blockstates", name + ".json"), spec["blockstate"])
+        elif spec["axis"]:
             m = "doctorwho:block/" + name
             variants = {"axis=y": {"model": m}, "axis=z": {"model": m, "x": 90},
                         "axis=x": {"model": m, "x": 90, "y": 90}}
@@ -376,9 +382,10 @@ def build_blocks():
                         for f, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}
         else:
             variants = {"": {"model": "doctorwho:block/" + name}}
-        save_json(os.path.join(ASSETS, "blockstates", name + ".json"), {"variants": variants})
+        if not spec["blockstate"]:
+            save_json(os.path.join(ASSETS, "blockstates", name + ".json"), {"variants": variants})
         save_json(os.path.join(ASSETS, "models", "item", name + ".json"),
-                  {"parent": "doctorwho:block/" + name})
+                  spec["item_model"] or {"parent": "doctorwho:block/" + name})
         save_json(os.path.join(DATA, "loot_tables", "blocks", name + ".json"), {
             "type": "minecraft:block",
             "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "doctorwho:" + name}],
@@ -395,20 +402,24 @@ ROUNDEL_FAMILIES = {
     "classic": ((232, 232, 226), (206, 206, 200), ((255, 226, 170), (255, 252, 236))),
     "copper": ((178, 106, 56), (140, 80, 40), ((255, 150, 60), (255, 236, 186))),
     "amber": ((204, 140, 62), (166, 104, 42), ((255, 186, 84), (255, 246, 214))),
+    # 4e valeur facultative : couleur du liseré autour du creux
+    "dark": ((50, 50, 56), (30, 30, 34), ((140, 196, 255), (236, 248, 255)), (196, 156, 72)),
 }
 # Grilles de sol ajourées (on voit les lumières en dessous) : couleur des barreaux.
 GRATE_FAMILIES = {
     "copper": (190, 116, 60),
     "amber": (150, 98, 42),
+    "dark": (66, 68, 74),
 }
 # Lumières de sous-plancher colorées : couleur du bord et du cœur (niveau de lumière 15).
 UNDERLIGHTS = {
     "green": ((40, 150, 90), (190, 255, 210)),
+    "orange": ((200, 90, 20), (255, 222, 160)),
 }
 HOLE = 12.5   # rayon du trou (sur 32 px)
 
 
-def roundel_front(panel):
+def roundel_front(panel, rim=None):
     """Face avant : panneau percé d'un trou rond (transparent), avec un biseau sombre autour."""
     img = Image(32, 32)
     noise_fill(img, panel, 0.025, 21)
@@ -421,7 +432,7 @@ def roundel_front(panel):
             elif d <= HOLE + 1.6:
                 # biseau : ombre en haut à gauche, lumière en bas à droite
                 k = 0.78 + 0.16 * ((x - c) + (y - c)) / (2 * HOLE)
-                img.set(x, y, shade(panel, k))
+                img.set(x, y, shade(rim or panel, k if rim is None else k + 0.25))
     img.frame(0, 0, 32, 32, shade(panel, 0.86), 1)
     return img
 
@@ -580,9 +591,58 @@ def amber_coral():
     return img
 
 
+def handrail():
+    """Rambarde : main courante et lisse intermédiaire, montants ; le reste est transparent."""
+    img = Image(16, 16)
+    brass = (196, 156, 72)
+    for x in range(16):
+        for y in (1, 2):
+            img.set(x, y, shade(brass, 1.2 if y == 1 else 0.9))
+        img.set(x, 9, shade(brass, 1.0))
+    for y in range(1, 16):
+        img.set(7, y, shade(brass, 1.1))
+        img.set(8, y, shade(brass, 0.85))
+    return img
+
+
+LIGHT_COLORS = {"orange": (255, 140, 40), "cyan": (60, 230, 255), "blue": (100, 140, 255)}
+FRAMES = 8
+
+
+def light_column_glow(color):
+    """Texture animée (8 images) : des vagues de lumière qui montent le long des tubes."""
+    img = Image(16, 16 * FRAMES)
+    for f in range(FRAMES):
+        for y in range(16):
+            k = 0.62 + 0.38 * math.sin(((15 - y) / 16 + f / FRAMES) * 2 * math.pi)
+            row = tuple(min(255, int(c * k + 255 * max(0.0, k - 0.85) * 2)) for c in color)
+            for x in range(16):
+                edge = 0.85 if x in (0, 15) else 1.0
+                img.set(x, f * 16 + y, shade(row, edge))
+    return img
+
+
+def light_column_model():
+    """Gabarit : huit tubes lumineux autour d'un noyau sombre, bague en bas (les segments s'empilent)."""
+    elements = []
+    for k in range(8):
+        a = k * math.pi / 4
+        cx, cz = 8 + 5 * math.cos(a), 8 + 5 * math.sin(a)
+        elements.append({"from": [round(cx - 1, 2), 0, round(cz - 1, 2)], "to": [round(cx + 1, 2), 16, round(cz + 1, 2)],
+                         "shade": False, "faces": {f: {"texture": "#glow"} for f in ("north", "south", "east", "west")}})
+    elements.append(box([6, 0, 6], [10, 16, 10], "#metal"))
+    elements.append(box([2, 0, 2], [14, 1, 14], "#metal"))
+    elements.append(box([2, 15, 2], [14, 16, 14], "#metal"))
+    return {"parent": "minecraft:block/block", "ambientocclusion": False,
+            "textures": {"glow": "doctorwho:block/light_column_orange", "metal": "doctorwho:block/dark_wall_panel",
+                         "particle": "doctorwho:block/dark_wall_panel"}, "elements": elements}
+
+
 def interior_blocks():
-    for family, (panel, hollow, glow) in ROUNDEL_FAMILIES.items():
-        tex(family + "_roundel_front", roundel_front(panel))
+    for family, spec in ROUNDEL_FAMILIES.items():
+        panel, hollow, glow = spec[:3]
+        rim = spec[3] if len(spec) > 3 else None
+        tex(family + "_roundel_front", roundel_front(panel, rim))
         tex(family + "_roundel_side", solid_tex(panel, 0.02, 41))
         tex(family + "_roundel_disc", roundel_disc(panel, hollow, glow, False))
         tex(family + "_roundel_disc_lit", roundel_disc(panel, hollow, glow, True))
@@ -616,6 +676,35 @@ def interior_blocks():
         "coral": "doctorwho:block/amber_coral", "particle": "doctorwho:block/amber_coral"}}, facing=True)
     tex("blue_hex_light", underlight((40, 110, 210), (210, 240, 255)))
     simple_block("blue_hex_light", model_cube_all("blue_hex_light"))
+
+    # --- Sombre industriel (2014) : plaque d'acier, rambarde de laiton (raccordée comme des barreaux)
+    tex("dark_wall_panel", riveted_panel((60, 62, 68), 81))
+    simple_block("dark_wall_panel", model_cube_all("dark_wall_panel"))
+    tex("brass_handrail", handrail())
+    tex("brass_handrail_edge", solid_tex((196, 156, 72), 0.05, 83))
+    bars = "doctorwho:block/brass_handrail"
+    parts = ("post_ends", "post", "cap", "cap_alt", "side", "side_alt")
+    extra = {"brass_handrail_" + part: {"parent": "minecraft:block/iron_bars_" + part, "textures": {
+        "bars": bars, "edge": bars + "_edge", "particle": bars + "_edge"}} for part in parts}
+    with open(os.path.join(os.path.dirname(__file__), "iron_bars_blockstate.json"), encoding="utf-8") as f:
+        state = json.load(f)
+    text = json.dumps(state).replace("minecraft:block/iron_bars_", "doctorwho:block/brass_handrail_")
+    simple_block("brass_handrail", extra["brass_handrail_post_ends"], blockstate=json.loads(text), extra_models=extra,
+                 item_model={"parent": "minecraft:item/generated", "textures": {"layer0": bars}})
+
+    # Colonne de lumière : un modèle, une texture animée par couleur (propriété « color »)
+    for color, rgb in LIGHT_COLORS.items():
+        tex("light_column_" + color, light_column_glow(rgb))
+        save_json(os.path.join(ASSETS, "textures", "block", "light_column_%s.png.mcmeta" % color),
+                  {"animation": {"frametime": 3, "interpolate": True}})
+    column = light_column_model()
+    variants = {}
+    extra = {}
+    for color in LIGHT_COLORS:
+        extra["light_column_" + color] = {"parent": "doctorwho:block/light_column", "textures": {
+            "glow": "doctorwho:block/light_column_" + color}}
+        variants["color=" + color] = {"model": "doctorwho:block/light_column_" + color}
+    simple_block("light_column", column, blockstate={"variants": variants}, extra_models=extra)
 
     tex("classic_pilaster", pilaster((236, 236, 230)))
     tex("classic_pilaster_top", solid_tex((236, 236, 230), 0.02, 43))

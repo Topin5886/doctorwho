@@ -1,0 +1,6 @@
+{
+  "parent": "doctorwho:block/light_column",
+  "textures": {
+    "glow": "doctorwho:block/light_column_orange"
+  }
+}

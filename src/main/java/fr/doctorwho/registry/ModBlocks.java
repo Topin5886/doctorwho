@@ -4,6 +4,8 @@ import fr.doctorwho.DoctorWhoMod;
 import fr.doctorwho.block.ConsolePartBlock;
 import fr.doctorwho.block.DecorBlock;
 import fr.doctorwho.block.FacingDecorBlock;
+import fr.doctorwho.block.HandrailBlock;
+import fr.doctorwho.block.LightColumnBlock;
 import fr.doctorwho.block.TardisBlock;
 import fr.doctorwho.block.TardisConsoleBlock;
 import fr.doctorwho.block.TardisInteriorDoorBlock;
@@ -102,13 +104,13 @@ public final class ModBlocks {
      * Familles de roundels en relief (disque creusé, éteint ou allumé), une par thème.
      * Pour un nouveau thème : ajouter son nom ici et dans ROUNDEL_FAMILIES de tools/generate_blocks.py.
      */
-    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper", "amber");
+    public static final List<String> ROUNDEL_FAMILIES = List.of("classic", "copper", "amber", "dark");
     private static final Map<String, Block> ROUNDELS = new HashMap<>();
     /** Grilles de sol ajourées, une par thème ({@code <famille>_floor_grate}). */
-    public static final List<String> GRATE_FAMILIES = List.of("copper", "amber");
+    public static final List<String> GRATE_FAMILIES = List.of("copper", "amber", "dark");
     private static final Map<String, Block> GRATES = new HashMap<>();
     /** Lumières de sous-plancher colorées ({@code <couleur>_underlight}, niveau 15). */
-    public static final List<String> UNDERLIGHT_COLORS = List.of("green");
+    public static final List<String> UNDERLIGHT_COLORS = List.of("green", "orange");
     private static final Map<String, Block> UNDERLIGHTS = new HashMap<>();
 
     static {
@@ -157,6 +159,15 @@ public final class ModBlocks {
             Block.createCuboidShape(4, 0, 2, 12, 16, 16), false));
     /** Alvéole hexagonale bleue lumineuse. */
     public static final Block BLUE_HEX_LIGHT = decor("blue_hex_light", new Block(metal().luminance(state -> 14)));
+
+    // Sombre industriel (2014) et colonnes de lumière
+    /** Plaque d'acier rivetée. */
+    public static final Block DARK_WALL_PANEL = decor("dark_wall_panel", new Block(metal().mapColor(MapColor.GRAY)));
+    /** Rambarde de laiton, raccordée à ses voisines comme des barreaux. */
+    public static final Block BRASS_HANDRAIL = decor("brass_handrail", new HandrailBlock(FabricBlockSettings.copyOf(Blocks.IRON_BARS)
+            .mapColor(MapColor.GOLD)));
+    /** Colonne de lumière animée (orange, cyan ou bleue), empilable. */
+    public static final Block LIGHT_COLUMN = decor("light_column", new LightColumnBlock(metal().nonOpaque().luminance(state -> 15)));
 
     /** Grille de sol d'une famille ({@link #GRATE_FAMILIES}). */
     public static Block floorGrate(String family) {

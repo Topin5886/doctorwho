@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "IB",
+    "BI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:netherite_scrap"
+    },
+    "B": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "item": "doctorwho:dark_floor_grate",
+    "count": 4
+  }
+}

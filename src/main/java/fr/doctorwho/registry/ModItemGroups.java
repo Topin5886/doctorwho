@@ -32,6 +32,12 @@ public final class ModItemGroups {
                         }
                         ModEntities.SPAWN_EGGS.forEach(entries::add);
                         ModBlocks.DECORATION.forEach(entries::add);
+                        // Colonnes de lumière cyan et bleue (l'objet par défaut est orange)
+                        for (String color : new String[]{"cyan", "blue"}) {
+                            ItemStack column = new ItemStack(ModBlocks.LIGHT_COLUMN);
+                            column.getOrCreateSubNbt("BlockStateTag").putString("color", color);
+                            entries.add(column);
+                        }
                         ModBlocks.PLANET_BLOCKS.forEach(entries::add);
                     })
                     .build());

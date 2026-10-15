@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CN",
+    "NC"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:polished_blackstone"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "item": "doctorwho:dark_wall_panel",
+    "count": 2
+  }
+}

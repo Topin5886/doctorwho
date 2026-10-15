@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/iron_bars_side_alt",
+  "textures": {
+    "bars": "doctorwho:block/brass_handrail",
+    "edge": "doctorwho:block/brass_handrail_edge",
+    "particle": "doctorwho:block/brass_handrail_edge"
+  }
+}

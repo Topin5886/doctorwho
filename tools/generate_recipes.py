@@ -129,11 +129,12 @@ def decoration():
 
 
 # Grandes salles de console : roundels en relief (8 blocs de base autour d'une boule d'argile)
-ROUNDEL_BASES = {"classic": "smooth_quartz", "copper": "cut_copper", "amber": "doctorwho:amber_coral"}
+ROUNDEL_BASES = {"classic": "smooth_quartz", "copper": "cut_copper", "amber": "doctorwho:amber_coral",
+                 "dark": "polished_blackstone"}
 # Lumières de sous-plancher : lanterne aquatique + colorant
-UNDERLIGHT_DYES = {"green": "lime_dye"}
+UNDERLIGHT_DYES = {"green": "lime_dye", "orange": "orange_dye"}
 # Grilles de sol : lingot du thème en diagonale avec des barreaux de fer
-GRATE_INGOTS = {"copper": "copper_ingot", "amber": "gold_ingot"}
+GRATE_INGOTS = {"copper": "copper_ingot", "amber": "gold_ingot", "dark": "netherite_scrap"}
 
 
 def interior_decoration():
@@ -162,6 +163,12 @@ def interior_decoration():
     shaped("amber_pillar", b, ["C", "C", "C"], {"C": "doctorwho:amber_coral"}, "doctorwho:amber_pillar", 3)
     shaped("amber_strut", b, ["C  ", " C ", "  C"], {"C": "doctorwho:amber_coral"}, "doctorwho:amber_strut", 3)
     shapeless("blue_hex_light", b, ["doctorwho:hex_light", "blue_dye"], "doctorwho:blue_hex_light")
+    # Sombre industriel, colonnes de lumière (une recette par couleur : verre teinté + étoile du Nether)
+    shaped("dark_wall_panel", b, ["CN", "NC"], {"C": "polished_blackstone", "N": "iron_nugget"}, "doctorwho:dark_wall_panel", 2)
+    shaped("brass_handrail", b, ["GGG", "GGG"], {"G": "gold_ingot"}, "doctorwho:brass_handrail", 16)
+    for color, glass in (("orange", "orange_stained_glass"), ("cyan", "cyan_stained_glass"), ("blue", "blue_stained_glass")):
+        shaped("light_column_" + color, b, ["GIG", "GSG", "GIG"], {"G": glass, "I": "iron_ingot", "S": "nether_star"},
+               "doctorwho:light_column", 4, nbt='{BlockStateTag:{color:"%s"}}' % color)
     shaped("copper_glass_floor", b, [" C ", "CGC", " C "], {"C": "copper_ingot", "G": "glass"},
            "doctorwho:copper_glass_floor", 2)
 

@@ -1,0 +1,25 @@
+{
+  "type": "doctorwho:crafting_shaped_nbt",
+  "category": "building",
+  "pattern": [
+    "GIG",
+    "GSG",
+    "GIG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:blue_stained_glass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "S": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "result": {
+    "item": "doctorwho:light_column",
+    "count": 4,
+    "nbt": "{BlockStateTag:{color:\"blue\"}}"
+  }
+}

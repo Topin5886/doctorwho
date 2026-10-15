@@ -18,8 +18,8 @@ public final class InteriorThemes {
         register(new ClassicTheme());
         register(new CopperTheme());
         register(new AmberTheme());
+        register(new DarkTheme());
         // Décors pas encore détaillés : grande salle commune avec leur palette
-        register(new PaletteTheme("dark", Blocks.POLISHED_BLACKSTONE_STAIRS.getDefaultState(), Blocks.IRON_BARS.getDefaultState()));
         register(new PaletteTheme("columns", Blocks.QUARTZ_STAIRS.getDefaultState(), Blocks.WHITE_STAINED_GLASS_PANE.getDefaultState()));
         register(new PaletteTheme("victorian", Blocks.DARK_OAK_STAIRS.getDefaultState(), Blocks.DARK_OAK_FENCE.getDefaultState()));
     }
