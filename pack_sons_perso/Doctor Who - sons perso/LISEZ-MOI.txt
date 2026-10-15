@@ -1,0 +1,26 @@
+PACK DE SONS PERSONNELS POUR LE MOD DOCTOR WHO
+==============================================
+
+Ce pack remplace les sons du mod par les vôtres, sans toucher au mod.
+
+1. Mettez vos fichiers dans les dossiers ci-dessous, avec EXACTEMENT ces noms :
+
+   assets/doctorwho/sounds/tardis/takeoff.ogg   décollage (environ 7 secondes)
+   assets/doctorwho/sounds/tardis/landing.ogg   atterrissage (environ 7 secondes)
+   assets/doctorwho/sounds/tardis/landed.ogg    choc quand la cabine est posée
+   assets/doctorwho/sounds/tardis/enter.ogg     passage dans la salle de console
+   assets/doctorwho/sounds/tardis/hum.ogg       bourdonnement de la salle (joué en boucle)
+   assets/doctorwho/sounds/item/sonic.ogg       tournevis sonique
+
+   Pas besoin de tous les mettre : ceux qui manquent gardent le son du mod.
+
+2. Format : .ogg (Ogg Vorbis), en MONO de préférence (en stéréo, le son ne
+   s'atténue pas avec la distance). Pour convertir un .mp3 ou un .wav avec FFmpeg :
+
+   ffmpeg -i mon_son.mp3 -ac 1 -c:a libvorbis -q:a 5 takeoff.ogg
+
+3. Copiez le dossier « Doctor Who - sons perso » (celui qui contient pack.mcmeta) dans :
+   C:\Users\jules\curseforge\minecraft\Instances\Fabulously Optimized\resourcepacks
+
+4. Dans Minecraft : Options > Packs de ressources > activez « Doctor Who - sons perso ».
+   (Pour tester un nouveau son sans relancer le jeu : F3 + T recharge les ressources.)

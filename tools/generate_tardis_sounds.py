@@ -4,6 +4,7 @@ Synthétise les sons du TARDIS et du tournevis sonique (aucun enregistrement : t
 - tardis/takeoff.ogg : décollage, le fameux « vworp-vworp » qui s'éteint (7 s)
 - tardis/landing.ogg : atterrissage, le « vworp-vworp » qui monte puis se stabilise (7 s)
 - tardis/landed.ogg  : choc sourd quand la cabine est posée
+- tardis/enter.ogg   : passage de la cabine à la salle de console (souffle + petit « vworp »)
 - tardis/hum.ogg     : bourdonnement de la salle de console (boucle parfaite de 4 s)
 - item/sonic.ogg     : sifflement modulé du tournevis sonique
 
@@ -127,6 +128,29 @@ def landed():
     to_ogg(echo(out, delays=(0.09, 0.15), feedback=0.25), "tardis/landed")
 
 
+def enter():
+    """Passage dans la salle de console : un souffle qui monte puis un court « vworp » qui s'éteint."""
+    length = 1.0
+    swoosh_rng = random.Random(4)
+    low = 0.0
+    swoosh = []
+    for i in range(int(0.6 * RATE)):
+        t = i / RATE
+        low += (0.04 + 0.3 * t) * (swoosh_rng.uniform(-1, 1) - low)
+        swoosh.append(low * 2.0 * math.sin(math.pi * t / 0.6))
+
+    def env(t):
+        return min(1.0, t / 0.1) * max(0.0, 1.0 - t / length) ** 1.5
+
+    wheel = wheeze(1, length, env, 5)
+    out = [0.0] * (len(swoosh) // 2 + len(wheel))
+    for i, s in enumerate(swoosh):
+        out[i] += s
+    for i, s in enumerate(wheel):
+        out[i + len(swoosh) // 2] += 0.8 * s
+    to_ogg(echo(out), "tardis/enter")
+
+
 def hum():
     """
     Bourdonnement de la salle de console. Toutes les fréquences font un nombre entier
@@ -169,5 +193,6 @@ if __name__ == "__main__":
     takeoff()
     landing()
     landed()
+    enter()
     hum()
     sonic()

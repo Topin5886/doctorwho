@@ -4,6 +4,7 @@ import fr.doctorwho.block.AbstractTardisDoorBlock;
 import fr.doctorwho.block.TardisBlock;
 import fr.doctorwho.block.entity.TardisBlockEntity;
 import fr.doctorwho.registry.ModDimensions;
+import fr.doctorwho.registry.ModSounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import fr.doctorwho.item.TardisKeyItem;
@@ -137,6 +138,8 @@ public final class TardisManager {
         entity.setVelocity(Vec3d.ZERO);
         entity.teleport(destination, pos.x, pos.y, pos.z, Set.of(), yaw, entity.getPitch());
         entity.setPortalCooldown(20);
+        // Son du passage entre la cabine et la salle de console
+        destination.playSound(null, pos.x, pos.y, pos.z, ModSounds.TARDIS_ENTER, SoundCategory.BLOCKS, 0.8f, 1.0f);
     }
 
     /**

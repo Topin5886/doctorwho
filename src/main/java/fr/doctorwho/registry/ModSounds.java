@@ -19,6 +19,8 @@ public final class ModSounds {
     public static final SoundEvent TARDIS_LANDED = register("block.tardis.landed");
     /** Bourdonnement de la salle de console (en boucle, côté client). */
     public static final SoundEvent TARDIS_HUM = register("block.tardis.hum");
+    /** Passage entre la cabine et la salle de console. */
+    public static final SoundEvent TARDIS_ENTER = register("block.tardis.enter");
 
     // Créatures (voix générées par tools/generate_sounds.py)
     public static final SoundEvent DALEK_EXTERMINATE = register("entity.dalek.exterminate");

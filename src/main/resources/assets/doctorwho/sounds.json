@@ -137,5 +137,13 @@
         "stream": true
       }
     ]
+  },
+  "block.tardis.enter": {
+    "subtitle": "subtitles.doctorwho.tardis.enter",
+    "sounds": [
+      {
+        "name": "doctorwho:tardis/enter"
+      }
+    ]
   }
 }
