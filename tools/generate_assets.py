@@ -1,0 +1,649 @@
+"""
+Générateur des modèles GeckoLib (.geo.json) et de leurs textures (.png) du mod Doctor Who.
+
+Pourquoi un script ? Pour avoir des modèles de départ propres sans Blockbench.
+Ils pourront être remplacés plus tard par des modèles faits à la main dans Blockbench
+(mêmes noms de fichiers, mêmes noms d'os : root, left_door, right_door, lamp, emitter).
+
+Utilisation (depuis la racine du projet) :
+    python tools/generate_assets.py
+
+Python 3 pur, aucune dépendance.
+"""
+import json
+import math
+import os
+import random
+import struct
+import zlib
+
+ROOT = os.path.join(os.path.dirname(__file__), "..", "src", "main", "resources", "assets", "doctorwho")
+
+
+# ---------------------------------------------------------------------------
+# Image RGBA minimale + écriture PNG
+# ---------------------------------------------------------------------------
+class Image:
+    def __init__(self, w, h):
+        self.w, self.h = w, h
+        self.px = bytearray(w * h * 4)
+
+    def set(self, x, y, c):
+        if 0 <= x < self.w and 0 <= y < self.h:
+            i = (y * self.w + x) * 4
+            self.px[i:i + 4] = bytes(c if len(c) == 4 else (*c, 255))
+
+    def rect(self, x0, y0, x1, y1, c):
+        for y in range(int(y0), int(y1)):
+            for x in range(int(x0), int(x1)):
+                self.set(x, y, c)
+
+    def frame(self, x0, y0, x1, y1, c, t=1):
+        self.rect(x0, y0, x1, y0 + t, c)
+        self.rect(x0, y1 - t, x1, y1, c)
+        self.rect(x0, y0, x0 + t, y1, c)
+        self.rect(x1 - t, y0, x1, y1, c)
+
+    def save(self, path):
+        raw = b"".join(b"\x00" + bytes(self.px[y * self.w * 4:(y + 1) * self.w * 4]) for y in range(self.h))
+
+        def chunk(tag, data):
+            return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n")
+            f.write(chunk(b"IHDR", struct.pack(">IIBBBBB", self.w, self.h, 8, 6, 0, 0, 0)))
+            f.write(chunk(b"IDAT", zlib.compress(raw, 9)))
+            f.write(chunk(b"IEND", b""))
+
+
+def shade(c, k):
+    return tuple(max(0, min(255, int(v * k))) for v in c[:3])
+
+
+def noisy(img, x0, y0, x1, y1, c, amount, seed):
+    rnd = random.Random(seed)
+    for y in range(int(y0), int(y1)):
+        for x in range(int(x0), int(x1)):
+            img.set(x, y, shade(c, 1 + rnd.uniform(-amount, amount)))
+
+
+# Police 3x5 pour les inscriptions
+FONT = {
+    "P": ["111", "101", "111", "100", "100"], "O": ["111", "101", "101", "101", "111"],
+    "L": ["100", "100", "100", "100", "111"], "I": ["111", "010", "010", "010", "111"],
+    "C": ["111", "100", "100", "100", "111"], "E": ["111", "100", "110", "100", "111"],
+    "B": ["110", "101", "110", "101", "110"], "X": ["101", "101", "010", "101", "101"],
+    " ": ["000"] * 5,
+}
+
+
+def text(img, x, y, s, c):
+    for ch in s:
+        for row, bits in enumerate(FONT[ch]):
+            for col, b in enumerate(bits):
+                if b == "1":
+                    img.set(x + col, y + row, c)
+        x += 4
+
+
+# ---------------------------------------------------------------------------
+# Construction d'un modèle : cubes + UV par face, atlas rempli automatiquement
+# ---------------------------------------------------------------------------
+FACES = ("north", "south", "east", "west", "up", "down")
+
+
+def face_dims(size, face):
+    w, h, d = size
+    return {"north": (w, h), "south": (w, h), "east": (d, h), "west": (d, h), "up": (w, d), "down": (w, d)}[face]
+
+
+def build(name, bones, scale, atlas_w, painters):
+    """bones: liste de dicts {name, parent, pivot, cubes:[(origin, size, {face: material})]}"""
+    # 1) placement des faces dans l'atlas (rangées successives)
+    placements, x, y, row_h = [], 0, 0, 0
+    for bone in bones:
+        for cube in bone["cubes"]:
+            for face in FACES:
+                fw, fh = (round(v * scale) for v in face_dims(cube[1], face))
+                fw, fh = max(fw, 1), max(fh, 1)
+                if x + fw > atlas_w:
+                    x, y, row_h = 0, y + row_h, 0
+                placements.append((cube, face, x, y, fw, fh))
+                x += fw
+                row_h = max(row_h, fh)
+    atlas_h = ((y + row_h + 15) // 16) * 16
+
+    tex, glow = Image(atlas_w, atlas_h), Image(atlas_w, atlas_h)
+    uv = {}
+    for i, (cube, face, fx, fy, fw, fh) in enumerate(placements):
+        material = cube[2].get(face, cube[2].get("*"))
+        painters[material](tex, glow, fx, fy, fw, fh, scale, face, i)
+        uv.setdefault(id(cube), {})[face] = {"uv": [fx, fy], "uv_size": [fw, fh]}
+
+    geo_bones = []
+    for bone in bones:
+        cubes = []
+        for c in bone["cubes"]:
+            cube = {"origin": list(c[0]), "size": list(c[1]), "uv": uv[id(c)]}
+            if len(c) > 3:  # rotation propre au cube : {"rotation": [x, y, z], "pivot": [x, y, z]}
+                cube.update(c[3])
+            cubes.append(cube)
+        b = {"name": bone["name"], "pivot": bone["pivot"], "cubes": cubes}
+        if bone.get("parent"):
+            b["parent"] = bone["parent"]
+        if bone.get("rotation"):
+            b["rotation"] = bone["rotation"]
+        geo_bones.append(b)
+
+    geo = {"format_version": "1.12.0", "minecraft:geometry": [{
+        "description": {"identifier": "geometry." + name, "texture_width": atlas_w, "texture_height": atlas_h,
+                        "visible_bounds_width": 3, "visible_bounds_height": 4, "visible_bounds_offset": [0, 1.5, 0]},
+        "bones": geo_bones}]}
+    return geo, tex, glow
+
+
+def write(kind, name, geo, tex, glow):
+    path = os.path.join(ROOT, "geo", kind, name + ".geo.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(geo, f, indent=1)
+    tex.save(os.path.join(ROOT, "textures", kind, name + ".png"))
+    glow.save(os.path.join(ROOT, "textures", kind, name + "_glowmask.png"))
+    print("OK", kind, name, tex.w, "x", tex.h)
+
+
+# ---------------------------------------------------------------------------
+# TARDIS (cabine de police, 1 bloc de large, ~2,4 blocs de haut)
+# Face avant du modèle = nord (-z). Toutes les dimensions en pixels de bloc.
+# ---------------------------------------------------------------------------
+BLUE = (28, 62, 120)
+BLUE_DARK = (18, 44, 92)
+INTERIOR = (201, 138, 61)
+ROUNDEL = (243, 208, 138)
+GLASS = (226, 236, 246)
+WEAR = 0.04      # usure (bruit) de la peinture
+BADGE = False    # écusson « St John Ambulance » sur la porte (2010)
+
+
+def p_blue(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE, WEAR, seed)
+
+
+def p_dark(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE_DARK, WEAR, seed)
+
+
+def p_post(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE_DARK, WEAR + 0.01, seed)
+    tex.rect(x + w // 2, y, x + w // 2 + 1, y + h, shade(BLUE, 1.15))
+
+
+def door_half(tex, glow, x, y, w, h, s, plaque):
+    """Un vantail : cadre, fenêtre 3x2 carreaux, deux panneaux moulurés."""
+    tex.frame(x, y, x + w, y + h, BLUE_DARK, 2)
+    # fenêtre
+    wx0, wy0, wx1, wy1 = x + s, y + 2 * s, x + w - s, y + 7 * s
+    tex.rect(wx0, wy0, wx1, wy1, BLUE_DARK)
+    pw, ph = (wx1 - wx0 - 4) // 2, (wy1 - wy0 - 6) // 3
+    for r in range(3):
+        for c in range(2):
+            px0 = wx0 + 1 + c * (pw + 2)
+            py0 = wy0 + 1 + r * (ph + 2)
+            tex.rect(px0, py0, px0 + pw, py0 + ph, GLASS)
+            glow.rect(px0, py0, px0 + pw, py0 + ph, (255, 244, 214))
+    # panneaux du bas
+    for (a, b) in ((8.5, 15), (16, h / s - 1.5)):
+        tex.frame(x + s, y + a * s, x + w - s, y + b * s, BLUE_DARK, 2)
+        tex.frame(x + s + 2, y + a * s + 2, x + w - s - 2, y + b * s - 2, shade(BLUE, 1.12), 1)
+    if plaque:
+        px0, py0, px1, py1 = x + s + 1, y + 9.5 * s, x + w - s - 1, y + 13 * s
+        tex.rect(px0, py0, px1, py1, (236, 236, 228))
+        for ly in range(int(py0) + 2, int(py1) - 1, 2):
+            tex.rect(px0 + 2, ly, px1 - 2, ly + 1, (40, 40, 40))
+
+
+def p_door_l(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE, WEAR, seed)
+    door_half(tex, glow, x, y, w, h, s, plaque=True)
+
+
+def p_door_r(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE, WEAR, seed)
+    door_half(tex, glow, x, y, w, h, s, plaque=False)
+    if BADGE and face == "north":
+        bx, by = x + w // 2 - 5, y + int(10 * s)
+        tex.rect(bx, by, bx + 10, by + 10, (235, 235, 230))
+        tex.rect(bx + 4, by + 2, bx + 6, by + 8, (20, 20, 20))
+        tex.rect(bx + 2, by + 4, bx + 8, by + 6, (20, 20, 20))
+
+
+def p_panel(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BLUE, WEAR, seed)
+    door_half(tex, glow, x, y, w // 2, h, s, plaque=False)
+    door_half(tex, glow, x + w // 2, y, w // 2, h, s, plaque=False)
+
+
+def p_interior(tex, glow, x, y, w, h, s, face, seed):
+    """Intérieur lumineux avec les célèbres « roundels »."""
+    tex.rect(x, y, x + w, y + h, INTERIOR)
+    glow.rect(x, y, x + w, y + h, INTERIOR)
+    step, rad = 6 * s, 2 * s
+    for cy in range(y + step // 2, y + h, step):
+        for cx in range(x + step // 2, x + w, step):
+            for yy in range(cy - rad, cy + rad + 1):
+                for xx in range(cx - rad, cx + rad + 1):
+                    if x <= xx < x + w and y <= yy < y + h and math.hypot(xx - cx, yy - cy) <= rad:
+                        tex.set(xx, yy, ROUNDEL)
+                        glow.set(xx, yy, ROUNDEL)
+
+
+def p_floor(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, (70, 64, 58), 0.08, seed)
+    for gy in range(y, y + h, 3):
+        tex.rect(x, gy, x + w, gy + 1, (45, 40, 36))
+
+
+def p_sign(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (14, 14, 18))
+    label = "POLICE BOX"
+    tw = len(label) * 4 - 1
+    tx, ty = x + (w - tw) // 2, y + (h - 5) // 2
+    text(tex, tx, ty, label, (240, 240, 240))
+    text(glow, tx, ty, label, (240, 240, 240))
+
+
+def p_glass(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (235, 245, 255))
+    glow.rect(x, y, x + w, y + h, (235, 245, 255))
+    tex.rect(x, y + h // 2, x + w, y + h // 2 + 1, (180, 200, 220))
+
+
+def p_black(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, (20, 26, 40), 0.05, seed)
+
+
+def tardis():
+    root = []
+    # socle
+    root.append(((-9, 0, -9), (18, 2, 18), {"*": "dark"}))
+    # plancher intérieur
+    root.append(((-6, 2, -6), (12, 0.1, 12), {"*": "floor"}))
+    # montants d'angle
+    for px in (-8, 6):
+        for pz in (-8, 6):
+            root.append(((px, 2, pz), (2, 28, 2), {"*": "post"}))
+    # parois : côtés et arrière (face intérieure = intérieur lumineux)
+    # Attention : GeckoLib inverse l'axe X par rapport à Blockbench, donc côté -X la face
+    # extérieure est « east » et côté +X c'est « west »
+    root.append(((-7, 2, -6), (1, 24, 12), {"*": "blue", "east": "panel", "west": "interior"}))
+    root.append(((6, 2, -6), (1, 24, 12), {"*": "blue", "west": "panel", "east": "interior"}))
+    root.append(((-6, 2, 6), (12, 24, 1), {"*": "blue", "south": "panel", "north": "interior"}))
+    # enseignes « POLICE BOX » sur les 4 côtés
+    root.append(((-6, 26, -8), (12, 4, 2), {"*": "dark", "north": "sign", "south": "interior"}))
+    root.append(((-6, 26, 6), (12, 4, 2), {"*": "dark", "south": "sign", "north": "interior"}))
+    root.append(((-8, 26, -6), (2, 4, 12), {"*": "dark", "east": "sign", "west": "interior"}))
+    root.append(((6, 26, -6), (2, 4, 12), {"*": "dark", "west": "sign", "east": "interior"}))
+    # toit en gradins
+    root.append(((-8, 30, -8), (16, 2, 16), {"*": "dark", "down": "interior"}))
+    root.append(((-6.5, 32, -6.5), (13, 1, 13), {"*": "dark"}))
+    root.append(((-5, 33, -5), (10, 1, 10), {"*": "blue"}))
+
+    lamp = [
+        ((-2, 34, -2), (4, 1, 4), {"*": "black"}),
+        ((-1, 35, -1), (2, 3, 2), {"*": "glass", "up": "black", "down": "black"}),
+        ((-1.5, 38, -1.5), (3, 1, 3), {"*": "black"}),
+    ]
+    left = [((-6, 2, -7), (6, 24, 1), {"*": "blue", "north": "door_l", "south": "interior"})]
+    right = [((0, 2, -7), (6, 24, 1), {"*": "blue", "north": "door_r", "south": "interior"})]
+
+    bones = [
+        {"name": "root", "pivot": [0, 0, 0], "cubes": root},
+        {"name": "left_door", "parent": "root", "pivot": [-6, 2, -6.5], "cubes": left},
+        {"name": "right_door", "parent": "root", "pivot": [6, 2, -6.5], "cubes": right},
+        {"name": "lamp", "parent": "root", "pivot": [0, 34, 0], "cubes": lamp},
+    ]
+    painters = {"blue": p_blue, "dark": p_dark, "post": p_post, "panel": p_panel, "door_l": p_door_l,
+                "door_r": p_door_r, "interior": p_interior, "floor": p_floor, "sign": p_sign,
+                "glass": p_glass, "black": p_black}
+    geo, _, _ = build("tardis", bones, 4, 512, painters)
+    path = os.path.join(ROOT, "geo", "block", "tardis.geo.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(geo, f, indent=1)
+    # Une texture par variante d'extérieur (même modèle, même disposition UV)
+    global BLUE, BLUE_DARK, GLASS, WEAR, BADGE
+    variants = {
+        "classic": ((44, 76, 138), (30, 56, 108), (236, 240, 244), 0.04, False),
+        "tenth": ((28, 62, 120), (18, 44, 92), (226, 236, 246), 0.04, False),
+        "eleventh": ((24, 76, 156), (16, 52, 112), (232, 240, 250), 0.03, True),
+        "twelfth": ((20, 40, 84), (12, 28, 60), (220, 230, 240), 0.04, False),
+        "thirteenth": ((30, 72, 104), (20, 50, 76), (214, 236, 248), 0.04, False),
+        "war": ((46, 62, 88), (32, 44, 66), (200, 205, 200), 0.13, False),
+    }
+    for variant, (blue, dark, glass, wear, badge) in variants.items():
+        BLUE, BLUE_DARK, GLASS, WEAR, BADGE = blue, dark, glass, wear, badge
+        _, tex, glow = build("tardis", bones, 4, 512, painters)
+        tex.save(os.path.join(ROOT, "textures", "block", "tardis", variant + ".png"))
+        glow.save(os.path.join(ROOT, "textures", "block", "tardis", variant + "_glowmask.png"))
+        print("OK exterieur", variant)
+    BLUE, BLUE_DARK, GLASS, WEAR, BADGE = variants["tenth"][0], variants["tenth"][1], variants["tenth"][2], 0.04, False
+
+
+def tardis_door():
+    """Porte intérieure : encadrement + deux vantaux, posée dans le mur de la salle de console.
+    Face avant (côté salle) = nord (-z)."""
+    frame = [
+        ((-8, 0, -1), (2, 30, 2), {"*": "post"}),
+        ((6, 0, -1), (2, 30, 2), {"*": "post"}),
+        ((-6, 26, -1), (12, 4, 2), {"*": "dark", "north": "sign"}),
+        ((-8, 30, -1), (16, 2, 2), {"*": "dark"}),
+    ]
+    left = [((-6, 0, -0.5), (6, 26, 1), {"*": "blue", "north": "door_l", "south": "door_r"})]
+    right = [((0, 0, -0.5), (6, 26, 1), {"*": "blue", "north": "door_r", "south": "door_r"})]
+    bones = [
+        {"name": "root", "pivot": [0, 0, 0], "cubes": frame},
+        {"name": "left_door", "parent": "root", "pivot": [-6, 0, 0], "cubes": left},
+        {"name": "right_door", "parent": "root", "pivot": [6, 0, 0], "cubes": right},
+    ]
+    painters = {"blue": p_blue, "dark": p_dark, "post": p_post, "door_l": p_door_l, "door_r": p_door_r,
+                "sign": p_sign}
+    write("block", "tardis_door", *build("tardis_door", bones, 4, 256, painters))
+
+
+# ---------------------------------------------------------------------------
+# Console hexagonale avec rotor temporel (centre de la salle de console)
+# ---------------------------------------------------------------------------
+COPPER = (184, 115, 51)
+BRONZE = (92, 58, 34)
+BRASS = (150, 112, 60)
+
+
+def hexagon(side, depth_y, y0, material, extra=None):
+    """Prisme hexagonal = 3 pavés identiques tournés de 0, 60 et 120 degrés."""
+    apothem = side * 0.8660254
+    cubes = []
+    for angle in (0, 60, 120):
+        cube = ((-side / 2, y0, -apothem), (side, depth_y, apothem * 2), {"*": material},
+                {"rotation": [0, angle, 0], "pivot": [0, 0, 0]})
+        cubes.append(cube)
+    return cubes
+
+
+def c_base(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BRONZE, 0.08, seed)
+    if face not in ("up", "down"):
+        for gy in range(y + 3, y + h, 6):
+            tex.rect(x, gy, x + w, gy + 1, shade(BRONZE, 0.7))
+
+
+def c_copper(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, COPPER, 0.07, seed)
+    tex.frame(x, y, x + w, y + h, shade(COPPER, 1.25), 1)
+
+
+def c_panel(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, BRASS, 0.06, seed)
+    if face == "up":
+        tex.frame(x, y, x + w, y + h, shade(BRASS, 0.6), 2)
+        for gx in range(x + 6, x + w - 4, 8):
+            tex.rect(gx, y + 3, gx + 1, y + h - 3, shade(BRASS, 0.8))
+
+
+def solid(color, glowing=False):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        tex.rect(x, y, x + w, y + h, color)
+        if glowing:
+            glow.rect(x, y, x + w, y + h, color)
+    return paint
+
+
+def c_monitor(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (12, 20, 14))
+    if face == "north" or face == "up":
+        for gy in range(y + 2, y + h - 1, 3):
+            tex.rect(x + 2, gy, x + w - 2 - (gy * 7 % 5), gy + 1, (90, 230, 120))
+            glow.rect(x + 2, gy, x + w - 2 - (gy * 7 % 5), gy + 1, (90, 230, 120))
+
+
+def c_glass(tex, glow, x, y, w, h, s, face, seed):
+    if face in ("up", "down"):
+        return  # faces haut/bas invisibles : on voit le rotor au travers
+    tex.rect(x, y, x + w, y + h, (170, 220, 255, 34))
+    tex.frame(x, y, x + w, y + h, (200, 235, 255, 120), 1)
+
+
+def c_rotor(tex, glow, x, y, w, h, s, face, seed):
+    for yy in range(y, y + h):
+        k = 0.75 + 0.25 * math.sin((yy - y) * 0.9)
+        tex.rect(x, yy, x + w, yy + 1, shade((110, 225, 255), k))
+        glow.rect(x, yy, x + w, yy + 1, shade((110, 225, 255), k))
+
+
+def console():
+    base = hexagon(8, 10, 0, "base") + hexagon(15, 2, 10, "copper")
+    bones = [
+        {"name": "root", "pivot": [0, 0, 0], "cubes": base},
+    ]
+    # Six pupitres inclinés, chacun dans son os tourné de 60 degrés, avec ses commandes
+    tilt = {"rotation": [-18, 0, 0], "pivot": [0, 12.5, -8]}
+
+    def ctl(x, z, w, h, d, mat, y=13):
+        return ((x, y, z), (w, h, d), {"*": mat}, tilt)
+
+    colors = ("red", "green", "yellow", "blue")
+    layouts = {
+        # 0 : manettes (la grande manette des gaz est un os animé, plus bas)
+        0: [ctl(-5, -10, 1, 2.5, 1, "silver"), ctl(-5.25, -10.25, 1.5, 0.75, 1.5, "red", 15.5),
+            ctl(4, -10, 1, 2.5, 1, "silver"), ctl(3.75, -10.25, 1.5, 0.75, 1.5, "green", 15.5)]
+           + [ctl(-4 + i * 2.25, -6, 1.25, 0.5, 1.25, colors[i]) for i in range(4)],
+        # 1 : grille de boutons + cadran
+        1: [ctl(-5 + c * 2.25, -10.5 + r * 2.25, 1.5, 0.75, 1.5, colors[(r + c) % 4])
+            for r in range(2) for c in range(3)] + [ctl(2.25, -10.5, 3.5, 0.5, 3.5, "dial")],
+        # 2 : clavier
+        2: [ctl(-5 + i * 1.75, -11 + j * 1.6, 1.25, 0.5, 1.2, "key") for i in range(6) for j in range(3)]
+           + [ctl(-3, -6, 6, 0.5, 1.25, "key")],
+        # 3 : logement du tournevis sonique (anneau de cuivre + trou), interrupteurs
+        3: [ctl(-1.75, -9.75, 3.5, 0.75, 0.75, "copper"), ctl(-1.75, -7, 3.5, 0.75, 0.75, "copper"),
+            ctl(-1.75, -9, 0.75, 0.75, 2, "copper"), ctl(1, -9, 0.75, 0.75, 2, "copper"),
+            ctl(-1, -9, 2, 0.25, 2, "hole"),
+            ctl(-5, -9.5, 1, 1.5, 1, "silver"), ctl(4, -9.5, 1, 1.5, 1, "silver")],
+        # 4 : grand écran
+        4: [ctl(-4.5, -11.25, 9, 0.5, 5.5, "monitor"), ctl(-4, -5, 8, 0.5, 0.75, "yellow")],
+        # 5 : frein à main + jauges
+        5: [ctl(-3, -8.5, 6, 0.75, 1, "silver", 14), ctl(-3.5, -8.75, 1.5, 2, 1.5, "copper"),
+            ctl(2, -8.75, 1.5, 2, 1.5, "copper"), ctl(-4.5, -11, 2.5, 0.5, 2.5, "dial"),
+            ctl(2.5, -11, 2.5, 0.5, 2.5, "dial")],
+    }
+    for k in range(6):
+        cubes = [((-6.5, 12, -12), (13, 1, 8), {"*": "copper", "up": "panel"}, tilt)] + layouts[k]
+        bones.append({"name": "panel_%d" % k, "parent": "root", "pivot": [0, 0, 0],
+                      "rotation": [0, k * 60, 0], "cubes": cubes})
+    # Point d'attache du tournevis sonique, au centre du logement (pupitre 3)
+    bones.append({"name": "sonic_port", "parent": "panel_3", "pivot": [0, 13.25, -8.25],
+                  "rotation": [-18, 0, 0], "cubes": []})
+    # Manette des gaz sur le pupitre 0, dans un os à part pour l'animer
+    bones.append({"name": "throttle", "parent": "panel_0", "pivot": [0, 13.5, -9],
+                  "cubes": [((-0.5, 13, -9.5), (1, 4, 1), {"*": "silver"}, tilt),
+                            ((-1.5, 16.5, -10), (3, 1, 2), {"*": "red"}, tilt)]})
+    # Rotor temporel : cœur lumineux (animé) puis colonne de verre et chapeau
+    bones.append({"name": "rotor", "parent": "root", "pivot": [0, 16, 0],
+                  "cubes": [((-2, 15 + i * 9, -2), (4, 7, 4), {"*": "rotor"}) for i in range(3)]})
+    bones.append({"name": "housing", "parent": "root", "pivot": [0, 0, 0],
+                  "cubes": hexagon(4.5, 30, 13, "glass") + hexagon(6, 2, 43, "copper") + hexagon(5.5, 1, 27, "copper")})
+    painters = {"base": c_base, "copper": c_copper, "panel": c_panel, "monitor": c_monitor,
+                "glass": c_glass, "rotor": c_rotor, "red": solid((200, 40, 40), True),
+                "green": solid((60, 200, 80), True), "yellow": solid((235, 200, 60), True),
+                "blue": solid((70, 150, 235), True), "key": solid((214, 208, 196)),
+                "hole": solid((14, 12, 10)), "dial": c_dial, "silver": s_silver}
+    write("block", "tardis_console", *build("tardis_console", bones, 4, 256, painters))
+
+
+def c_dial(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (150, 112, 60))
+    if face == "up":
+        tex.rect(x + 1, y + 1, x + w - 1, y + h - 1, (238, 232, 214))
+        tex.rect(x + w // 2, y + 2, x + w // 2 + 1, y + h // 2 + 1, (30, 30, 30))
+
+
+# ---------------------------------------------------------------------------
+# Tournevis sonique du Dixième Docteur (vertical, centré sur l'origine)
+# ---------------------------------------------------------------------------
+SILVER = (178, 182, 190)
+
+
+def s_silver(tex, glow, x, y, w, h, s, face, seed):
+    for yy in range(y, y + h):
+        for xx in range(x, x + w):
+            k = 0.85 + 0.3 * math.sin((xx - x) / max(w, 1) * math.pi)
+            tex.set(xx, yy, shade(SILVER, k))
+
+
+def s_grip(tex, glow, x, y, w, h, s, face, seed):
+    noisy(tex, x, y, x + w, y + h, (30, 30, 34), 0.1, seed)
+    if face not in ("up", "down"):
+        for gy in range(y + 2, y + h, 4):
+            tex.rect(x, gy, x + w, gy + 1, (70, 70, 76))
+
+
+def s_ringed(tex, glow, x, y, w, h, s, face, seed):
+    s_silver(tex, glow, x, y, w, h, s, face, seed)
+    if face not in ("up", "down"):
+        for gy in range(y + 3, y + h, 5):
+            tex.rect(x, gy, x + w, gy + 1, (110, 112, 120))
+
+
+def s_red(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (190, 30, 30))
+
+
+def s_emitter(tex, glow, x, y, w, h, s, face, seed):
+    tex.rect(x, y, x + w, y + h, (90, 200, 255))
+    glow.rect(x, y, x + w, y + h, (120, 220, 255))
+    tex.rect(x + w // 3, y + h // 3, x + 2 * w // 3, y + 2 * h // 3, (220, 248, 255))
+    glow.rect(x + w // 3, y + h // 3, x + 2 * w // 3, y + 2 * h // 3, (220, 248, 255))
+
+
+SONIC_MATERIALS = {
+    "silver": ((178, 182, 190), "metal"), "ringed": ((178, 182, 190), "ringed"),
+    "grip": ((30, 30, 34), "grip"), "red": ((190, 30, 30), "flat"),
+    "gunmetal": ((70, 74, 82), "metal"), "copper": ((184, 115, 51), "metal"),
+    "bronze": ((150, 96, 54), "metal"), "bronze_dark": ((96, 60, 36), "ringed"),
+    "dark": ((40, 42, 50), "metal"), "black": ((22, 22, 26), "metal"),
+    "brass": ((181, 145, 72), "metal"), "wood": ((112, 72, 40), "wood"),
+    "gold": ((214, 172, 70), "metal"),
+    "glow_blue": ((90, 200, 255), "glow"), "glow_green": ((90, 255, 120), "glow"),
+    "glow_violet": ((170, 120, 255), "glow"), "glow_orange": ((255, 150, 60), "glow"),
+    "glow_red": ((255, 60, 60), "glow"), "glow_white": ((235, 245, 255), "glow"),
+}
+
+
+def sonic_painter(color, kind):
+    def paint(tex, glow, x, y, w, h, s, face, seed):
+        side = face not in ("up", "down")
+        for yy in range(y, y + h):
+            for xx in range(x, x + w):
+                k = 0.85 + 0.3 * math.sin((xx - x) / max(w, 1) * math.pi)
+                c = shade(color, k if kind in ("metal", "ringed") else 1.0)
+                if kind == "wood":
+                    c = shade(color, 0.9 + 0.2 * math.sin((xx - x) * 1.7 + yy * 0.2))
+                tex.set(xx, yy, c)
+                if kind == "glow":
+                    glow.set(xx, yy, color)
+        if kind == "ringed" and side:
+            for gy in range(y + 3, y + h, 5):
+                tex.rect(x, gy, x + w, gy + 1, shade(color, 0.6))
+        if kind == "grip" and side:
+            for gy in range(y + 2, y + h, 4):
+                tex.rect(x, gy, x + w, gy + 1, shade(color, 2.2))
+        if kind == "glow":
+            tex.rect(x + w // 3, y + h // 3, x + 2 * w // 3 + 1, y + 2 * h // 3 + 1, (240, 250, 255))
+    return paint
+
+
+def seg(y, h, w, mat):
+    """Tronçon carré centré sur l'axe vertical."""
+    return ((-w / 2, y, -w / 2), (w, h, w), {"*": mat})
+
+
+def sonic_variant(name, body, emitter, extra=()):
+    emitter_y = emitter[0][0][1]
+    bones = [{"name": "root", "pivot": [0, 0, 0], "cubes": list(body) + list(extra)},
+             {"name": "emitter", "parent": "root", "pivot": [0, emitter_y, 0], "cubes": list(emitter)}]
+    used = {c[2]["*"] for b in bones for c in b["cubes"]}
+    painters = {m: sonic_painter(*SONIC_MATERIALS[m]) for m in used}
+    geo, tex, glow = build("sonic_" + name, bones, 8, 128, painters)
+    path = os.path.join(ROOT, "geo", "item", "sonic", name + ".geo.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(geo, f, indent=1)
+    tex.save(os.path.join(ROOT, "textures", "item", "sonic", name + ".png"))
+    glow.save(os.path.join(ROOT, "textures", "item", "sonic", name + "_glowmask.png"))
+    print("OK sonique", name)
+
+
+def sonics():
+    """Tous les tournevis : même principe (os « emitter » animé), silhouettes et couleurs différentes."""
+    sonic_variant("fourth",
+                  [seg(-6.5, 0.75, 1.75, "silver"), seg(-5.75, 7.5, 1.25, "ringed"),
+                   seg(-1, 0.75, 1.75, "black"), seg(1.75, 0.75, 1.75, "silver")],
+                  [seg(2.5, 1, 1, "glow_white")])
+    sonic_variant("tenth",
+                  [seg(-6.5, 0.75, 2, "silver"), seg(-5.75, 5, 1.5, "grip"), seg(-0.75, 1, 2, "silver"),
+                   ((-0.25, -0.5, -1.25), (0.5, 0.5, 0.25), {"*": "red"}),
+                   seg(0.25, 2.5, 1.25, "ringed"), seg(2.75, 1.5, 2.5, "silver")],
+                  [seg(4.25, 1.25, 1.5, "glow_blue")])
+    claws = [((x, 3.25, z), (0.5, 2.25, 0.5), {"*": "copper"})
+             for x, z in ((-1.25, -1.25), (0.75, -1.25), (-1.25, 0.75), (0.75, 0.75))]
+    sonic_variant("eleventh",
+                  [seg(-6.5, 5, 1.75, "gunmetal"), seg(-1.5, 0.75, 2, "copper"), seg(-0.75, 2.5, 1.5, "gunmetal"),
+                   seg(1.75, 1.5, 2.25, "copper")],
+                  [seg(3.25, 1.25, 1.25, "glow_green")], claws)
+    sonic_variant("twelfth",
+                  [seg(-6.5, 6, 1.5, "dark"), seg(-0.5, 0.5, 1.75, "silver"), seg(0, 2.5, 1.25, "silver"),
+                   seg(2.5, 1, 2, "dark")],
+                  [seg(3.5, 1, 1.25, "glow_violet")])
+    sonic_variant("thirteenth",
+                  [seg(-6.5, 5.5, 1.75, "bronze"), seg(-1, 0.75, 2, "copper"), seg(-0.25, 2.75, 1.25, "bronze_dark")],
+                  [seg(2.5, 1.5, 1.5, "glow_orange")])
+    sonic_variant("war",
+                  [seg(-6.5, 5, 1.75, "wood"), seg(-1.5, 0.75, 2, "brass"), seg(-0.75, 2.75, 1.25, "brass"),
+                   seg(2, 1.25, 2, "brass")],
+                  [seg(3.25, 1, 1.25, "glow_red")])
+    sonic_variant("river",
+                  [seg(-6.5, 7, 1.5, "black"), seg(0.5, 0.75, 1.75, "silver"), seg(1.25, 1.75, 1.75, "silver")],
+                  [seg(3, 1, 1.25, "glow_blue")])
+    sonic_variant("master",
+                  [seg(-7, 8.5, 1.25, "gold"), seg(-4, 0.5, 1.5, "black"), seg(-2, 0.5, 1.5, "black"),
+                   seg(1.5, 2, 1.75, "black")],
+                  [seg(3.5, 1.5, 0.75, "glow_red")])
+
+
+# ---------------------------------------------------------------------------
+# Icône 16x16 du TARDIS pour l'inventaire
+# ---------------------------------------------------------------------------
+def tardis_icon():
+    img = Image(16, 16)
+    img.rect(7, 0, 9, 1, (235, 245, 255))
+    img.rect(5, 1, 11, 2, BLUE_DARK)
+    img.rect(4, 2, 12, 3, (14, 14, 18))
+    img.rect(5, 2, 11, 3, (200, 200, 200))
+    img.rect(4, 3, 12, 15, BLUE)
+    img.rect(4, 3, 5, 15, BLUE_DARK)
+    img.rect(11, 3, 12, 15, BLUE_DARK)
+    img.rect(8, 3, 8 + 1, 15, BLUE_DARK)
+    for wx in (5, 9):
+        img.rect(wx, 4, wx + 2, 6, GLASS)
+        img.frame(wx, 7, wx + 2, 10, shade(BLUE, 1.2))
+        img.frame(wx, 11, wx + 2, 14, shade(BLUE, 1.2))
+    img.rect(3, 15, 13, 16, BLUE_DARK)
+    img.save(os.path.join(ROOT, "textures", "item", "tardis.png"))
+    print("OK icone tardis")
+
+
+if __name__ == "__main__":
+    tardis()
+    tardis_door()
+    console()
+    sonics()
+    tardis_icon()

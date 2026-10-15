@@ -1,0 +1,133 @@
+plugins {
+    id 'fabric-loom' version '1.10-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // GeckoLib + sa librairie Molang (mclib)
+    maven {
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroup 'software.bernie.geckolib'
+            includeGroup 'com.eliotlash.mclib'
+        }
+    }
+    // Modrinth (Sodium / Iris pour les tests de compatibilité)
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    mavenCentral()
+}
+
+loom {
+    // Requis pour les Access Wideners plus tard (dimensions TARDIS, rendu des portails...)
+    // accessWidenerPath = file('src/main/resources/doctorwho.accesswidener')
+
+    runs {
+        client {
+            // Pseudo du joueur de test
+            programArgs '--username', 'LeDocteur'
+            // « gradlew runClient -PquickPlay="New World" » ouvre directement ce monde de test
+            if (project.hasProperty('quickPlay')) {
+                programArgs '--quickPlaySingleplayer', project.property('quickPlay').toString()
+            }
+        }
+    }
+}
+
+dependencies {
+    // Minecraft + mappings Yarn + Fabric Loader
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Fabric API (événements, enregistrement, réseau, dimensions, rendu...)
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // GeckoLib 4 : modèles 3D et animations Blockbench (TARDIS, Sonic, Daleks...)
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+    implementation "com.eliotlash.mclib:mclib:${project.mclib_version}"
+
+    // Sodium + Iris en environnement de dev uniquement (jamais inclus dans le .jar final)
+    if (project.test_with_sodium_iris.toBoolean()) {
+        modLocalRuntime "maven.modrinth:sodium:${project.sodium_version}"
+        modLocalRuntime "maven.modrinth:iris:${project.iris_version}"
+        // Librairies dont Iris a besoin en dev
+        localRuntime 'org.anarres:jcpp:1.4.14'
+        localRuntime 'io.github.douira:glsl-transformer:2.0.1'
+        localRuntime 'org.antlr:antlr4-runtime:4.13.1'
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'minecraft_version', project.minecraft_version
+    inputs.property 'loader_version', project.loader_version
+    inputs.property 'geckolib_version', project.geckolib_version
+
+    filesMatching('fabric.mod.json') {
+        expand(
+            'version': project.version,
+            'minecraft_version': project.minecraft_version,
+            'loader_version': project.loader_version,
+            'geckolib_version': project.geckolib_version
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'   // indispensable pour les accents dans le code
+    options.release = 17
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
+
+// Copie le mod compilé dans le profil CurseForge (remplace l'ancienne version).
+// Minecraft doit être fermé : Windows verrouille les .jar d'un jeu en cours.
+tasks.register('deployCurseForge') {
+    group = 'doctorwho'
+    description = 'Copie le .jar du mod dans le profil CurseForge'
+    dependsOn remapJar
+    onlyIf { project.hasProperty('curseforge_mods_dir') }
+    doLast {
+        def modsDir = file(project.property('curseforge_mods_dir'))
+        delete fileTree(modsDir) { include "${project.archives_base_name}-*.jar" }
+        copy {
+            from remapJar.archiveFile
+            into modsDir
+        }
+        println "Mod copié dans ${modsDir}"
+    }
+}
+build.finalizedBy deployCurseForge
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+}

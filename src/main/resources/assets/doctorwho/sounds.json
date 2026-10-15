@@ -1,0 +1,143 @@
+{
+  "item.sonic_screwdriver.use": {
+    "subtitle": "subtitles.doctorwho.sonic_screwdriver.use",
+    "sounds": [
+      {
+        "name": "minecraft:block/beacon/power1",
+        "pitch": 1.9,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:block/beacon/power2",
+        "pitch": 1.9,
+        "volume": 0.6
+      }
+    ]
+  },
+  "block.tardis.takeoff": {
+    "subtitle": "subtitles.doctorwho.tardis.takeoff",
+    "sounds": [
+      {
+        "name": "minecraft:portal/trigger",
+        "pitch": 0.6,
+        "volume": 0.8,
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "block.tardis.landing": {
+    "subtitle": "subtitles.doctorwho.tardis.landing",
+    "sounds": [
+      {
+        "name": "minecraft:portal/trigger",
+        "pitch": 0.7,
+        "volume": 0.8,
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "block.tardis.landed": {
+    "subtitle": "subtitles.doctorwho.tardis.landed",
+    "sounds": [
+      {
+        "name": "minecraft:block/respawn_anchor/set_spawn1",
+        "pitch": 0.8,
+        "volume": 0.8
+      }
+    ]
+  },
+  "entity.dalek.exterminate": {
+    "subtitle": "subtitles.doctorwho.entity.dalek.exterminate",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/dalek_exterminate",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.dalek.extermination": {
+    "subtitle": "subtitles.doctorwho.entity.dalek.extermination",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/dalek_extermination",
+        "volume": 1.0
+      },
+      {
+        "name": "doctorwho:entity/dalek_exterminate",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.dalek.ambient": {
+    "subtitle": "subtitles.doctorwho.entity.dalek.ambient",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/dalek_ambient",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.dalek.laser": {
+    "subtitle": "subtitles.doctorwho.entity.dalek.laser",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/dalek_laser",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.cyberman.delete": {
+    "subtitle": "subtitles.doctorwho.entity.cyberman.delete",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/cyberman_delete",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.cyberman.ambient": {
+    "subtitle": "subtitles.doctorwho.entity.cyberman.ambient",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/cyberman_ambient",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.ood.help": {
+    "subtitle": "subtitles.doctorwho.entity.ood.help",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/ood_help",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.ood.ambient": {
+    "subtitle": "subtitles.doctorwho.entity.ood.ambient",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/ood_ambient",
+        "volume": 0.7
+      }
+    ]
+  },
+  "entity.sontarian.ha": {
+    "subtitle": "subtitles.doctorwho.entity.sontarian.ha",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/sontarian_ha",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.k9.affirm": {
+    "subtitle": "subtitles.doctorwho.entity.k9.affirm",
+    "sounds": [
+      {
+        "name": "doctorwho:entity/k9_affirm",
+        "volume": 1.0
+      }
+    ]
+  }
+}

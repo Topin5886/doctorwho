@@ -1,0 +1,23 @@
+{
+  "replace": false,
+  "values": [
+    "doctorwho:roundel_wall",
+    "doctorwho:roundel_wall_lit",
+    "doctorwho:coral_wall",
+    "doctorwho:metal_grating",
+    "doctorwho:hex_light",
+    "doctorwho:coral_pillar",
+    "doctorwho:coral_strut",
+    "doctorwho:copper_beam",
+    "doctorwho:wall_lamp",
+    "doctorwho:railing",
+    "doctorwho:moon_rock",
+    "doctorwho:skaro_rock",
+    "doctorwho:white_roundel_wall",
+    "doctorwho:white_roundel_wall_lit",
+    "doctorwho:dark_roundel_wall",
+    "doctorwho:dark_roundel_wall_lit",
+    "doctorwho:copper_roundel_wall",
+    "doctorwho:copper_roundel_wall_lit"
+  ]
+}

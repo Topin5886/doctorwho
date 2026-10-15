@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "doctorwho",
+  "version": "${version}",
+  "name": "Doctor Who",
+  "description": "Un mod Doctor Who complet : TARDIS aux dimensions intérieures, Tournevis Sonic, Daleks, Cybermen, Anges Pleureurs et planètes à visiter.",
+  "authors": [
+    "David"
+  ],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "fr.doctorwho.DoctorWhoMod"
+    ],
+    "client": [
+      "fr.doctorwho.client.DoctorWhoClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=17",
+    "fabric-api": ">=0.92.0",
+    "geckolib": ">=${geckolib_version}"
+  },
+  "suggests": {
+    "sodium": "*",
+    "iris": "*"
+  }
+}

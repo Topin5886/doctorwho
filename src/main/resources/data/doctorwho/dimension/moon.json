@@ -1,0 +1,11 @@
+{
+  "type": "doctorwho:moon",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "doctorwho:moon",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "doctorwho:moon"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "D",
+    "R",
+    "I"
+  ],
+  "key": {
+    "D": { "item": "minecraft:light_blue_dye" },
+    "R": { "item": "minecraft:redstone" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "result": { "item": "doctorwho:sonic_screwdriver" }
+}

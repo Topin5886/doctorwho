@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "doctorwho:block/gallifrey_grass_top",
+    "side": "doctorwho:block/gallifrey_grass_side",
+    "bottom": "minecraft:block/dirt"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.tardis.closed": {
+      "loop": true,
+      "animation_length": 0.05,
+      "bones": {
+        "left_door": {"rotation": {"0.0": [0, 0, 0]}},
+        "right_door": {"rotation": {"0.0": [0, 0, 0]}}
+      }
+    },
+    "animation.tardis.door_open": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.8,
+      "bones": {
+        "left_door": {"rotation": {"0.0": [0, 0, 0], "0.4": [0, -55, 0], "0.8": [0, -85, 0]}},
+        "right_door": {"rotation": {"0.0": [0, 0, 0], "0.4": [0, 55, 0], "0.8": [0, 85, 0]}}
+      }
+    },
+    "animation.tardis.door_close": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.8,
+      "bones": {
+        "left_door": {"rotation": {"0.0": [0, -85, 0], "0.4": [0, -30, 0], "0.8": [0, 0, 0]}},
+        "right_door": {"rotation": {"0.0": [0, 85, 0], "0.4": [0, 30, 0], "0.8": [0, 0, 0]}}
+      }
+    }
+  }
+}

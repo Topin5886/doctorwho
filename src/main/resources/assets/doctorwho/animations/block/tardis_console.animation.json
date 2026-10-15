@@ -1,0 +1,24 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.tardis_console.idle": {
+      "loop": true,
+      "animation_length": 4,
+      "bones": {
+        "rotor": {"position": {"0.0": [0, 0, 0], "2.0": [0, 0.6, 0], "4.0": [0, 0, 0]}},
+        "throttle": {"rotation": {"0.0": [0, 0, 0]}}
+      }
+    },
+    "animation.tardis_console.flight": {
+      "loop": true,
+      "animation_length": 2.4,
+      "bones": {
+        "rotor": {
+          "position": {"0.0": [0, 0, 0], "0.6": [0, 4, 0], "1.2": [0, 7, 0], "1.8": [0, 4, 0], "2.4": [0, 0, 0]},
+          "rotation": {"0.0": [0, 0, 0], "2.4": [0, 360, 0]}
+        },
+        "throttle": {"rotation": {"0.0": [-60, 0, 0]}}
+      }
+    }
+  }
+}

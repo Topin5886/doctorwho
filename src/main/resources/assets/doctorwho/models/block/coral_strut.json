@@ -1,0 +1,123 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "coral": "doctorwho:block/coral_pillar",
+    "particle": "doctorwho:block/coral_pillar"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        -4,
+        6
+      ],
+      "to": [
+        10,
+        20,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#coral"
+        },
+        "south": {
+          "texture": "#coral"
+        },
+        "east": {
+          "texture": "#coral"
+        },
+        "west": {
+          "texture": "#coral"
+        },
+        "up": {
+          "texture": "#coral"
+        },
+        "down": {
+          "texture": "#coral"
+        }
+      },
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "x",
+        "angle": -45
+      }
+    },
+    {
+      "from": [
+        5,
+        0,
+        12
+      ],
+      "to": [
+        11,
+        4,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#coral"
+        },
+        "south": {
+          "texture": "#coral"
+        },
+        "east": {
+          "texture": "#coral"
+        },
+        "west": {
+          "texture": "#coral"
+        },
+        "up": {
+          "texture": "#coral"
+        },
+        "down": {
+          "texture": "#coral"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        9,
+        3
+      ],
+      "to": [
+        9,
+        13,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#coral"
+        },
+        "south": {
+          "texture": "#coral"
+        },
+        "east": {
+          "texture": "#coral"
+        },
+        "west": {
+          "texture": "#coral"
+        },
+        "up": {
+          "texture": "#coral"
+        },
+        "down": {
+          "texture": "#coral"
+        }
+      },
+      "rotation": {
+        "origin": [
+          8,
+          8,
+          8
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    }
+  ]
+}

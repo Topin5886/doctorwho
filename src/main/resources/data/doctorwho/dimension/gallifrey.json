@@ -1,0 +1,11 @@
+{
+  "type": "doctorwho:gallifrey",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "doctorwho:gallifrey",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "doctorwho:gallifrey"
+    }
+  }
+}

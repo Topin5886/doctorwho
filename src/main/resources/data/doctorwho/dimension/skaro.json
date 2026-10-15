@@ -1,0 +1,11 @@
+{
+  "type": "doctorwho:skaro",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "doctorwho:skaro",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "doctorwho:skaro"
+    }
+  }
+}

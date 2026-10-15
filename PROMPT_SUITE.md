@@ -1,0 +1,156 @@
+# Prompt de reprise — Mod Doctor Who (Fabric 1.20.1)
+
+> À coller tel quel dans une nouvelle conversation avec Claude (Claude Code, dans le dossier du projet).
+
+---
+
+Tu es un développeur Java expert en mods Minecraft **Fabric 1.20.1**. Tu reprends le développement de mon mod **Doctor Who**, entièrement en **français** (code commenté en français, traductions fr_fr + en_us), situé dans `C:\Users\jules\Documents\mods david`.
+
+Règles de travail :
+- Travaille **en autonomie**, étape par étape, et explique-moi simplement en français ce que tu fais.
+- **Compile après chaque gros changement** et corrige les erreurs avant de continuer.
+- **Teste en jeu** quand c'est possible (voir « Tester »), et dis-moi honnêtement ce qui a été vérifié ou non.
+- Lis d'abord le code existant (`src/main/java/fr/doctorwho`, `tools/`) avant de modifier quoi que ce soit.
+- Ne réinstalle rien : tout l'environnement est déjà en place.
+
+---
+
+## 1. Environnement (déjà installé)
+
+| Élément | Valeur |
+|---|---|
+| Minecraft | 1.20.1 |
+| Fabric Loader / API | 0.17.2 / 0.92.6+1.20.1 |
+| Mappings | Yarn 1.20.1+build.10 |
+| Loom / Gradle | 1.10-SNAPSHOT / 8.14.3 (wrapper) |
+| GeckoLib | 4.8.4 (`software.bernie.geckolib:geckolib-fabric-1.20.1`) + `com.eliotlash.mclib:mclib:20` |
+| Java | **JDK 17** : `C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot` (déjà dans `gradle.properties` via `org.gradle.java.home`). Le Java 25 par défaut du PC est incompatible. |
+| IDE | IntelliJ IDEA 2026.2.3 + plugin Minecraft Development |
+| Outils | Python 3.12 (sans Pillow), FFmpeg 9 avec libvorbis (installé via winget), voix Windows « Microsoft Hortense » (fr-FR) et « Zira » (en-US) |
+
+**Compiler** (Gradle n'est pas dans le PATH) :
+```powershell
+$g = Get-ChildItem "$env:USERPROFILE\.gradle\wrapper\dists\gradle-8.14.3-bin" -Recurse -Filter gradle.bat | Select-Object -First 1
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
+& $g.FullName build --console=plain
+```
+`build` copie **automatiquement** le `.jar` dans mon profil CurseForge **« david mod »** (`C:\Users\jules\curseforge\minecraft\Instances\Fabulously Optimized\mods`, propriété `curseforge_mods_dir`). Minecraft doit être fermé pendant la copie. Ce profil = modpack Fabulously Optimized 5.4.1 (Sodium, Iris…), Fabric Loader 0.19.5, Fabric API 0.92.12, GeckoLib, + 3 shaders (Complementary, BSL, MakeUp).
+
+**Tester** :
+- `runClient "-PquickPlay=New World"` ouvre directement le monde de test (écran « réglages expérimentaux » → cliquer « Je sais ce que je fais ! »). Le client de test est en français.
+- Si la fenêtre Minecraft reste réduite : la restaurer avec `ShowWindow`/`SetForegroundWindow` (user32) sur `MainWindowHandle` du processus java « Minecraft* ».
+- Avec l'outil de contrôle du PC, **chaque clic souris fait tourner la caméra** : pour tester, mettre temporairement `key_key.use:key.keyboard.r` dans `run/options.txt` (touche R = clic droit), puis remettre `key.mouse.right` à la fin. Utiliser les commandes `/tp`, `/execute in doctorwho:moon run tp …`, `/item replace entity @s weapon.mainhand with …`.
+- Clavier AZERTY : avancer = Z.
+- Mon écran a un effet de transparence violette (Windhawk) : ce n'est pas un bug du jeu. Une fenêtre Windhawk peut passer au premier plan et bloquer l'outil de contrôle.
+
+---
+
+## 2. Récapitulatif — ce qui est FAIT (et testé en jeu)
+
+### Architecture du code (`fr.doctorwho`)
+- `DoctorWhoMod` (commun) / `client.DoctorWhoClient` (client).
+- `registry/` : `ModBlocks` (listes `DECORATION`, `PLANET_BLOCKS` avec objets auto), `ModItems`, `ModBlockEntities`, `ModSounds`, `ModItemGroups` (onglet créatif « Doctor Who »), `ModDimensions` (clés + gravité lunaire).
+- `block/` : `AbstractTardisDoorBlock` (bloc 2 de haut, portes, passage en marchant), `TardisBlock`, `TardisInteriorDoorBlock`, `TardisConsoleBlock` (+ `ConsolePartBlock` invisibles), `DecorBlock`, `FacingDecorBlock`.
+- `block/entity/` : `AbstractTardisDoorBlockEntity` (animations portes), `TardisBlockEntity` (id, variante, clignotement), `TardisInteriorDoorBlockEntity`, `TardisConsoleBlockEntity` (rotor, tournevis posé).
+- `tardis/` : `TardisData` + `TardisRegistry` (PersistentState « doctorwho_tardis »), `TardisManager` (entrer/sortir, portes synchronisées, décor), `TardisFlight` (voyages), `InteriorBuilder` (salle de console, **VERSION 4**, 4 décors via `Theme`), `Architecture` (couloirs + salles), `Variants`, `Waypoint`, `RoomExit`, `FlightPhase`.
+- `network/` : `ModNetworking` (paquets panneau ↔ serveur), `FlightPanelData`.
+- `client/` : renderers GeckoLib (`TardisRenderer`, `TardisExteriorModel`, `TardisConsoleRenderer`, `SonicScrewdriverRenderer`), écrans `FlightPanelScreen` + `StyledButton`.
+- `tools/generate_assets.py` (modèles/textures GeckoLib : TARDIS ×6, porte, console, 8 soniques) et `tools/generate_blocks.py` (blocs JSON, sceau gallifreyen). **Les relancer après modification** : `python -I tools/generate_assets.py`.
+
+### Fonctionnalités
+- **TARDIS** : cabine 2 blocs de haut, portes animées (clic droit), lampe lumineuse, **6 extérieurs** (1963, 2005, 2010 avec écusson, 2014, 2018, War Doctor) changeables par circuit caméléon. Cassé puis reposé, il garde son intérieur.
+- **Intérieur** (dimension `doctorwho:tardis_interior`, une zone par TARDIS espacée de 2048 blocs) : on entre/sort en marchant dans les portes ouvertes ; porte intérieure synchronisée ; salle ronde style Dalek Mod ; **4 décors** (Corail, Cuivre, Classique blanc, Sombre avec bibliothèques).
+- **Console** hexagonale 3D : rotor animé en vol, 6 pupitres (manettes, boutons, clavier, écran, cadrans, frein), **logement du tournevis** (os `sonic_port`).
+- **Panneau de console** (style sombre/holographique, sceau gallifreyen animé), 3 onglets :
+  - **VOL** : 6 destinations, X/Y/Z, « Ici », aléatoire, 6 waypoints, bouton Décoller ;
+  - **APPARENCE** : extérieur, décor (bouton « Reconstruire »), modèle du tournevis posé ;
+  - **ARCHITECTURE** : sorties libres + 8 types de salles (chambre, cuisine, bibliothèque, console secondaire pilotable, piscine, serre, atelier, croisement = 3 sorties), max 16, vérification de place.
+- **Voyage** : portes fermées, dématérialisation clignotante (7 s), vortex (5 s), rematérialisation (7 s) sur sol sûr (plateforme si vide), messages de progression pour l'équipage, sons (provisoires, vanilla).
+- **8 tournevis soniques** (Quatrième, Dixième, Onzième, Douzième, Treizième, War Doctor, River Song, laser du Maître), 3 modes (Ouverture — sauf le bois !, Activation, Analyse), sons, animation.
+- **Planètes** : Lune (ciel noir, gravité réduite), Skaro (désert rouge), Gallifrey (herbe rouge, ciel orange, **arbres argentés**).
+- **Blocs décoratifs** (onglet créatif) : murs à roundels (4 couleurs, éteints/lumineux), corail, grille, dalle hexagonale, piliers/branches de corail, poutre, applique, rambarde ; blocs des planètes.
+- Recettes : tournevis (colorant bleu clair + redstone + fer), TARDIS (glowstone + béton bleu + œil de l'Ender).
+
+### Pièges déjà rencontrés (à connaître)
+- GeckoLib **inverse l'axe X** : sur un cube, la face extérieure côté −X est « east » et côté +X « west ». Le front des modèles = nord (−Z).
+- Animations GeckoLib : utiliser des images clés simples (`"0.4": [0, -55, 0]`) ; le format `{"post": …, "lerp_mode": "catmullrom"}` n'animait pas.
+- Yarn 1.20.1 : `WallMountLocation` (pas `BlockFace`), pas de `TntBlock.primeTnt(world,pos,player)` (créer un `TntEntity`), `Blocks.GRASS` (pas `SHORT_GRASS`).
+- Surcharger `render(...)` d'un `GeoBlockRenderer` crée un conflit de génériques : utiliser `renderFinal` ou un `BlockAndItemGeoLayer`.
+- `/setblock` aligne les deux moitiés d'une porte (postProcessState) : pour poser un TARDIS ouvert, poser d'abord la moitié basse.
+- Les sons vanilla s'appellent par leur fichier (`minecraft:portal/trigger`, `minecraft:block/beacon/power1`).
+- Toute nouvelle dimension déclenche l'avertissement « réglages expérimentaux » (normal).
+
+### Créatures (étape A — FAITE, compilée et déployée ; **jamais vue en jeu par Claude**, David les teste lui-même dans CurseForge)
+- 10 créatures : Dalek (5 couleurs : bronze, argent, rouge, noir, blanc), Cyberman (Cybus 2006), Ange Pleureur, Ood, Adipose, K9 (apprivoisable à la redstone, 1 chance sur 3), Sontarien, Silence, Zygon, Slitheen. Entités dans `entity/` (`SimpleMonsterEntity` = base), renderer `client/renderer/CreatureRenderer`, types/œufs/apparitions dans `registry/ModEntities`, voix dans `ModSounds` + `tools/generate_sounds.py`.
+- Modèles, textures et animations générés par **`tools/generate_entities.py`** (cubes + textures procédurales, passe de finition « pixel art » : reflets métal, biseaux, fissures sur la pierre…). Aperçu 3D sans lancer le jeu : `python -I tools/preview.py dalek/bronze cyberman weeping_angel@covering …` → `tools/preview.png`.
+- Les noms d'os et d'animations utilisés par le Java ne doivent pas changer (dalek idle/walk/shoot ; cyberman, zygon, slitheen, sontarien idle/walk/attack ; ood, silence, adipose, k9 idle/walk ; weeping_angel covering/attack).
+- Mode Peaceful : message « aucun monstre ne peut apparaître » au lieu d'un crash. Voix : cooldown de 70 ticks pour éviter les répliques doublées.
+- Limite connue : formes en cubes ; pour un rendu type Dalek Mod il faudrait remodeler à la main dans Blockbench (mêmes noms de fichiers, aucun changement de code).
+- Pas encore fait : le **déguisement** des Zygons/Slitheens en villageois.
+
+### Pièges GeckoLib liés aux créatures
+- Une texture `_glowmask.png` **vide** fait planter le jeu : `generate_entities.py` supprime les masques vides (`prune_empty_glowmasks`) et le renderer n'ajoute la couche lumineuse (`AutoGlowingGeoLayer`) que pour dalek, cyberman, ood, k9.
+- `TameableEntity` (K9) doit implémenter `public EntityView method_48926(){ return getWorld(); }` ; `RangedAttackMob.attack(LivingEntity, float)` (pas `shootAt`).
+- Si le jar est verrouillé au `build` (« deployCurseForge FAILED »), c'est que Minecraft est ouvert : le fermer et relancer.
+- Éditer les fichiers : en bash les apostrophes cassent les heredocs ; écrire un petit `.py` de patch (lancé avec `python -I`) ou utiliser l'outil d'édition.
+
+### Points connus à améliorer
+- Le cœur lumineux du rotor reste peu visible dans la colonne de verre.
+- Sons de vol et de tournevis = sons vanilla détournés (à remplacer par de vrais .ogg).
+- Il fait parfois sombre sur Skaro/Gallifrey (cycle jour/nuit normal) — envisager un jour fixe sur Gallifrey.
+
+---
+
+## 3. Mes choix (à respecter)
+
+- **Docteur par défaut : le Douzième (2014).** Changer les valeurs par défaut dans `Variants` : `DEFAULT_EXTERIOR = "twelfth"`, `DEFAULT_DESKTOP = "dark"`, `DEFAULT_SONIC = "twelfth"` (les TARDIS déjà existants gardent leurs réglages).
+- **Difficulté : équilibrée.** Les créatures agressives sont dangereuses mais battables avec une armure en fer/diamant (ordre d'idée : Dalek ~40 PV, laser ~6 dégâts toutes les 2 s ; Cyberman ~30 PV, ~5 dégâts ; Ange ~50 PV). Éviter les morts instantanées.
+- **Créatures voulues** : Dalek, Cyberman, Ange Pleureur, Ood, Adipose **+ Sontarien, le Silence, K9, Zygon, Slitheen**.
+- **Usage : juste pour moi et mes amis** (pas de publication). Pas besoin de page de présentation ; garder l'auteur « David ».
+
+---
+
+## 4. À FAIRE (dans cet ordre)
+
+### Étape A — Créatures de la série (GeckoLib) — ✅ FAITE (voir « Créatures » plus haut ; ce qui suit est la spec d'origine, gardée pour référence)
+Créer `tools/generate_entities.py` (même principe que `generate_assets.py` : cubes + textures procédurales), puis pour chaque créature : entité, attributs, IA, animations (idle/marche/attaque), renderer GeckoLib (+ couche lumineuse), règles d'apparition, **œuf d'apparition** dans l'onglet créatif, traductions FR/EN.
+1. **Dalek** (bronze, 2005) — agressif, tir **laser instantané** à distance (raycast + particules + dégâts), cri « Exterminer ! ». Skaro (fréquent), Surface (rare).
+2. **Cyberman** — agressif, corps à corps, très résistant, « Supprimer ! ». Lune + Surface (rare).
+3. **Ange Pleureur** — **ne bouge que si aucun joueur ne le regarde** (champ de vision + ligne de vue), pose « mains sur les yeux » / « attaque » ; son contact **téléporte le joueur loin** (« renvoyé dans le passé ») + cécité. Surface la nuit + Gallifrey.
+4. **Ood** — pacifique, sphère de traduction lumineuse à la main, parle au clic droit (« Puis-je vous aider ? »). Gallifrey + Surface (rare).
+5. **Adipose** — pacifique, petit, fait coucou. Surface.
+- Sur les planètes, autoriser l'apparition **même de jour** (prédicat de `SpawnRestriction` personnalisé) ; en Surface, utiliser `BiomeModifications.addSpawn`.
+- **Voix** : générer les répliques avec System.Speech (voix Hortense), effet robotique (modulation en anneau ~30 Hz pour les Daleks, métallique pour les Cybermen), convertir en `.ogg` avec FFmpeg, déclarer dans `sounds.json`.
+6. **Sontarien** — guerrier clone trapu en armure bleue, agressif, fusil laser + corps à corps, crie « Sontar-ha ! ». Lune + Surface (rare).
+7. **Le Silence** — grand, costume noir, tête bulbeuse ; quand le joueur **détourne le regard**, il l'oublie (effet : nausée + effacement de la cible), éclairs d'énergie à courte portée. Surface la nuit (rare).
+8. **K9** — chien robot **apprivoisable** (comme un loup, avec de la redstone ?), suit le joueur, tire au laser sur les monstres, « Affirmatif, maître ». Œuf + recette possible.
+9. **Zygon** — orange, couvert de ventouses, agressif ; peut **prendre l'apparence** d'un villageois (se déguise, se révèle quand on approche). Surface (rare).
+10. **Slitheen** — grand extraterrestre vert ; se cache sous une « peau humaine » (apparence de villageois), se révèle quand attaqué, griffes. Surface (rare).
+- Ordre conseillé : Dalek → Cyberman → Ange Pleureur → Ood → Adipose → K9 → Sontarien → Silence → Zygon → Slitheen.
+
+### Étape B — Structures des planètes — *PROCHAINE ÉTAPE (juste commencée : rien n'est encore écrit)*
+- État du terrain : les biomes `data/doctorwho/worldgen/biome/{skaro,gallifrey,moon}.json` ont `"features"` vide sauf Gallifrey (arbres via `placed_feature/gallifrey_trees.json`). Blocs utilisables : `SKARO_ROCK`, `SKARO_SAND`, `MOON_ROCK`, `MOON_DUST`, `GALLIFREY_*`, murs à roundels, `HEX_LIGHT`, verre vanilla.
+- Plan : une `Feature<…Config>` Java (config = type de structure) enregistrée dans un `ModWorldgen`, appelée depuis `DoctorWhoMod.onInitialize` ; un `configured_feature` + `placed_feature` (rareté `rarity_filter`, `in_square`, `heightmap`) par planète ; les ajouter à l'étape « surface_structures » (index 3) de la liste `features` du biome. Gardiens : **cages à monstres** (`MobSpawnerBlockEntity`, type `ModEntities.DALEK` / `CYBERMAN`) plutôt que des entités posées pendant la génération.
+- **Skaro** : ville dalek en ruine (dômes, tours) avec Daleks.
+- **Gallifrey** : la Citadelle sous son dôme de verre (+ éventuellement un jour fixe).
+- **Lune** : base lunaire (Cybermen).
+- Approche suggérée : `Feature` Java qui construit en code, placée via `placed_feature` + liste `features` des biomes (rareté contrôlée).
+
+### Étape C — Finitions TARDIS
+- **Choix de l'intérieur à la première entrée** (écran de sélection du décor).
+- **Clé du TARDIS** pour verrouiller/déverrouiller les portes (et appeler le TARDIS ?).
+- Masquer l'avertissement « réglages expérimentaux ».
+- Vrais sons (vworp-vworp, bourdonnement de la salle de console, tournevis).
+- Plus de variantes : autres extérieurs, autres décors (salle 2010 en verre/cuivre plus fidèle, salle 1963 à colonnes), autres tournevis (Deuxième, Troisième, Septième, Huitième, Quatorzième).
+
+### Étape C bis — Restes
+- Déguisement des Zygons et Slitheens en villageois (se révèlent à l'approche / quand attaqués).
+- Retours de David après ses tests en jeu des créatures (plantages, designs ratés) : à traiter en priorité.
+- Optionnel : appliquer aux blocs et au TARDIS la même passe de finition de textures que les créatures (`finish()` dans `generate_entities.py`).
+
+### Étape D — Compatibilité et partage entre amis
+- Vérifier avec Sodium/Iris + shaders dans le profil « david mod ».
+- Tester à plusieurs (serveur ou LAN) : TARDIS partagé, panneau, voyages.
+- Petite icône du mod (`assets/doctorwho/icon.png`) et passage en version 0.2.0. Pas de publication publique.
+
+Commence par l'**étape B (structures des planètes)**, en demandant d'abord à David s'il a des retours sur les créatures.

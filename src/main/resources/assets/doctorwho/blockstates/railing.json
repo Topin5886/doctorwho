@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "doctorwho:block/railing",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "doctorwho:block/railing",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "doctorwho:block/railing",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "doctorwho:block/railing",
+      "y": 270
+    }
+  }
+}
